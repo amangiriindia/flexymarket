@@ -1,36 +1,43 @@
 
 import 'package:flutter/material.dart';
-
 import 'screen/welcome_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 
 void main() {
-  runApp(const FlexTradeApp());
+  runApp(const MyApp());
 }
 
-class FlexTradeApp extends StatelessWidget {
-  const FlexTradeApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: Colors.black,
-        primaryColor: const Color(0xFF00E676),
-        colorScheme: ColorScheme.dark(
-          primary: const Color(0xFF00E676),
-          onPrimary: Colors.black,
-        ),
-        textTheme: const TextTheme(
-          headlineMedium: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Flexy Markets',
+          theme: ThemeData(
+            primaryColor: const Color(0xFF00C853),
+            scaffoldBackgroundColor: Colors.black,
+            fontFamily: 'Roboto',
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: const Color(0xFF1E1E1E),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            ),
           ),
-          bodyLarge: TextStyle(color: Colors.white70),
-        ),
-      ),
-      home: const WelcomeScreen(),
+          home: child,
+        );
+      },
+      child: WelcomeScreen(),
     );
   }
 }

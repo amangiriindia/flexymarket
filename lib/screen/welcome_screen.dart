@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -12,11 +13,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // List of image paths (replace with your actual asset paths or network URLs)
   final List<String?> _images = [
-    'assets/candlestick_chart.png',
-    'assets/trading_graph.png', // Example: replace with actual path or null for missing
-    null, // Simulating a missing image
+    'assets/images/splash.png',
+    'assets/images/splash.png',
+    'assets/images/splash.png',
   ];
 
   @override
@@ -35,9 +35,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 40),
-              // Logo and Brand
               Row(
-                mainAxisAlignment: MainAxisAlignment.center, // Center the Row contents
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     FontAwesomeIcons.chartLine,
@@ -56,7 +55,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ],
               ),
               const SizedBox(height: 30),
-              // Pagination Dots
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(_images.length, (index) {
@@ -74,7 +72,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 }),
               ),
               const SizedBox(height: 30),
-              // Image Carousel
               Expanded(
                 flex: 4,
                 child: Container(
@@ -115,7 +112,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-              // Headline
               const Text(
                 "Trade with Confidence",
                 style: TextStyle(
@@ -126,7 +122,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              // Subtitle
               const Text(
                 "Real-time data, advanced tools.",
                 style: TextStyle(
@@ -136,9 +131,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 textAlign: TextAlign.center,
               ),
               const Spacer(),
-              // Get Started Button
+              // Get Started Button with Navigation
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
@@ -156,9 +158,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Sign In Button
+              // Sign In Button with Navigation
               OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>  LoginScreen(),
+                    ),
+                  );
+                },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.white24),
                   padding: const EdgeInsets.symmetric(vertical: 16),
