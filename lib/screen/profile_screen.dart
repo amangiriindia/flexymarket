@@ -1,5 +1,16 @@
+import 'package:flexy_markets/screen/partnership_program_screen.dart';
+import 'package:flexy_markets/screen/performance_screen.dart';
+import 'package:flexy_markets/screen/permotions_screen.dart';
+import 'package:flexy_markets/screen/setting_screen.dart';
+import 'package:flexy_markets/screen/support_screen.dart';
+import 'package:flexy_markets/screen/transation_history_screen.dart';
+import 'package:flexy_markets/screen/transfer_money_screen.dart';
+import 'package:flexy_markets/screen/withdraw_fund_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'deposite_fund_screen.dart';
+import 'feedback_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -81,6 +92,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         IconButton(
           icon: Icon(Icons.settings, size: 24.sp, color: Colors.white),
           onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>     SettingsScreen(),
+              ),
+            );
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Settings pressed")),
             );
@@ -366,6 +383,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Icons.help_outline,
           "Help Center",
               () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>    SupportScreen(),
+                  ),
+                );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Help Center pressed")),
+            );
+          },
+        ),
+        _buildSupportRow(
+          Icons.help_outline,
+          "Performance",
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>    PerformanceScreen(),
+                  ),
+                );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Help Center pressed")),
+            );
+          },
+        ),
+        _buildSupportRow(
+          Icons.help_outline,
+          "Promotions",
+              () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>    PromotionsScreen(),
+              ),
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Help Center pressed")),
+            );
+          },
+        ),
+        _buildSupportRow(
+          Icons.help_outline,
+          "Partnership Program",
+              () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>    PartnershipProgramScreen(),
+              ),
+            );
+
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Help Center pressed")),
             );
@@ -400,17 +472,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         _buildSupportRow(
           Icons.balance_outlined,
-          "Legal",
+          "Deposite",
               () {
+        Navigator.push(
+        context,
+        MaterialPageRoute(
+        builder: (context) =>    DepositFundsScreen(),
+        ),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Legal pressed")),
+            );
+          },
+        ),
+
+        _buildSupportRow(
+          Icons.balance_outlined,
+          "Withdraw",
+              () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>    WithdrawFundsScreen(),
+              ),
+            );
+
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Legal pressed")),
             );
           },
         ),
         _buildSupportRow(
+          Icons.balance_outlined,
+          "Transaction History",
+              () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>    TransactionHistoryScreen(),
+              ),
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Legal pressed")),
+            );
+          },
+        ),
+        _buildSupportRow(
+          Icons.balance_outlined,
+          "Transfer Money",
+              () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TransferMoneyScreen(),
+              ),
+            );
+
+
+          },
+        ),
+        _buildSupportRow(
           Icons.star_border,
           "Rate App",
               () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>    FeedbackScreen(),
+                  ),
+                );
+
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Rate App pressed")),
             );

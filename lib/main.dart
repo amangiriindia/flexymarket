@@ -1,4 +1,5 @@
 
+import 'package:flexy_markets/screen/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'screen/welcome_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -34,10 +35,11 @@ class MyApp extends StatelessWidget {
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             ),
           ),
+
           home: child,
         );
       },
-      child: WelcomeScreen(),
+      child: MainScreen(),
     );
   }
 }

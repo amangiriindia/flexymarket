@@ -3,6 +3,8 @@ import 'package:flexy_markets/screen/wallet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'calculator_screen.dart';
+import 'community_screen.dart';
 import 'home_screen.dart';
 import 'market_screen.dart';
 
@@ -22,9 +24,9 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const MarketScreen(),
-    const PublicScreen(),
+    const CommunityScreen(),
     const WalletScreen(),
-    const ProfileScreen(),
+    const RiskCalculatorScreen(),
   ];
 
   // Handle navigation item tap
