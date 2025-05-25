@@ -1,14 +1,11 @@
-import 'package:flexy_markets/screen/profile_screen.dart';
+import 'package:flexy_markets/screen/calculator_screen.dart'; // Updated import
 import 'package:flexy_markets/screen/wallet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'calculator_screen.dart';
 import 'community_screen.dart';
 import 'home_screen.dart';
 import 'market_screen.dart';
-
-
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -22,11 +19,11 @@ class _MainScreenState extends State<MainScreen> {
 
   // List of screens to display
   final List<Widget> _screens = [
-    const HomeScreen(),
+    const WalletScreen(),
     const MarketScreen(),
     const CommunityScreen(),
-    const WalletScreen(),
-    const RiskCalculatorScreen(),
+    const HomeScreen(),
+    const RiskCalculatorScreen(), // Replaced ProfileScreen
   ];
 
   // Handle navigation item tap
@@ -56,11 +53,11 @@ class _MainScreenState extends State<MainScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavBarItem(Icons.home, _selectedIndex == 0, 0),
-          _buildNavBarItem(Icons.bar_chart, _selectedIndex == 1, 1),
-          _buildNavBarItem(Icons.public, _selectedIndex == 2, 2),
-          _buildNavBarItem(Icons.show_chart, _selectedIndex == 3, 3),
-          _buildNavBarItem(Icons.person, _selectedIndex == 4, 4),
+          _buildNavBarItem(Icons.home, _selectedIndex == 0, 0), // Home
+          _buildNavBarItem(Icons.bar_chart, _selectedIndex == 1, 1), // Market
+          _buildNavBarItem(Icons.group, _selectedIndex == 2, 2), // Community
+          _buildNavBarItem(Icons.account_balance_wallet, _selectedIndex == 3, 3), // Wallet
+          _buildNavBarItem(Icons.calculate, _selectedIndex == 4, 4), // Risk Calculator
         ],
       ),
     );
@@ -77,46 +74,3 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
-
-
-
-
-
-
-// Chart Screen
-class ChartScreen extends StatelessWidget {
-  const ChartScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Chart Screen',
-          style: TextStyle(fontSize: 24.sp, color: Colors.white),
-        ),
-      ),
-      backgroundColor: const Color(0xFF121212),
-    );
-  }
-}
-
-// Public Screen
-class PublicScreen extends StatelessWidget {
-  const PublicScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Public Screen',
-          style: TextStyle(fontSize: 24.sp, color: Colors.white),
-        ),
-      ),
-      backgroundColor: const Color(0xFF121212),
-    );
-  }
-}
-
-

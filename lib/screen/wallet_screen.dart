@@ -1,9 +1,8 @@
 import 'package:flexy_markets/screen/profile_screen.dart';
-import 'package:flexy_markets/screen/verification_screen.dart';
+import 'package:flexy_markets/screen/trade_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import 'main_screen.dart';
+import 'deposite_fund_screen.dart';
 
 class WalletScreen extends StatelessWidget {
   const WalletScreen({Key? key}) : super(key: key);
@@ -26,7 +25,7 @@ class WalletScreen extends StatelessWidget {
               _buildBalanceCard(),
               SizedBox(height: 16.h),
               // Action buttons
-              _buildActionButtons(),
+              _buildActionButtons(context),
               SizedBox(height: 24.h),
               // Top Movers section
               _buildTopMoversSection(),
@@ -171,13 +170,21 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(BuildContext context) {
     return Row(
       children: [
         // Deposit Button
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DepositFundsScreen(),
+                ),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF00C853),
               foregroundColor: Colors.white,
@@ -204,7 +211,15 @@ class WalletScreen extends StatelessWidget {
         // Trade Now Button
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TradeScreen(),
+                ),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF00C853),
               foregroundColor: Colors.white,

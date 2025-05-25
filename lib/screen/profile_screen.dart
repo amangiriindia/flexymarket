@@ -2,13 +2,16 @@ import 'package:flexy_markets/screen/partnership_program_screen.dart';
 import 'package:flexy_markets/screen/performance_screen.dart';
 import 'package:flexy_markets/screen/permotions_screen.dart';
 import 'package:flexy_markets/screen/setting_screen.dart';
+import 'package:flexy_markets/screen/social_trading.dart';
 import 'package:flexy_markets/screen/support_screen.dart';
 import 'package:flexy_markets/screen/transation_history_screen.dart';
 import 'package:flexy_markets/screen/transfer_money_screen.dart';
+import 'package:flexy_markets/screen/welcome_screen.dart';
 import 'package:flexy_markets/screen/withdraw_fund_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'about_us_screen.dart';
 import 'deposite_fund_screen.dart';
 import 'feedback_screen.dart';
 
@@ -94,13 +97,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) =>     SettingsScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => SettingsScreen()),
             );
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Settings pressed")),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text("Settings pressed")));
           },
         ),
       ],
@@ -109,8 +110,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildBalanceSection() {
     return Container(
-
-
       child: Column(
         children: [
           Row(
@@ -157,7 +156,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Column(
               children: [
-
                 _buildBalanceRow("Balance", "\$$balance USD"),
                 SizedBox(height: 12.h),
                 _buildBalanceRow("Total", "\$$total USD"),
@@ -166,7 +164,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-
         ],
       ),
     );
@@ -285,7 +282,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
           decoration: BoxDecoration(
-            color: status == "Active" ? Colors.green.withOpacity(.2) : Colors.green.withOpacity(.2),
+            color:
+                status == "Active"
+                    ? Colors.green.withOpacity(.2)
+                    : Colors.green.withOpacity(.2),
             borderRadius: BorderRadius.circular(16.r),
           ),
           child: Text(
@@ -320,20 +320,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           SizedBox(height: 16.h),
-          _buildSocialTradingRow(
-            "For Traders",
-            "Share your strategy",
-                () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("For Traders pressed")),
-              );
-            },
-          ),
+          _buildSocialTradingRow("For Traders", "Share your strategy", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>SocialTradingScreen()),
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("For Traders pressed")),
+            );
+          }),
           SizedBox(height: 16.h),
           _buildSocialTradingRow(
             "For Investors",
             "Copy successful traders",
-                () {
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>SocialTradingScreen()),
+              );
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("For Investors pressed")),
               );
@@ -345,7 +350,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSocialTradingRow(
-      String title, String subtitle, VoidCallback onPressed) {
+    String title,
+    String subtitle,
+    VoidCallback onPressed,
+  ) {
     return GestureDetector(
       onTap: onPressed,
       child: Row(
@@ -370,7 +378,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
-          Icon(Icons.chevron_right, size: 24.sp,color: Colors.white,),
+          Icon(Icons.chevron_right, size: 24.sp, color: Colors.white),
         ],
       ),
     );
@@ -379,185 +387,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSupportSection() {
     return Column(
       children: [
-        _buildSupportRow(
-          Icons.help_outline,
-          "Help Center",
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>    SupportScreen(),
-                  ),
-                );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Help Center pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.help_outline,
-          "Performance",
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>    PerformanceScreen(),
-                  ),
-                );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Help Center pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.help_outline,
-          "Promotions",
-              () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>    PromotionsScreen(),
-              ),
-            );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Help Center pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.help_outline,
-          "Partnership Program",
-              () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>    PartnershipProgramScreen(),
-              ),
-            );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Help Center pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.confirmation_number_outlined,
-          "Ticket",
-              () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Ticket pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.chat_bubble_outline,
-          "LiveChat",
-              () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("LiveChat pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.lightbulb_outline,
-          "Suggest Feature",
-              () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Suggest Feature pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.balance_outlined,
-          "Deposite",
-              () {
-        Navigator.push(
-        context,
-        MaterialPageRoute(
-        builder: (context) =>    DepositFundsScreen(),
-        ),
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Legal pressed")),
-            );
-          },
-        ),
-
-        _buildSupportRow(
-          Icons.balance_outlined,
-          "Withdraw",
-              () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>    WithdrawFundsScreen(),
-              ),
-            );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Legal pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.balance_outlined,
-          "Transaction History",
-              () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>    TransactionHistoryScreen(),
-              ),
-            );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Legal pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.balance_outlined,
-          "Transfer Money",
-              () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TransferMoneyScreen(),
-              ),
-            );
-
-
-          },
-        ),
-        _buildSupportRow(
-          Icons.star_border,
-          "Rate App",
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>    FeedbackScreen(),
-                  ),
-                );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Rate App pressed")),
-            );
-          },
-        ),
-        _buildSupportRow(
-          Icons.info_outline,
-          "About",
-              () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("About pressed")),
-            );
-          },
-        ),
+        _buildSupportRow(Icons.support_agent, "Help Center", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SupportScreen()),
+          );
+        }),
+        _buildSupportRow(Icons.local_offer, "Promotions", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PromotionsScreen()),
+          );
+        }),
+        _buildSupportRow(Icons.lightbulb_outline, "Suggest Feature", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FeedbackScreen()),
+          );
+        }),
+        _buildSupportRow(Icons.account_balance_wallet, "Deposit", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const DepositFundsScreen()),
+          );
+        }),
+        _buildSupportRow(Icons.money_off, "Withdraw", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const WithdrawFundsScreen()),
+          );
+        }),
+        _buildSupportRow(Icons.history, "Transaction History", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TransactionHistoryScreen()),
+          );
+        }),
+        _buildSupportRow(Icons.swap_horiz, "Transfer Money", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TransferMoneyScreen()),
+          );
+        }),
+        _buildSupportRow(Icons.star_border, "Rate App", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FeedbackScreen()),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Opening Rate App")),
+          );
+        }),
+        _buildSupportRow(Icons.info_outline, "About", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AboutUsScreen()),
+          );
+        }),
       ],
     );
   }
@@ -565,9 +451,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSupportRow(IconData icon, String title, VoidCallback onPressed) {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.r),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.r)),
       child: ListTile(
         leading: Icon(icon, color: Colors.green, size: 24.sp),
         title: Text(
@@ -577,7 +461,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: Colors.white, // Updated: Added white color
           ),
         ),
-        trailing: Icon(Icons.chevron_right, size: 24.sp,color: Colors.white,),
+        trailing: Icon(Icons.chevron_right, size: 24.sp, color: Colors.white),
         onTap: onPressed,
       ),
     );
@@ -596,9 +480,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Logged out")),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => WelcomeScreen()),
           );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Logged out")));
         },
         child: Text(
           "Log Out",
