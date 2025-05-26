@@ -18,8 +18,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       data: Theme.of(context).copyWith(
         scaffoldBackgroundColor: Colors.black,
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF00E676),
-          secondary: Color(0xFF00E676),
+          primary: Color(0xFF00685a),
+          secondary: Color(0xFF00685a),
         ),
       ),
       child: Scaffold(
@@ -87,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 'Type',
                                 style: TextStyle(
                                   fontSize: 16.sp,
-                                  color: Color(0xFF00E676), // Changed from Colors.grey
+                                  color: Color(0xFF00685a), // Changed from Colors.grey
                                 ),
                               ),
                               Text(
@@ -107,7 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 'Account Number',
                                 style: TextStyle(
                                   fontSize: 16.sp,
-                                  color: Color(0xFF00E676), // Changed from Colors.grey
+                                  color: Color(0xFF00685a), // Changed from Colors.grey
                                 ),
                               ),
                               Text(
@@ -127,7 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 'Leverage',
                                 style: TextStyle(
                                   fontSize: 16.sp,
-                                  color: Color(0xFF00E676), // Changed from Colors.grey
+                                  color: Color(0xFF00685a), // Changed from Colors.grey
                                 ),
                               ),
                               Text(
@@ -150,14 +150,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Settings options
                 _buildSettingsOption(
                   icon: Icons.key,
-                  iconColor: Color(0xFF00E676),
+                  iconColor:Color(0xFF00685a),
                   title: 'Change PIN',
                   hasChevron: true,
                 ),
             
                 _buildSettingsOption(
                   icon: Icons.face,
-                  iconColor: Color(0xFF00E676),
+                  iconColor: Color(0xFF00685a),
                   title: 'Enable Face ID',
                   hasSwitch: true,
                   switchValue: faceIdEnabled,
@@ -170,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             
                 _buildSettingsOption(
                   icon: Icons.visibility_off,
-                  iconColor: Color(0xFF00E676),
+                  iconColor: Color(0xFF00685a),
                   title: 'Hide Balances',
                   hasSwitch: true,
                   switchValue: hideBalances,
@@ -183,7 +183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             
                 _buildSettingsOption(
                   icon: Icons.language,
-                  iconColor: Color(0xFF00E676),
+                  iconColor: Color(0xFF00685a),
                   title: 'Language',
                   hasChevron: true,
                   trailingText: 'English',
@@ -191,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             
                 _buildSettingsOption(
                   icon: Icons.palette,
-                  iconColor: Color(0xFF00E676),
+                  iconColor: Color(0xFF00685a),
                   title: 'Appearance',
                   hasChevron: true,
                   trailingText: 'Dark',
@@ -262,20 +262,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   trailingText,
                   style: TextStyle(
                     fontSize: 16.sp,
-                    color: Color(0xFF00E676), // Changed from Colors.grey
+                    color:Color(0xFF00685a), // Changed from Colors.grey
                   ),
                 ),
               if (hasChevron)
                 Icon(
                   Icons.chevron_right,
-                  color: Color(0xFF00E676), // Changed from Colors.grey
+                  color: Color(0xFF00685a), // Changed from Colors.grey
                   size: 24.w,
                 ),
               if (hasSwitch)
                 Switch(
                   value: switchValue ?? false,
                   onChanged: onSwitchChanged,
-                  activeColor: Color(0xFF00E676),
+                  activeColor: Color(0xFF00685a),
                   activeTrackColor:
                   Theme.of(context).colorScheme.primary.withOpacity(0.3),
                 ),

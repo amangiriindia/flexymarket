@@ -19,7 +19,7 @@ class _DepositFundsScreenState extends State<DepositFundsScreen> {
     PaymentMethodModel(
       name: 'Bank Transfer',
       icon: Icons.account_balance,
-      iconColor: Colors.green,
+      iconColor: Color(0xFF00685a),
       processingTime: '10-15 min',
       fee: '0%',
       limit: '\$50,000',
@@ -192,7 +192,7 @@ class _DepositFundsScreenState extends State<DepositFundsScreen> {
           color: const Color(0xFF1E1E1E),
           borderRadius: BorderRadius.circular(8.r),
           border: isSelected
-              ? Border.all(color: Color(0xFF00E676), width: 1)
+              ? Border.all(color: Color(0xFF00685a), width: 1)
               : null,
         ),
         child: Padding(
@@ -234,7 +234,7 @@ class _DepositFundsScreenState extends State<DepositFundsScreen> {
                               vertical: 3.h,
                             ),
                             decoration: BoxDecoration(
-                              color: Color(0xFF00E676),
+                              color: Color(0xFF00685a),
                               borderRadius: BorderRadius.circular(4.r),
                             ),
                             child: Text(

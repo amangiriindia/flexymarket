@@ -68,7 +68,7 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
         Expanded(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: isInvestorsView ? Color(0xFF00E676) : Colors.grey.shade800,
+              backgroundColor: isInvestorsView ? Color(0xFF00685a): Colors.grey.shade800,
               foregroundColor: isInvestorsView ? Colors.white : Colors.white70,
               padding: EdgeInsets.symmetric(vertical: 16.h),
               shape:   RoundedRectangleBorder(
@@ -89,7 +89,7 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
         Expanded(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: !isInvestorsView ? Color(0xFF00E676) : Colors.grey.shade800,
+              backgroundColor: !isInvestorsView ? Color(0xFF00685a) : Colors.grey.shade800,
               foregroundColor: !isInvestorsView ? Colors.white : Colors.white70,
               padding: EdgeInsets.symmetric(vertical: 16.h),
               shape:   RoundedRectangleBorder(
@@ -142,7 +142,7 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
               },
               child:   Text(
                 'Filter',
-                style: TextStyle(color: Color(0xFF00E676)), // Preserved
+                style: TextStyle(color: Color(0xFF00685a)), // Preserved
               ),
             ),
           ],
@@ -186,7 +186,7 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF00E676),
+                backgroundColor: Color(0xFF00685a),
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 shape: RoundedRectangleBorder(
@@ -239,7 +239,7 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
                   Text(
                     '+324%',
                     style: TextStyle(
-                      color: Color(0xFF00E676), // Preserved
+                      color: Color(0xFF00685a), // Preserved
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -249,13 +249,13 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
-                  color: Color(0xFF00E676).withOpacity(0.2),
+                  color: Color(0xFF00685a).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Text(
                   '30 days',
                   style: TextStyle(
-                    color: Color(0xFF00E676), // Preserved
+                    color: Color(0xFF00685a), // Preserved
                     fontWeight: FontWeight.bold,
                     fontSize: 12.sp,
                   ),
@@ -336,7 +336,7 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
               },
               child:   Text(
                 'View All',
-                style: TextStyle(color: Color(0xFF00E676)), // Preserved
+                style: TextStyle(color: Color(0xFF00685a)), // Preserved
               ),
             ),
           ],
@@ -385,7 +385,7 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
                       Text(
                         percentage + ' (30d)',
                         style:   TextStyle(
-                          color: Color(0xFF00E676), // Preserved
+                          color: Color(0xFF00685a), // Preserved
                           fontWeight: FontWeight.bold,
                           fontSize: 14.sp,
                         ),
@@ -396,7 +396,7 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF00E676),
+                  backgroundColor: Color(0xFF00685a),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.r),
@@ -482,9 +482,9 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
                   trackHeight: 4.h,
                   thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.r),
                   overlayShape: RoundSliderOverlayShape(overlayRadius: 16.r),
-                  activeTrackColor: Color(0xFF00E676),
+                  activeTrackColor: Color(0xFF00685a),
                   inactiveTrackColor: Colors.grey.shade800,
-                  thumbColor: Color(0xFF00E676),
+                  thumbColor: Color(0xFF00685a),
                 ),
                 child: Slider(
                   min: 1,
@@ -502,7 +502,7 @@ class _SocialTradingScreenState extends State<SocialTradingScreen> {
             Text(
               '${maxLossCap.toInt()}%',
               style: TextStyle(
-                color: Color(0xFF00E676), // Preserved
+                color: Color(0xFF00685a), // Preserved
                 fontWeight: FontWeight.bold,
                 fontSize: 14.sp,
               ),

@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Icon(
                       FontAwesomeIcons.chartLine,
-                      color: const Color(0xFF00C853),
+                      color: Theme.of(context).primaryColor,
                       size: 28.sp,
                     ),
                     SizedBox(width: 8.w),
@@ -128,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00C853),
+                    backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     minimumSize: Size(double.infinity, 50.h),
@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Icon(
                       Icons.fingerprint,
-                      color: const Color(0xFF00C853),
+                      color: Theme.of(context).primaryColor,
                       size: 24.sp,
                     ),
                     SizedBox(width: 8.w),

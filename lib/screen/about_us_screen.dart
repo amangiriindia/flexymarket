@@ -230,10 +230,10 @@ class AboutUsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureItem({required IconData icon, required String text}) {
+  Widget _buildFeatureItem({required IconData icon, required String text,}) {
     return Row(
       children: [
-        Icon(icon, color: Color(0xFF00E676), size: 20.sp),
+        Icon(icon, color: Color(0xFF00685a), size: 20.sp),
         SizedBox(width: 12.w),
         Expanded(
           child: Text(
@@ -262,7 +262,7 @@ class AboutUsScreen extends StatelessWidget {
               color: Colors.grey.shade800,
             ),
             child: Center(
-              child: FaIcon(icon, color: Color(0xFF00E676), size: 30.sp),
+              child: FaIcon(icon, color: Color(0xFF00685a), size: 30.sp),
             ),
           ),
           SizedBox(height: 8.h),
@@ -296,7 +296,7 @@ class AboutUsScreen extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 8.h),
         child: Row(
           children: [
-            Icon(icon, color: Color(0xFF00E676), size: 20.sp),
+            Icon(icon, color: Color(0xFF00685a), size: 20.sp),
             SizedBox(width: 12.w),
             Expanded(
               child: Text(

@@ -34,14 +34,14 @@ class DepositConfirmationScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.transparent,
                 border: Border.all(
-                  color: Color(0xFF00E676),
+                  color: Color(0xFF00685a),
                   width: 1.5,
                 ),
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Icon(
                 Icons.check,
-                color: Color(0xFF00E676),
+                color:Color(0xFF00685a),
                 size: 18.w,
               ),
             ),
@@ -69,7 +69,7 @@ class DepositConfirmationScreen extends StatelessWidget {
                       value: 'Crypto - BTC',
                       valueIcon: Icon(
                         Icons.currency_bitcoin,
-                        color: Color(0xFF00E676),
+                        color: Color(0xFF00685a),
                         size: 18.w,
                       ),
                     ),
@@ -82,7 +82,7 @@ class DepositConfirmationScreen extends StatelessWidget {
                     _buildSummaryRow(
                       label: 'Fees',
                       value: '0%',
-                      valueColor: Color(0xFF00E676), // Already defined
+                      valueColor: Color(0xFF00685a), // Already defined
                     ),
                   ],
                 ),
@@ -161,7 +161,7 @@ class DepositConfirmationScreen extends StatelessWidget {
                             },
                             child: Icon(
                               Icons.copy,
-                              color: Color(0xFF00E676),
+                              color: Color(0xFF00685a),
                               size: 20.w,
                             ),
                           ),
@@ -194,7 +194,7 @@ class DepositConfirmationScreen extends StatelessWidget {
                     // Confirm deposit action
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF00E676),
+                    backgroundColor: Color(0xFF00685a),
                     foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r),
@@ -267,7 +267,7 @@ class DepositConfirmationScreen extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: 0.3,
                   backgroundColor: Colors.grey.shade800,
-                  color: Color(0xFF00E676),
+                  color: Color(0xFF00685a),
                   minHeight: 4.h,
                 ),
               ),

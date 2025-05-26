@@ -86,7 +86,7 @@ class PartnershipProgramScreen extends StatelessWidget {
               // TODO: Implement copy to clipboard functionality
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2ECC71),
+              backgroundColor: const Color(0xFF00685a),
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
@@ -138,7 +138,7 @@ class PartnershipProgramScreen extends StatelessWidget {
               Text(
                 '+12.5%',
                 style: TextStyle(
-                  color: const Color(0xFF2ECC71),
+                  color: const Color(0xFF00685a),
                   fontSize: 12.sp,
                 ),
               ),
@@ -181,7 +181,7 @@ class PartnershipProgramScreen extends StatelessWidget {
               Text(
                 '+3 this month',
                 style: TextStyle(
-                  color: const Color(0xFF2ECC71),
+                  color: const Color(0xFF00685a),
                   fontSize: 12.sp,
                 ),
               ),
@@ -304,7 +304,7 @@ class PartnershipProgramScreen extends StatelessWidget {
         Text(
           volume,
           style: TextStyle(
-            color: const Color(0xFF2ECC71),
+            color: const Color(0xFF00685a),
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -312,7 +312,7 @@ class PartnershipProgramScreen extends StatelessWidget {
         SizedBox(width: 8.w),
         Icon(
           Icons.circle,
-          color: const Color(0xFF2ECC71),
+          color: const Color(0xFF00685a),
           size: 10.sp,
         ),
       ],
@@ -325,7 +325,7 @@ class PartnershipProgramScreen extends StatelessWidget {
         // TODO: Implement payout request logic
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF2ECC71),
+        backgroundColor: const Color(0xFF00685a),
         padding: EdgeInsets.symmetric(vertical: 16.h),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -348,7 +348,7 @@ class MonthlyEarningsChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final barWidth = size.width / 6 * 0.8;
     final paint = Paint()
-      ..color = const Color(0xFF2ECC71)
+      ..color = const Color(0xFF00685a)
       ..style = PaintingStyle.fill;
 
     // Sample earnings data (heights)

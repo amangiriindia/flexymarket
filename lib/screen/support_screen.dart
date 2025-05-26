@@ -53,7 +53,7 @@ class _SupportScreenState extends State<SupportScreen> {
                       width: 10.w,
                       height: 10.h,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF2ECC71),
+                        color: Color(0xFF00685a),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -139,7 +139,7 @@ class _SupportScreenState extends State<SupportScreen> {
                         // TODO: Implement WhatsApp chat launch
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2ECC71),
+                        backgroundColor: const Color(0xFF00685a),
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),

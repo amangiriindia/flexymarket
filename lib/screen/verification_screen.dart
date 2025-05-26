@@ -88,7 +88,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Verification code resent'),
-          backgroundColor: Color(0xFF00C853),
+          backgroundColor: Color(0xFF00685a),
         ),
       );
     }
@@ -145,7 +145,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
           children: [
             Icon(
               FontAwesomeIcons.chartLine,
-              color: const Color(0xFF00C853),
+              color: const Color(0xFF00685a),
               size: 22.sp,
             ),
             SizedBox(width: 8.w),
@@ -172,7 +172,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 // Verification Icon
                 Icon(
                   Icons.mark_email_read,
-                  color: const Color(0xFF00C853),
+                  color: const Color(0xFF00685a),
                   size: 50.sp,
                 ),
 
@@ -248,7 +248,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.r),
                             borderSide: BorderSide(
-                              color: const Color(0xFF00C853),
+                              color: const Color(0xFF00685a),
                               width: 1,
                             ),
                           ),
@@ -293,7 +293,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 ElevatedButton(
                   onPressed: _verifyCode,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00C853),
+                    backgroundColor: const Color(0xFF00685a),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     minimumSize: Size(double.infinity, 50.h),
@@ -318,7 +318,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   child: Text(
                     'Resend Code',
                     style: TextStyle(
-                      color: _canResend ? const Color(0xFF00C853) : Colors.grey,
+                      color: _canResend ? const Color(0xFF00685a) : Colors.grey,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                     ),

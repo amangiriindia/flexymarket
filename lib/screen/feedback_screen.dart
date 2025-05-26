@@ -182,7 +182,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                   canContact = value ?? false;
                                 });
                               },
-                              activeColor: Color(0xFF00E676),
+                              activeColor: Color(0xFF00685a),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4.r),
                               ),
@@ -211,7 +211,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           // Submit feedback logic
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF00E676),
+                          backgroundColor: Color(0xFF00685a),
                           foregroundColor: Colors.black,
                           padding: EdgeInsets.symmetric(vertical: 16.h),
                           shape: RoundedRectangleBorder(
@@ -242,7 +242,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             TextSpan(
                               text: 'Contact Support',
                               style: TextStyle(
-                                color: Color(0xFF00E676),
+                                color: Color(0xFF00685a),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -292,12 +292,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             height: 36.w,
             decoration: BoxDecoration(
               color: Colors.transparent,
-              border: Border.all(color: Color(0xFF00E676)),
+              border: Border.all(color: Color(0xFF00685a)),
               borderRadius: BorderRadius.circular(18.r),
             ),
             child: Icon(
               Icons.help_outline,
-              color: Color(0xFF00E676),
+              color: Color(0xFF00685a),
               size: 20.w,
             ),
           ),
@@ -322,7 +322,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               Icons.star,
               size: 32.w,
               color: index < rating
-                  ? Color(0xFF00E676)
+                  ? Color(0xFF00685a)
                   : Colors.grey.shade800,
             ),
           ),
@@ -347,7 +347,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               : Colors.grey.shade900.withOpacity(0.5),
           borderRadius: BorderRadius.circular(12.r),
           border: isSelected
-              ? Border.all(color: Color(0xFF00E676), width: 1)
+              ? Border.all(color: Color(0xFF00685a), width: 1)
               : null,
         ),
         child: Column(
@@ -357,7 +357,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               icon,
               size: 24.w,
               color: isSelected
-                  ? Color(0xFF00E676)
+                  ? Color(0xFF00685a)
                   : Colors.grey,
             ),
             SizedBox(height: 8.h),

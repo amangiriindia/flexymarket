@@ -100,7 +100,7 @@ class _TransferMoneyScreenState extends State<TransferMoneyScreen> {
 
                 // Between Accounts Option
                 TransferMethodTile(
-                  icon: Icon(Icons.sync, color: Colors.green, size: 24.sp),
+                  icon: Icon(Icons.sync, color: Color(0xFF00685a), size: 24.sp),
                   title: "Between Accounts",
                   subtitle: "Instant • 0% Fee",
                   isSelected: selectedTransferMethod == "Between Accounts",
@@ -115,7 +115,7 @@ class _TransferMoneyScreenState extends State<TransferMoneyScreen> {
 
                 // To Another User Option
                 TransferMethodTile(
-                  icon: Icon(Icons.person, color: Colors.green, size: 24.sp),
+                  icon: Icon(Icons.person, color: Color(0xFF00685a), size: 24.sp),
                   title: "To Another User",
                   subtitle: "Instant • 0% Fee",
                   isSelected: selectedTransferMethod == "To Another User",
@@ -238,7 +238,7 @@ class _TransferMoneyScreenState extends State<TransferMoneyScreen> {
                         width: 24.w,
                         height: 24.h,
                         decoration: BoxDecoration(
-                          color: Colors.green,
+                          color: Color(0xFF00685a),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -303,7 +303,7 @@ class _TransferMoneyScreenState extends State<TransferMoneyScreen> {
                       _handleContinue();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF00E676),
+                      backgroundColor: Color(0xFF00685a),
                       foregroundColor: Colors.black,
                       padding: EdgeInsets.symmetric(vertical: 16.h),
                       shape: RoundedRectangleBorder(
@@ -412,7 +412,7 @@ class _TransferMoneyScreenState extends State<TransferMoneyScreen> {
           "Transfer of \$${amount.toStringAsFixed(2)} to $selectedAccount via $selectedTransferMethod initiated",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.green,
+        backgroundColor:Color(0xFF00685a),
       ),
     );
   }
@@ -445,7 +445,7 @@ class TransferMethodTile extends StatelessWidget {
           color: Color(0xFF1E1E1E),
           borderRadius: BorderRadius.circular(12.r),
           border: isSelected
-              ? Border.all(color: Color(0xFF00E676), width: 1.5)
+              ? Border.all(color: Color(0xFF00685a), width: 1.5)
               : null,
         ),
         child: Row(
@@ -477,7 +477,7 @@ class TransferMethodTile extends StatelessWidget {
             ),
             Icon(
               isSelected ? Icons.check_circle : Icons.chevron_right,
-              color: isSelected ? Color(0xFF00E676) : Colors.grey[400],
+              color: isSelected ? Color(0xFF00685a) : Colors.grey[400],
               size: 24.sp,
             ),
           ],

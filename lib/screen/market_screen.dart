@@ -79,7 +79,7 @@ class MarketScreen extends StatelessWidget {
         Text(
           'Show More',
           style: TextStyle(
-            color: Colors.green,
+            color: Color(0xFF00685a),
             fontSize: 14.sp,
           ),
         ),

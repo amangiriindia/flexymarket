@@ -67,7 +67,7 @@ class _MainScreenState extends State<MainScreen> {
     return IconButton(
       icon: Icon(
         icon,
-        color: isActive ? const Color(0xFF00C853) : Colors.grey,
+        color: isActive ? const Color(0xFF00685a) : Colors.grey,
         size: 24.sp,
       ),
       onPressed: () => _onNavItemTapped(index),

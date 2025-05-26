@@ -44,7 +44,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           children: [
             Icon(
               FontAwesomeIcons.chartLine,
-              color: const Color(0xFF00C853),
+              color: Theme.of(context).primaryColor,
               size: 22.sp,
             ),
             SizedBox(width: 8.w),
@@ -128,7 +128,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
                     suffixIcon: Icon(
                       FontAwesomeIcons.whatsapp,
-                      color: const Color(0xFF00C853),
+                      color: Theme.of(context).primaryColor,
                       size: 20.sp,
                     ),
                   ),
@@ -239,7 +239,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         fillColor: MaterialStateProperty.resolveWith<Color>(
                               (Set<MaterialState> states) {
                             if (states.contains(MaterialState.selected)) {
-                              return const Color(0xFF00C853);
+                              return Theme.of(context).primaryColor;
                             }
                             return Colors.transparent;
                           },
@@ -293,9 +293,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     print('Password: ${_passwordController.text}');
                   } : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00C853),
+                    backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: const Color(0xFF00C853).withOpacity(0.5),
+                    disabledBackgroundColor: Theme.of(context).primaryColor.withOpacity(0.5),
                     disabledForegroundColor: Colors.white.withOpacity(0.5),
                     elevation: 0,
                     minimumSize: Size(double.infinity, 50.h),
@@ -338,7 +338,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       child: Text(
                         'Sign In',
                         style: TextStyle(
-                          color: const Color(0xFF00C853),
+                          color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 14.sp,
                         ),

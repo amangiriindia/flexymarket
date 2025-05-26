@@ -134,7 +134,7 @@ class WalletScreen extends StatelessWidget {
                   Text(
                     '+\$1,245.32',
                     style: TextStyle(
-                      color: const Color(0xFF00C853),
+                      color: const Color(0xFF00685a),
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -186,7 +186,7 @@ class WalletScreen extends StatelessWidget {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00C853),
+              backgroundColor: const Color(0xFF00685a),
               foregroundColor: Colors.white,
               elevation: 0,
               minimumSize: Size(0, 50.h),
@@ -221,7 +221,7 @@ class WalletScreen extends StatelessWidget {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00C853),
+              backgroundColor: const Color(0xFF00685a),
               foregroundColor: Colors.white,
               elevation: 0,
               minimumSize: Size(0, 50.h),

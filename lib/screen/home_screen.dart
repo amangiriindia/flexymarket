@@ -37,7 +37,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Icon(Icons.notifications, size: 24.w, color: Colors.green),
+                      Icon(Icons.notifications, size: 24.w, color: Color(0xFF00685a)),
                     ],
                   ),
                 ),
@@ -139,7 +139,7 @@ class HomeScreen extends StatelessWidget {
           Icon(
             icon,
             size: 28.w,
-            color: Colors.green,
+            color: Color(0xFF00685a),
           ),
           SizedBox(height: 8.h),
           Text(
@@ -171,7 +171,7 @@ class HomeScreen extends StatelessWidget {
               Icon(
                 icon,
                 size: 20.w,
-                color: Colors.green,
+                color: Color(0xFF00685a),
               ),
               SizedBox(width: 8.w),
               Text(
@@ -200,7 +200,7 @@ class HomeScreen extends StatelessWidget {
                 'Read More',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: Colors.green,
+                  color:Color(0xFF00685a),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -208,7 +208,7 @@ class HomeScreen extends StatelessWidget {
               Icon(
                 Icons.arrow_forward,
                 size: 16.w,
-                color: Colors.green,
+                color:Color(0xFF00685a),
               ),
             ],
           ),
@@ -234,7 +234,7 @@ class HomeScreen extends StatelessWidget {
                 width: 32.w,
                 height: 32.w,
                 decoration: const BoxDecoration(
-                  color: Colors.green,
+                  color: Color(0xFF00685a),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -258,9 +258,9 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {},
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
-              foregroundColor: Colors.green,
+              foregroundColor: Color(0xFF00685a),
               elevation: 0,
-              side: const BorderSide(color: Colors.green),
+              side: const BorderSide(color:Color(0xFF00685a)),
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
@@ -303,7 +303,7 @@ class HomeScreen extends StatelessWidget {
           Icon(
             Icons.lightbulb,
             size: 24.w,
-            color: Colors.green,
+            color: Color(0xFF00685a),
           ),
         ],
       ),

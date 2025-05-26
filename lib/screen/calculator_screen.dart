@@ -239,7 +239,7 @@ class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> {
           color: Colors.grey,
           fontSize: 16.sp,
         ),
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Colors.green) : null,
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color(0xFF00685a)) : null,
         prefixText: prefixText,
         suffixText: suffixText,
         prefixStyle: TextStyle(
@@ -290,7 +290,7 @@ class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> {
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
+          backgroundColor: Color(0xFF00685a),
           foregroundColor: Colors.white,
           padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: RoundedRectangleBorder(

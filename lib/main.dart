@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Flexy Markets',
           theme: ThemeData(
-            primaryColor: const Color(0xFF00C853),
+            primaryColor: const Color(0xFF00685a),
             scaffoldBackgroundColor: Colors.black,
             fontFamily: 'Roboto',
             inputDecorationTheme: InputDecorationTheme(

@@ -112,7 +112,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 12.h),
             decoration: BoxDecoration(
-              color: Colors.green,
+              color: Color(0xFF00685a),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Center(
@@ -158,7 +158,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: Colors.green,
+            color: Color(0xFF00685a),
             width: 10.r,
           ),
         ),
@@ -171,7 +171,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
                 style: TextStyle(
                   fontSize: 36.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green, // Already defined
+                  color:Color(0xFF00685a), // Already defined
                 ),
               ),
               Text(
@@ -224,7 +224,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
             children: [
               Icon(
                 icon,
-                color: Colors.green,
+                color:Color(0xFF00685a),
                 size: 24.sp,
               ),
               SizedBox(width: 16.w),
@@ -239,7 +239,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
           ),
           Icon(
             Icons.check,
-            color: Colors.green,
+            color: Color(0xFF00685a),
             size: 24.sp,
           ),
         ],
@@ -274,7 +274,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
+          backgroundColor: Color(0xFF00685a),
           foregroundColor: Colors.white,
           padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: RoundedRectangleBorder(

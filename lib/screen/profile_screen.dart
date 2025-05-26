@@ -200,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        leading: Icon(Icons.person, color: Colors.green, size: 24.sp),
+        leading: Icon(Icons.person, color: Color(0xFF00685a), size: 24.sp),
         title: Text(
           "Personal Details",
           style: TextStyle(
@@ -222,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green, // Already defined
+                  color: Color(0xFF00685a), // Already defined
                 ),
               ),
             ),
@@ -293,7 +293,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.green, // Updated: Added white color
+              color: Color(0xFF00685a), // Updated: Added white color
             ),
           ),
         ),
@@ -453,7 +453,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       margin: EdgeInsets.only(bottom: 8.h),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.r)),
       child: ListTile(
-        leading: Icon(icon, color: Colors.green, size: 24.sp),
+        leading: Icon(icon, color:Color(0xFF00685a), size: 24.sp),
         title: Text(
           title,
           style: TextStyle(

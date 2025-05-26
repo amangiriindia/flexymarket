@@ -130,7 +130,7 @@ class _PromotionsScreenState extends State<PromotionsScreen> {
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green,
+                    color:Color(0xFF00685a),
                   ),
                 ),
 
@@ -154,7 +154,7 @@ class _PromotionsScreenState extends State<PromotionsScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Color(0xFF00685a),
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 12.h),
                       shape: RoundedRectangleBorder(
@@ -190,7 +190,7 @@ class _PromotionsScreenState extends State<PromotionsScreen> {
         children: [
           Icon(
             _getIconForPromotion(promotion.title),
-            color: Colors.green,
+            color: Color(0xFF00685a),
             size: 24.sp,
           ),
           SizedBox(width: 12.w),
@@ -207,7 +207,7 @@ class _PromotionsScreenState extends State<PromotionsScreen> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
-                color: Colors.green,
+                color: Color(0xFF00685a),
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Text(
@@ -269,7 +269,7 @@ class _PromotionsScreenState extends State<PromotionsScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: Color(0xFF00685a),
               ),
               child: const Text("Confirm"),
               onPressed: () {
@@ -278,7 +278,7 @@ class _PromotionsScreenState extends State<PromotionsScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text("$promotionTitle claimed successfully!"),
-                    backgroundColor: Colors.green,
+                    backgroundColor:Color(0xFF00685a),
                   ),
                 );
               },

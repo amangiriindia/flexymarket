@@ -129,7 +129,7 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> {
 
               // Bank Transfer Option
               WithdrawalMethodTile(
-                icon: Icon(Icons.account_balance, color: Colors.green, size: 24.sp),
+                icon: Icon(Icons.account_balance, color:  Color(0xFF00685a), size: 24.sp),
                 title: "Bank Transfer",
                 subtitle: "1-3 business days • Free",
                 onTap: () {
@@ -143,7 +143,7 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> {
 
               // Crypto Option
               WithdrawalMethodTile(
-                icon: Icon(Icons.currency_bitcoin, color: Colors.green, size: 24.sp),
+                icon: Icon(Icons.currency_bitcoin, color: Color(0xFF00685a), size: 24.sp),
                 title: "Crypto",
                 subtitle: "Instant • Free",
                 onTap: () {
@@ -157,7 +157,7 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> {
 
               // UPI Option
               WithdrawalMethodTile(
-                icon: Icon(Icons.smartphone, color: Colors.green, size: 24.sp),
+                icon: Icon(Icons.smartphone, color: Color(0xFF00685a), size: 24.sp),
                 title: "UPI",
                 subtitle: "Instant • Free",
                 onTap: () {
@@ -200,7 +200,7 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> {
                 child: ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF00E676),
+                    backgroundColor: Color(0xFF00685a),
                     foregroundColor: Colors.black,
                     padding: EdgeInsets.symmetric(vertical: 16.h),
                     shape: RoundedRectangleBorder(

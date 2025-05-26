@@ -118,7 +118,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 style: TextStyle(
                   fontSize: 28.sp,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF00E676),
+                  color: Color(0xFF00685a),
                 ),
               ),
               SizedBox(width: 8.w),
@@ -126,7 +126,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 "+2.34%",
                 style: TextStyle(
                   fontSize: 16.sp,
-                  color: Color(0xFF00E676),
+                  color: Color(0xFF00685a),
                 ),
               ),
             ],
@@ -218,7 +218,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 12.h),
                 decoration: BoxDecoration(
-                  color: isMarketSelected ? Color(0xFF00E676) : Color(0xFF1E1E1E),
+                  color: isMarketSelected ? Color(0xFF00685a) : Color(0xFF1E1E1E),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(4.r),
                     bottomLeft: Radius.circular(4.r),
@@ -246,7 +246,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 12.h),
                 decoration: BoxDecoration(
-                  color: !isMarketSelected ? Color(0xFF00E676) : Color(0xFF1E1E1E),
+                  color: !isMarketSelected ? Color(0xFF00685a) : Color(0xFF1E1E1E),
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(4.r),
                     bottomRight: Radius.circular(4.r),
@@ -314,7 +314,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 "10%",
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: Color(0xFF00E676),
+                  color: Color(0xFF00685a),
                 ),
               ),
             ),
@@ -353,7 +353,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
           "Potential Profit: \$885.33",
           style: TextStyle(
             fontSize: 14.sp,
-            color: Color(0xFF00E676),
+            color: Color(0xFF00685a),
           ),
         ),
         SizedBox(height: 16.h),
@@ -375,7 +375,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 Expanded(
                   flex: 64,
                   child: Container(
-                    color: Color(0xFF00E676),
+                    color: Color(0xFF00685a),
                   ),
                 ),
                 Expanded(
@@ -395,7 +395,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
               "Buy 64%",
               style: TextStyle(
                 fontSize: 14.sp,
-                color: Color(0xFF00E676),
+                color: Color(0xFF00685a),
               ),
             ),
             Spacer(),
@@ -473,7 +473,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF00E676),
+                backgroundColor: Color(0xFF00685a),
                 foregroundColor: Colors.black,
                 padding: EdgeInsets.symmetric(vertical: 16.h),
                 shape: RoundedRectangleBorder(
@@ -637,7 +637,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
       children: [
         Icon(
           icon,
-          color: isSelected ? Color(0xFF00E676) : Colors.grey,
+          color: isSelected ? Color(0xFF00685a) : Colors.grey,
           size: 24.sp,
         ),
         SizedBox(height: 4.h),
@@ -645,7 +645,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
           label,
           style: TextStyle(
             fontSize: 12.sp,
-            color: isSelected ? Color(0xFF00E676) : Colors.grey,
+            color: isSelected ? Color(0xFF00685a) : Colors.grey,
           ),
         ),
       ],
@@ -658,7 +658,7 @@ class CandlestickChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Paint greenPaint = Paint()
-      ..color = Color(0xFF00E676)
+      ..color = Color(0xFF00685a)
       ..style = PaintingStyle.fill;
 
     final Paint redPaint = Paint()

@@ -203,7 +203,7 @@ class _TradeScreenState extends State<TradeScreen> {
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                           color: _selectedTabIndex == index
-                              ? (index == 0 ? Color(0xFF00E676) : Colors.white) // Preserved, default white for selected
+                              ? (index == 0 ? Color(0xFF00685a) : Colors.white) // Preserved, default white for selected
                               : Colors.grey, // Preserved
                         ),
                       ),
@@ -212,7 +212,7 @@ class _TradeScreenState extends State<TradeScreen> {
                   Container(
                     height: 2.h,
                     color: _selectedTabIndex == index
-                        ? (index == 0 ? Color(0xFF00E676) : Colors.white) // Changed to white for consistency
+                        ? (index == 0 ? Color(0xFF00685a) : Colors.white) // Changed to white for consistency
                         : Colors.transparent,
                   ),
                 ],
@@ -320,7 +320,7 @@ class _TradeScreenState extends State<TradeScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF00E676),
+                          backgroundColor: Color(0xFF00685a),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.r),

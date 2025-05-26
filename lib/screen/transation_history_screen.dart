@@ -137,7 +137,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                       children: [
                         Icon(
                           Icons.filter_list,
-                          color: Color(0xFF00E676),
+                          color:Color(0xFF00685a),
                           size: 20.sp,
                         ),
                         SizedBox(width: 6.w),
@@ -261,7 +261,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                                         transaction["status"],
                                         style: TextStyle(
                                           fontSize: 14.sp,
-                                          color: Color(0xFF00E676),
+                                          color: Color(0xFF00685a),
                                         ),
                                       ),
                                     ],

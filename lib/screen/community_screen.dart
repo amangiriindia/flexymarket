@@ -145,7 +145,7 @@ class CommunityScreen extends StatelessWidget {
         // TODO: Implement create new group functionality
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF2ECC71),
+        backgroundColor: const Color(0xFF00685a),
         padding: EdgeInsets.symmetric(vertical: 16.h),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -185,12 +185,12 @@ class CommunityScreen extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(8.w),
             decoration: BoxDecoration(
-              color: const Color(0xFF2ECC71).withOpacity(0.2),
+              color: const Color(0xFF00685a).withOpacity(0.2),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(
               icon,
-              color: const Color(0xFF2ECC71),
+              color: const Color(0xFF00685a),
               size: 24.sp,
             ),
           ),
@@ -222,7 +222,7 @@ class CommunityScreen extends StatelessWidget {
               // TODO: Implement join group functionality
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2ECC71),
+              backgroundColor: const Color(0xFF00685a),
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
