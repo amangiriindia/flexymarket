@@ -276,8 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   value: switchValue ?? false,
                   onChanged: onSwitchChanged,
                   activeColor: Color(0xFF00685a),
-                  activeTrackColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  activeTrackColor: Colors.black,
                 ),
             ],
           ),

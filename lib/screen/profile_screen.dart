@@ -222,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF00685a), // Already defined
+                  color: Colors.white, // Already defined
                 ),
               ),
             ),
@@ -293,7 +293,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF00685a), // Updated: Added white color
+              color: Colors.white, // Updated: Added white color
             ),
           ),
         ),

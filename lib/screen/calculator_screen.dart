@@ -336,7 +336,7 @@ class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> {
                 child: Container(
                   height: 8.h,
                   decoration: BoxDecoration(
-                    color: _riskLevel == "Low Risk" ? Colors.green :
+                    color: _riskLevel == "Low Risk" ? Color(0xFF00685a) :
                     _riskLevel == "Medium Risk" ? Colors.orange : Colors.red,
                     borderRadius: BorderRadius.circular(4.r),
                   ),
@@ -360,7 +360,7 @@ class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> {
           _riskLevel,
           style: TextStyle(
             fontSize: 14.sp,
-            color: _riskLevel == "Low Risk" ? Colors.green :
+            color: _riskLevel == "Low Risk" ? Colors.white :
             _riskLevel == "Medium Risk" ? Colors.orange : Colors.red,
           ),
         ),

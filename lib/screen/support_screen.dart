@@ -150,14 +150,14 @@ class _SupportScreenState extends State<SupportScreen> {
                         children: [
                           Icon(
                             FontAwesomeIcons.whatsapp,
-                            color: Colors.black,
+                            color: Colors.white,
                             size: 24.sp,
                           ),
                           SizedBox(width: 8.w),
                           Text(
                             'Start Chat via WhatsApp',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.white,
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w600,
                             ),

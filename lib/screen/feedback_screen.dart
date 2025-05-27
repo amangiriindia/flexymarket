@@ -212,7 +212,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF00685a),
-                          foregroundColor: Colors.black,
+                          foregroundColor: Colors.white,
                           padding: EdgeInsets.symmetric(vertical: 16.h),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.r),

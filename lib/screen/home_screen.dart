@@ -240,7 +240,7 @@ class HomeScreen extends StatelessWidget {
                 child: Icon(
                   icon,
                   size: 18.w,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
               ),
               SizedBox(width: 12.w),

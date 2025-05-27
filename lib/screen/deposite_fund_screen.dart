@@ -155,7 +155,7 @@ class _DepositFundsScreenState extends State<DepositFundsScreen> {
 
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF00E676),
+                  backgroundColor: Color(0xFF00685a),
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.r),
@@ -166,7 +166,7 @@ class _DepositFundsScreenState extends State<DepositFundsScreen> {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, // Already defined
+                    color: Colors.white, // Already defined
                   ),
                 ),
               ),
@@ -242,7 +242,7 @@ class _DepositFundsScreenState extends State<DepositFundsScreen> {
                               style: TextStyle(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black, // Already defined
+                                color: Colors.white, // Already defined
                               ),
                             ),
                           ),

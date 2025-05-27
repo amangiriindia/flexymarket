@@ -195,7 +195,7 @@ class DepositConfirmationScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF00685a),
-                    foregroundColor: Colors.black,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r),
                     ),
@@ -205,7 +205,7 @@ class DepositConfirmationScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black, // Already defined
+                      color: Colors.white, // Already defined
                     ),
                   ),
                 ),

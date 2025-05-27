@@ -154,12 +154,12 @@ class CommunityScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.add, color: Colors.black, size: 20.sp),
+          Icon(Icons.add, color: Colors.white, size: 20.sp),
           SizedBox(width: 8.w),
           Text(
             'Create New Group',
             style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -231,7 +231,7 @@ class CommunityScreen extends StatelessWidget {
             child: Text(
               'Join',
               style: TextStyle(
-                color: Colors.black,
+                color: Colors.white,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
               ),

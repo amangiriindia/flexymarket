@@ -315,7 +315,7 @@ class _TransferMoneyScreenState extends State<TransferMoneyScreen> {
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black, // Added black color
+                        color: Colors.white, // Added black color
                       ),
                     ),
                   ),
