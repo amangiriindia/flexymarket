@@ -22,8 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: const CommonAppBar(
-        title: 'Home',
-        showBackButton: false,
+        title: 'Flexy Markets',
+        showBackButton: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

@@ -7,12 +7,16 @@ import '../../providers/theme_provider.dart';
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showBackButton;
+  final VoidCallback? onBackPressed;
+  final Widget? leadingIcon;
 
   const CommonAppBar({
-    Key? key,
+    super.key,
     this.title = 'Markets',
     this.showBackButton = false,
-  }) : super(key: key);
+    this.onBackPressed,
+    this.leadingIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,32 +24,65 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     final isDarkMode = themeProvider.isDarkMode;
 
     return AppBar(
-      backgroundColor: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+      backgroundColor:
+          isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
       elevation: 0,
-      leading: showBackButton
-          ? IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-          size: 24.sp,
-          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-        ),
-        onPressed: () => Navigator.pop(context),
-      )
-          : null,
+      leading:
+          showBackButton
+              ? IconButton(
+                icon:
+                    leadingIcon ??
+                    Icon(
+                      Icons.arrow_back,
+                      size: 24.sp,
+                      color:
+                          isDarkMode
+                              ? AppColors.darkSurface
+                              : AppColors.lightSurface,
+                      semanticLabel: 'Back',
+                    ),
+                onPressed:
+                    onBackPressed ??
+                    () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Returning to previous screen',
+                            style: TextStyle(
+                              color:
+                                  isDarkMode
+                                      ? AppColors.darkPrimaryText
+                                      : AppColors.lightPrimaryText,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+              )
+              : null,
       title: Text(
         title,
         style: TextStyle(
-          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+          color:
+              isDarkMode
+                  ? AppColors.darkPrimaryText
+                  : AppColors.lightPrimaryText,
           fontSize: 24.sp,
           fontWeight: FontWeight.bold,
         ),
       ),
+      centerTitle: true,
       actions: [
         IconButton(
           icon: Icon(
             isDarkMode ? Icons.light_mode : Icons.dark_mode,
             size: 24.sp,
-            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            color:
+                isDarkMode
+                    ? AppColors.darkPrimaryText
+                    : AppColors.lightPrimaryText,
+            semanticLabel: 'Toggle Theme',
           ),
           onPressed: () {
             themeProvider.toggleTheme();
@@ -55,12 +92,26 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: Icon(
             Icons.notifications_outlined,
             size: 24.sp,
-            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            color:
+                isDarkMode
+                    ? AppColors.darkPrimaryText
+                    : AppColors.lightPrimaryText,
+            semanticLabel: 'Notifications',
           ),
           onPressed: () {
-            // TODO: Implement notifications
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Notifications coming soon!')),
+              SnackBar(
+                content: Text(
+                  'Notifications coming soon!',
+                  style: TextStyle(
+                    color:
+                        isDarkMode
+                            ? AppColors.darkPrimaryText
+                            : AppColors.lightPrimaryText,
+                  ),
+                ),
+                backgroundColor: AppColors.green,
+              ),
             );
           },
         ),

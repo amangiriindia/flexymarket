@@ -1,5 +1,10 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import '../../constant/app_color.dart';
+import '../../providers/theme_provider.dart';
 import 'login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -20,6 +25,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
@@ -27,57 +37,60 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
+
     return Scaffold(
+      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: EdgeInsets.all(24.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     FontAwesomeIcons.chartLine,
-                    color: Theme.of(context).primaryColor,
-                    size: 36,
+                    color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                    size: 36.sp,
                   ),
-                  const SizedBox(width: 10),
-                  const Text(
+                  SizedBox(width: 10.w),
+                  Text(
                     "Flexy Markets",
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(_images.length, (index) {
                   return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: 8,
-                    height: 8,
+                    margin: EdgeInsets.symmetric(horizontal: 4.w),
+                    width: 8.w,
+                    height: 8.h,
                     decoration: BoxDecoration(
                       color: _currentPage == index
-                          ? Theme.of(context).primaryColor
-                          : Colors.grey,
+                          ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
+                          : (isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText),
                       shape: BoxShape.circle,
                     ),
                   );
                 }),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               Expanded(
                 flex: 4,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(16),
+                    color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                    borderRadius: BorderRadius.circular(16.r),
                   ),
                   child: PageView.builder(
                     controller: _pageController,
@@ -94,44 +107,69 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           _images[index]!,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.image_not_supported,
-                              size: 100,
-                              color: Colors.white70,
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.image_not_supported,
+                                  size: 100.sp,
+                                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                                ),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  'Image not found',
+                                  style: TextStyle(
+                                    color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                                    fontSize: 16.sp,
+                                  ),
+                                ),
+                              ],
                             );
                           },
                         )
-                            : const Icon(
-                          Icons.image_not_supported,
-                          size: 100,
-                          color: Colors.white70,
+                            : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.image_not_supported,
+                              size: 100.sp,
+                              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                            ),
+                            SizedBox(height: 8.h),
+                            Text(
+                              'No image provided',
+                              style: TextStyle(
+                                color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                                fontSize: 16.sp,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
-              const Text(
+              SizedBox(height: 30.h),
+              Text(
                 "Trade with Confidence",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16.h),
+              Text(
                 "Real-time data, advanced tools.",
                 style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70,
+                  fontSize: 16.sp,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                 ),
                 textAlign: TextAlign.center,
               ),
               const Spacer(),
-              // Get Started Button with Navigation
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -140,50 +178,71 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       builder: (context) => const LoginScreen(),
                     ),
                   );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Navigating to Login',
+                        style: TextStyle(
+                          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                        ),
+                      ),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                  foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   "Get Started",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              // Sign In Button with Navigation
+              SizedBox(height: 16.h),
               OutlinedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>  LoginScreen(),
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Navigating to Login',
+                        style: TextStyle(
+                          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                        ),
+                      ),
                     ),
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.white24),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: BorderSide(
+                    color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   "Sign In",
                   style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
+                    fontSize: 16.sp,
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
             ],
           ),
         ),
@@ -191,3 +250,4 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 }
+

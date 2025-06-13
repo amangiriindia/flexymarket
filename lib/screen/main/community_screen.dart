@@ -22,7 +22,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: const CommonAppBar(
         title: 'Community',
-        showBackButton: false,
+          showBackButton: true,
       ),
       body: SafeArea(
         child: CustomScrollView(

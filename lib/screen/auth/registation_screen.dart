@@ -1,10 +1,16 @@
-import 'package:flexy_markets/screen/auth/login_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import '../../constant/app_color.dart';
+import '../../providers/theme_provider.dart';
+import '../auth/login_screen.dart';
+import 'verification_screen.dart';
+
 
 class RegistrationScreen extends StatefulWidget {
-  const RegistrationScreen({Key? key}) : super(key: key);
+  const RegistrationScreen({super.key});
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -27,39 +33,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
+
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-            size: 22.sp,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              FontAwesomeIcons.chartLine,
-              color: Theme.of(context).primaryColor,
-              size: 22.sp,
-            ),
-            SizedBox(width: 8.w),
-            Text(
-              'Flexy Markets',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-      ),
+      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -67,286 +45,55 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                SizedBox(height: 40.h),
+                _buildLogo(isDarkMode),
                 SizedBox(height: 20.h),
-
-                // Create Account Title
-                Text(
-                  'Create Account',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                SizedBox(height: 8.h),
-
-                // Subtitle
-                Text(
-                  'Start your trading journey today',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14.sp,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
+                _buildTitle(isDarkMode),
                 SizedBox(height: 24.h),
-
-                // Phone Number Label
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Phone Number',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 8.h),
-
-                // Phone Number Field
-                TextField(
+                _buildTextField(
+                  label: 'Phone Number',
                   controller: _phoneController,
-                  style: TextStyle(color: Colors.white, fontSize: 14.sp),
+                  hintText: 'Enter phone number',
+                  icon: Icons.phone,
                   keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
-                    hintText: 'Enter phone number',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14.sp,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-                    suffixIcon: Icon(
-                      FontAwesomeIcons.whatsapp,
-                      color: Theme.of(context).primaryColor,
+                  isDarkMode: isDarkMode,
+                ),
+                SizedBox(height: 16.h),
+                _buildTextField(
+                  label: 'Email',
+                  controller: _emailController,
+                  hintText: 'Enter your email',
+                  icon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
+                  isDarkMode: isDarkMode,
+                ),
+                SizedBox(height: 16.h),
+                _buildTextField(
+                  label: 'Password',
+                  controller: _passwordController,
+                  hintText: 'Create password',
+                  icon: Icons.lock_outline,
+                  obscureText: _obscurePassword,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                       size: 20.sp,
                     ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
                   ),
+                  isDarkMode: isDarkMode,
                 ),
-
-                SizedBox(height: 16.h),
-
-                // Email Label
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Email',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 8.h),
-
-                // Email Field
-                TextField(
-                  controller: _emailController,
-                  style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
-                    hintText: 'Enter your email',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14.sp,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-                  ),
-                ),
-
-                SizedBox(height: 16.h),
-
-                // Password Label
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Password',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 8.h),
-
-                // Password Field
-                TextField(
-                  controller: _passwordController,
-                  style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
-                    hintText: 'Create password',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14.sp,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        color: Colors.grey,
-                        size: 20.sp,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-
                 SizedBox(height: 20.h),
-
-                // Terms and Conditions Checkbox
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 24.w,
-                      height: 24.h,
-                      child: Checkbox(
-                        value: _agreedToTerms,
-                        onChanged: (value) {
-                          setState(() {
-                            _agreedToTerms = value ?? false;
-                          });
-                        },
-                        fillColor: MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.selected)) {
-                              return Theme.of(context).primaryColor;
-                            }
-                            return Colors.transparent;
-                          },
-                        ),
-                        side: const BorderSide(color: Colors.grey),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 4.h),
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12.sp,
-                            ),
-                            children: [
-                              const TextSpan(text: 'I agree to Flexy Markets\' '),
-                              TextSpan(
-                                text: 'Terms of Service',
-                                style: TextStyle(
-                                  color: const Color(0xFF00C853),
-                                  fontSize: 12.sp,
-                                ),
-                              ),
-                              const TextSpan(text: ' and '),
-                              TextSpan(
-                                text: 'Privacy Policy',
-                                style: TextStyle(
-                                  color: const Color(0xFF00C853),
-                                  fontSize: 12.sp,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
+                _buildCheckbox(isDarkMode),
                 SizedBox(height: 24.h),
-
-                // Sign Up Button
-                ElevatedButton(
-                  onPressed: _agreedToTerms ? () {
-                    // Handle registration logic
-                    print('Phone: ${_phoneController.text}');
-                    print('Email: ${_emailController.text}');
-                    print('Password: ${_passwordController.text}');
-                  } : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Theme.of(context).primaryColor.withOpacity(0.5),
-                    disabledForegroundColor: Colors.white.withOpacity(0.5),
-                    elevation: 0,
-                    minimumSize: Size(double.infinity, 50.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  child: Text(
-                    'Sign Up',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-
+                _buildSignUpButton(isDarkMode),
                 SizedBox(height: 16.h),
-
-                // Already have account
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Already have an account? ',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        // Navigate to login screen
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoginScreen(),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'Sign In',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
+                _buildSignInText(isDarkMode),
                 SizedBox(height: 24.h),
               ],
             ),
@@ -355,5 +102,328 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
     );
   }
-}
 
+  Widget _buildTitle(bool isDarkMode) {
+    return Column(
+      children: [
+        Text(
+          'Create Account',
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 8.h),
+        Text(
+          'Start your trading journey today',
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+            fontSize: 14.sp,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    TextInputType keyboardType = TextInputType.text,
+    required bool isDarkMode,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+            fontSize: 14.sp,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        TextField(
+          controller: controller,
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            fontSize: 14.sp,
+          ),
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(
+              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              fontSize: 14.sp,
+            ),
+            prefixIcon: Icon(
+              icon,
+              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              size: 20.sp,
+              semanticLabel: label,
+            ),
+            suffixIcon: suffixIcon,
+            filled: true,
+            fillColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: BorderSide(
+                color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: BorderSide(
+                color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                width: 2,
+              ),
+            ),
+            contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCheckbox(bool isDarkMode) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () {
+            setState(() {
+              _agreedToTerms = !_agreedToTerms;
+            });
+          },
+          borderRadius: BorderRadius.circular(4.r),
+          child: SizedBox(
+            width: 24.w,
+            height: 24.h,
+            child: Checkbox(
+              value: _agreedToTerms,
+              onChanged: (value) {
+                setState(() {
+                  _agreedToTerms = value ?? false;
+                });
+              },
+              fillColor: MaterialStateProperty.resolveWith<Color>(
+                    (states) => states.contains(MaterialState.selected)
+                    ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
+                    : Colors.transparent,
+              ),
+              side: BorderSide(
+                color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+              ),
+              semanticLabel: 'Agree to Terms',
+            ),
+          ),
+        ),
+        SizedBox(width: 8.w),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(top: 4.h),
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                  fontSize: 12.sp,
+                ),
+                children: [
+                  const TextSpan(text: 'I agree to Flexy Markets\' '),
+                  WidgetSpan(
+                    child: GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Terms of Service coming soon!',
+                              style: TextStyle(
+                                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Terms of Service',
+                        style: TextStyle(
+                          color: AppColors.green,
+                          fontSize: 12.sp,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const TextSpan(text: ' and '),
+                  WidgetSpan(
+                    child: GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Privacy Policy coming soon!',
+                              style: TextStyle(
+                                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Privacy Policy',
+                        style: TextStyle(
+                          color: AppColors.green,
+                          fontSize: 12.sp,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  Widget _buildLogo(bool isDarkMode) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          FontAwesomeIcons.chartLine,
+          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+          size: 28.sp,
+        ),
+        SizedBox(width: 8.w),
+        Text(
+          'Flexy Markets',
+          style: TextStyle(
+            color:
+            isDarkMode
+                ? AppColors.darkPrimaryText
+                : AppColors.lightPrimaryText,
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  Widget _buildSignUpButton(bool isDarkMode) {
+    return ElevatedButton(
+      onPressed: _agreedToTerms
+          ? () {
+        if (_phoneController.text.isEmpty ||
+            _emailController.text.isEmpty ||
+            _passwordController.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Please fill all fields',
+                style: TextStyle(
+                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                ),
+              ),
+            ),
+          );
+          return;
+        }
+        print('Phone: ${_phoneController.text}');
+        print('Email: ${_emailController.text}');
+        print('Password: ${_passwordController.text}');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const VerificationScreen(phoneNumber: '+91 ••• ••• 4785'),
+          ),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Navigating to Verification',
+              style: TextStyle(
+                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+              ),
+            ),
+          ),
+        );
+      }
+          : null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+        foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+        disabledBackgroundColor: (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
+        disabledForegroundColor: (isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText).withOpacity(0.5),
+        elevation: isDarkMode ? 0 : 2,
+        minimumSize: Size(double.infinity, 50.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        shadowColor: isDarkMode ? null : AppColors.lightShadow,
+      ),
+      child: Text(
+        'Sign Up',
+        style: TextStyle(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSignInText(bool isDarkMode) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Already have an account? ',
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+            fontSize: 14.sp,
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              ),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Navigating to Login',
+                  style: TextStyle(
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                  ),
+                ),
+              ),
+            );
+          },
+          child: Text(
+            'Sign In',
+            style: TextStyle(
+              color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+              fontWeight: FontWeight.bold,
+              fontSize: 14.sp,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -25,7 +25,7 @@ class _MarketScreenState extends State<MarketScreen> {
       backgroundColor: _isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: CommonAppBar(
         title: 'Market',
-        showBackButton: false,
+        showBackButton: true,
       ),
       body: SingleChildScrollView(
         child: Column(

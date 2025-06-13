@@ -41,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: const CommonAppBar(
         title: 'Profile',
-        showBackButton: false,
+        showBackButton: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -218,7 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.white,
+                    color:  isDarkMode ? AppColors.white : Colors.black,
                   ),
                 ),
               ),
@@ -307,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.bold,
-              color: AppColors.white,
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             ),
           ),
         ),

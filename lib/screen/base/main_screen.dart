@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -40,18 +39,7 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _selectedIndex = index;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${_navItems[index]['label']} selected',
-          style: TextStyle(
-            color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
-                ? AppColors.darkPrimaryText
-                : AppColors.lightPrimaryText,
-          ),
-        ),
-      ),
-    );
+
   }
 
   @override
@@ -125,6 +113,7 @@ class _MainScreenState extends State<MainScreen> {
                   ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
                   : (isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText),
               size: 24.sp,
+              semanticLabel: label,
             ),
             SizedBox(height: 4.h),
             Text(

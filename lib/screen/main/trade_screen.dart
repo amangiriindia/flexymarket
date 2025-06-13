@@ -89,7 +89,8 @@ class _TradeScreenState extends State<TradeScreen> {
     return Scaffold(
       backgroundColor:
           isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: const CommonAppBar(title: 'Trade', showBackButton: false),
+      appBar: const CommonAppBar(title: 'Trade',
+        showBackButton: true,),
       body: _buildBody(isDarkMode),
     );
   }
