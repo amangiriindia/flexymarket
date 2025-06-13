@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import '../../constant/app_color.dart';
-import '../../providers/theme_provider.dart';
-import '../widget/common/main_app_bar.dart';
+import '../../../constant/app_color.dart';
+import '../../../providers/theme_provider.dart';
+import '../../widget/common/main_app_bar.dart';
 
 
 class WalletScreen extends StatefulWidget {
@@ -96,7 +96,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: const CommonAppBar(
+      appBar: const MainAppBar(
         title: 'Wallet',
         showBackButton: true,
       ),

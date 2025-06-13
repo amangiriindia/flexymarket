@@ -7,7 +7,7 @@ import '../main/community_screen.dart';
 import '../main/home_screen.dart';
 import '../main/profile_screen.dart';
 import '../main/trade_screen.dart';
-import '../wallet_screen.dart';
+import '../main/wallet_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

@@ -4,13 +4,13 @@ import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 
-class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
+class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showBackButton;
   final VoidCallback? onBackPressed;
   final Widget? leadingIcon;
 
-  const CommonAppBar({
+  const MainAppBar({
     super.key,
     this.title = 'Markets',
     this.showBackButton = false,

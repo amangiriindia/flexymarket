@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: const CommonAppBar(
+      appBar: const MainAppBar(
         title: 'Flexy Markets',
         showBackButton: true,
       ),

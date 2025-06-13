@@ -20,7 +20,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: const CommonAppBar(
+      appBar: const MainAppBar(
         title: 'Community',
           showBackButton: true,
       ),

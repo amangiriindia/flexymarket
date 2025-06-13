@@ -9,6 +9,7 @@ import '../performance_screen.dart';
 import '../permotions_screen.dart';
 import '../setting_screen.dart';
 import '../social_trading.dart';
+import '../support/my_tickets_screen.dart';
 import '../support_screen.dart';
 import '../transation_history_screen.dart';
 import '../transfer_money_screen.dart';
@@ -39,7 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: const CommonAppBar(
+      appBar: const MainAppBar(
         title: 'Profile',
         showBackButton: true,
       ),
@@ -476,6 +477,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const SupportScreen()),
+          ),
+          isDarkMode,
+        ),
+
+        _buildSupportRow(
+          Icons.support,
+          "My Ticket",
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MyTicketsScreen()),
           ),
           isDarkMode,
         ),

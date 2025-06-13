@@ -23,7 +23,7 @@ class _MarketScreenState extends State<MarketScreen> {
     final _isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
     return Scaffold(
       backgroundColor: _isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: CommonAppBar(
+      appBar: MainAppBar(
         title: 'Market',
         showBackButton: true,
       ),
