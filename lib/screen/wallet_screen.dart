@@ -1,16 +1,105 @@
-import 'package:flexy_markets/screen/profile_screen.dart';
-import 'package:flexy_markets/screen/trade_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'deposite_fund_screen.dart';
+import 'package:provider/provider.dart';
+import '../../constant/app_color.dart';
+import '../../providers/theme_provider.dart';
+import '../widget/common/main_app_bar.dart';
 
-class WalletScreen extends StatelessWidget {
+
+class WalletScreen extends StatefulWidget {
   const WalletScreen({Key? key}) : super(key: key);
 
   @override
+  State<WalletScreen> createState() => _WalletScreenState();
+}
+
+class _WalletScreenState extends State<WalletScreen> {
+  String _selectedFilter = '7 Days';
+
+  final List<Map<String, dynamic>> _mockTransactions = [
+    {
+      'type': 'Deposit',
+      'amount': '+\$1,000.00',
+      'date': '2025-06-10',
+      'status': 'Completed',
+      'isPositive': true,
+    },
+    {
+      'type': 'Trade',
+      'amount': '-\$500.00',
+      'date': '2025-06-09',
+      'status': 'Completed',
+      'isPositive': false,
+    },
+    {
+      'type': 'Withdraw',
+      'amount': '-\$200.00',
+      'date': '2025-06-08',
+      'status': 'Pending',
+      'isPositive': false,
+    },
+    {
+      'type': 'Deposit',
+      'amount': '+\$2,500.00',
+      'date': '2025-05-15',
+      'status': 'Completed',
+      'isPositive': true,
+    },
+    {
+      'type': 'Trade',
+      'amount': '+\$750.00',
+      'date': '2025-04-20',
+      'status': 'Completed',
+      'isPositive': true,
+    },
+    {
+      'type': 'Withdraw',
+      'amount': '-\$1,000.00',
+      'date': '2025-03-10',
+      'status': 'Completed',
+      'isPositive': false,
+    },
+  ];
+
+  List<Map<String, dynamic>> _getFilteredTransactions() {
+    final now = DateTime.now();
+    DateTime startDate;
+
+    switch (_selectedFilter) {
+      case '7 Days':
+        startDate = now.subtract(const Duration(days: 7));
+        break;
+      case '1 Month':
+        startDate = now.subtract(const Duration(days: 30));
+        break;
+      case '3 Months':
+        startDate = now.subtract(const Duration(days: 90));
+        break;
+      case '6 Months':
+        startDate = now.subtract(const Duration(days: 180));
+        break;
+      default:
+        startDate = now.subtract(const Duration(days: 7));
+    }
+
+    return _mockTransactions.where((tx) {
+      final txDate = DateTime.parse(tx['date']);
+      return (tx['type'] == 'Deposit' || tx['type'] == 'Withdraw') &&
+          (txDate.isAfter(startDate) || txDate.isAtSameMomentAs(startDate));
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
+    final filteredTransactions = _getFilteredTransactions();
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+      appBar: const CommonAppBar(
+        title: 'Wallet',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -18,18 +107,50 @@ class WalletScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 16.h),
-              // Header section with welcome, notification and profile
-              _buildHeader(context),
+              _buildBalanceCard(isDarkMode),
               SizedBox(height: 16.h),
-              // Balance card
-              _buildBalanceCard(),
-              SizedBox(height: 16.h),
-              // Action buttons
-              _buildActionButtons(context),
+              _buildActionButtons(context, isDarkMode),
               SizedBox(height: 24.h),
-              // Top Movers section
-              _buildTopMoversSection(),
-              // Bottom navigation bar will be at scaffold bottom
+              Text(
+                'Transaction List',
+                style: TextStyle(
+                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              _buildFilterBar(isDarkMode),
+              SizedBox(height: 16.h),
+              Expanded(
+                child: filteredTransactions.isEmpty
+                    ? Center(
+                  child: Text(
+                    'No deposit or withdraw transactions found for this period.',
+                    style: TextStyle(
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                )
+                    : ListView.builder(
+                  itemCount: filteredTransactions.length,
+                  itemBuilder: (context, index) {
+                    final tx = filteredTransactions[index];
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: 12.h),
+                      child: _buildTransactionCard(
+                        type: tx['type'],
+                        amount: tx['amount'],
+                        date: tx['date'],
+                        status: tx['status'],
+                        isPositive: tx['isPositive'],
+                        isDarkMode: isDarkMode,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -37,64 +158,24 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Welcome, Alex',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Row(
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.notifications_outlined,
-                color: Colors.white,
-                size: 24.sp,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfileScreen(),
-                  ),
-                );
-              },
-            ),
-            SizedBox(width: 8.w),
-            GestureDetector(
-              onTap: (){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfileScreen(),
-                  ),
-                );
-              },
-              child: CircleAvatar(
-                radius: 16.sp,
-                backgroundImage: const NetworkImage(
-                    'https://randomuser.me/api/portraits/men/32.jpg'),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBalanceCard() {
+  Widget _buildBalanceCard(bool isDarkMode) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.sp),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12.r),
+        border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +183,7 @@ class WalletScreen extends StatelessWidget {
           Text(
             'Total Balance',
             style: TextStyle(
-              color: Colors.grey,
+              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
               fontSize: 14.sp,
             ),
           ),
@@ -110,7 +191,7 @@ class WalletScreen extends StatelessWidget {
           Text(
             '\$11,557.71 USD',
             style: TextStyle(
-              color: Colors.white,
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
               fontSize: 28.sp,
               fontWeight: FontWeight.bold,
             ),
@@ -119,14 +200,13 @@ class WalletScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Equity
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Equity',
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                       fontSize: 14.sp,
                     ),
                   ),
@@ -134,21 +214,20 @@ class WalletScreen extends StatelessWidget {
                   Text(
                     '+\$1,245.32',
                     style: TextStyle(
-                      color: const Color(0xFF00685a),
+                      color: AppColors.green,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-              // Margin
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
                     'Margin',
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                       fontSize: 14.sp,
                     ),
                   ),
@@ -156,7 +235,7 @@ class WalletScreen extends StatelessWidget {
                   Text(
                     '-\$245.89',
                     style: TextStyle(
-                      color: Colors.red,
+                      color: AppColors.red,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -170,193 +249,214 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, bool isDarkMode) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Deposit Button
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () {
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DepositFundsScreen(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00685a),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              minimumSize: Size(0, 50.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-            icon: Icon(
-              Icons.account_balance_wallet_outlined,
-              size: 18.sp,
-            ),
-            label: Text(
-              'Deposit',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+        _buildActionButton(
+          context,
+          icon: Icons.account_balance_wallet_outlined,
+          label: 'Deposit',
+          isDarkMode: isDarkMode,
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Deposit functionality coming soon!')),
+            );
+          },
         ),
-        SizedBox(width: 12.w),
-        // Trade Now Button
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () {
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TradeScreen(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00685a),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              minimumSize: Size(0, 50.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-            icon: Icon(
-              Icons.trending_up,
-              size: 18.sp,
-            ),
-            label: Text(
-              'Trade Now',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+        SizedBox(width: 8.w),
+        _buildActionButton(
+          context,
+          icon: Icons.arrow_downward,
+          label: 'Withdraw',
+          isDarkMode: isDarkMode,
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Withdraw functionality coming soon!')),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _buildTopMoversSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Top Movers',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
+  Widget _buildActionButton(
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required bool isDarkMode,
+        required VoidCallback onPressed,
+      }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onPressed,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 50.h,
+          decoration: BoxDecoration(
+            color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+            borderRadius: BorderRadius.circular(8.r),
+            boxShadow: [
+              BoxShadow(
+                color: (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ),
-        SizedBox(height: 12.h),
-        // ETH/USD - Positive change
-        _buildCryptoCard(
-          symbol: 'ETH/USD',
-          price: '\$2,456.78',
-          percentChange: '+5.67%',
-          valueChange: '+\$142.35',
-          isPositive: true,
-          iconData: Icons.currency_bitcoin_rounded,
-        ),
-        SizedBox(height: 12.h),
-        // BTC/AUD - Negative change
-        _buildCryptoCard(
-          symbol: 'BTC/AUD',
-          price: '\$43,567.90',
-          percentChange: '-2.34%',
-          valueChange: '-\$1,215.67',
-          isPositive: false,
-          iconData: Icons.currency_bitcoin,
-        ),
-        SizedBox(height: 12.h),
-        // BTC/XAU - Positive change
-        _buildCryptoCard(
-          symbol: 'BTC/XAU',
-          price: '\$56,789.12',
-          percentChange: '+1.23%',
-          valueChange: '+\$678.90',
-          isPositive: true,
-          iconData: Icons.account_balance,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCryptoCard({
-    required String symbol,
-    required String price,
-    required String percentChange,
-    required String valueChange,
-    required bool isPositive,
-    required IconData iconData,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16.sp),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Left side - Symbol and percentage
-          Row(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                iconData,
-                color: Colors.white,
-                size: 20.sp,
+                icon,
+                size: 18.sp,
+                color: AppColors.white,
               ),
               SizedBox(width: 8.w),
               Text(
-                symbol,
+                label,
                 style: TextStyle(
-                  color: Colors.white,
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Text(
-                percentChange,
-                style: TextStyle(
-                  color: isPositive ? const Color(0xFF00C853) : Colors.red,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
                 ),
               ),
             ],
           ),
-          // Right side - Price and value change
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterBar(bool isDarkMode) {
+    final filters = ['7 Days', '1 Month', '3 Months', '6 Months'];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: filters.map((filter) {
+          final isSelected = _selectedFilter == filter;
+          return Padding(
+            padding: EdgeInsets.only(right: 8.w),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedFilter = filter;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
+                      : (isDarkMode ? AppColors.darkCard : AppColors.lightCard),
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
+                ),
+                child: Text(
+                  filter,
+                  style: TextStyle(
+                    color: isSelected
+                        ? AppColors.white
+                        : (isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+                    fontSize: 14.sp,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildTransactionCard({
+    required String type,
+    required String amount,
+    required String date,
+    required String status,
+    required bool isPositive,
+    required bool isDarkMode,
+  }) {
+    final isDeposit = type == 'Deposit';
+    final icon = isDeposit ? Icons.arrow_downward : Icons.arrow_upward;
+    final color = isDeposit ? AppColors.green : AppColors.red;
+
+    return Container(
+      padding: EdgeInsets.all(16.sp),
+      decoration: BoxDecoration(
+        color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(12.r),
+        border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8.w),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 20.sp,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    type,
+                    style: TextStyle(
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    date,
+                    style: TextStyle(
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                price,
+                amount,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: color,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(height: 4.h),
               Text(
-                valueChange,
+                status,
                 style: TextStyle(
-                  color: isPositive ? const Color(0xFF00C853) : Colors.red,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                  fontSize: 12.sp,
                 ),
               ),
             ],
@@ -365,7 +465,4 @@ class WalletScreen extends StatelessWidget {
       ),
     );
   }
-
 }
-
-

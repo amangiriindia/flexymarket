@@ -1,17 +1,22 @@
+
+
+
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:provider/provider.dart';
+import '../../constant/app_color.dart';
+import '../../providers/theme_provider.dart';
 
 
 class CryptoTradingScreen extends StatefulWidget {
-  const CryptoTradingScreen({Key? key}) : super(key: key);
+  const CryptoTradingScreen({super.key});
 
   @override
   State<CryptoTradingScreen> createState() => _CryptoTradingScreenState();
 }
 
-class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _CryptoTradingScreenState extends State<CryptoTradingScreen> {
   final TextEditingController _priceController = TextEditingController(text: "82,595.55");
   final TextEditingController _amountController = TextEditingController(text: "0.1");
   final TextEditingController _usdAmountController = TextEditingController(text: "1,000.00");
@@ -20,14 +25,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
   bool isMarketSelected = true;
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
   void dispose() {
-    _tabController.dispose();
     _priceController.dispose();
     _amountController.dispose();
     _usdAmountController.dispose();
@@ -38,33 +36,22 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
+
     return Scaffold(
+      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Header
               _buildHeader(),
-          
-              // Price and Chart
-              _buildPriceSection(),
-          
-              // Chart Area
-              _buildChartArea(),
-          
-              // Tab section
-              _buildOrderTabs(),
-          
-              // Trading Form
-              _buildTradingForm(),
-          
-              // Buy/Sell Buttons
-              _buildActionButtons(),
-          
-              // Open Positions or Additional Info
-              _buildAdditionalInfo(),
-          
-
+              _buildPriceSection(isDarkMode),
+              _buildChartArea(isDarkMode),
+              _buildOrderTabs(isDarkMode),
+              _buildTradingForm(isDarkMode),
+              _buildActionButtons(isDarkMode),
+              _buildAdditionalInfo(isDarkMode),
+              SizedBox(height: 16.h),
             ],
           ),
         ),
@@ -72,7 +59,9 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
     );
   }
 
-  Widget _buildHeader() {
+
+
+    Widget _buildHeader() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
@@ -105,7 +94,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
     );
   }
 
-  Widget _buildPriceSection() {
+  Widget _buildPriceSection(bool isDarkMode) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
       child: Column(
@@ -118,7 +107,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 style: TextStyle(
                   fontSize: 28.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 ),
               ),
               SizedBox(width: 8.w),
@@ -126,7 +115,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 "+2.34%",
                 style: TextStyle(
                   fontSize: 16.sp,
-                  color: Colors.green,
+                  color: AppColors.green,
                 ),
               ),
             ],
@@ -136,36 +125,47 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
             "Vol: 2.4B USD",
             style: TextStyle(
               fontSize: 14.sp,
-              color: Colors.grey[400],
+              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
             ),
           ),
           SizedBox(height: 12.h),
           Row(
             children: [
-              _buildTimeframeChip("1m"),
+              _buildTimeframeChip("1m", isDarkMode),
               SizedBox(width: 8.w),
-              _buildTimeframeChip("5m"),
+              _buildTimeframeChip("5m", isDarkMode),
               SizedBox(width: 8.w),
-              _buildTimeframeChip("15m"),
-              Spacer(),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: Color(0xFF1E1E1E),
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.auto_graph, size: 16.sp, color: Colors.white),
-                    SizedBox(width: 4.w),
-                    Text(
-                      "Indicators",
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: Colors.white,
+              _buildTimeframeChip("15m", isDarkMode),
+              const Spacer(),
+              GestureDetector(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Indicators coming soon!')),
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.auto_graph,
+                        size: 16.sp,
+                        color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 4.w),
+                      Text(
+                        "Indicators",
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -175,35 +175,42 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
     );
   }
 
-  Widget _buildTimeframeChip(String text) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-      decoration: BoxDecoration(
-        color: Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(4.r),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 14.sp,
-          color: Colors.white,
+  Widget _buildTimeframeChip(String text, bool isDarkMode) {
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$text timeframe selected')),
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        decoration: BoxDecoration(
+          color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          borderRadius: BorderRadius.circular(4.r),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildChartArea() {
+  Widget _buildChartArea(bool isDarkMode) {
     return Container(
       height: 200.h,
       width: double.infinity,
-      color: Color(0xFF0A1929),
+      color: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
       child: CustomPaint(
-        painter: CandlestickChartPainter(),
+        painter: CandlestickChartPainter(isDarkMode: isDarkMode),
       ),
     );
   }
 
-  Widget _buildOrderTabs() {
+  Widget _buildOrderTabs(bool isDarkMode) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Row(
@@ -214,11 +221,16 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 setState(() {
                   isMarketSelected = true;
                 });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Market order selected')),
+                );
               },
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 12.h),
                 decoration: BoxDecoration(
-                  color: isMarketSelected ? Color(0xFF00685a) : Color(0xFF1E1E1E),
+                  color: isMarketSelected
+                      ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
+                      : (isDarkMode ? AppColors.darkCard : AppColors.lightCard),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(4.r),
                     bottomLeft: Radius.circular(4.r),
@@ -230,7 +242,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
-                    color: isMarketSelected ? Colors.white : Colors.white,
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                   ),
                 ),
               ),
@@ -242,11 +254,16 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 setState(() {
                   isMarketSelected = false;
                 });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Limit order selected')),
+                );
               },
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 12.h),
                 decoration: BoxDecoration(
-                  color: !isMarketSelected ? Color(0xFF00685a) : Color(0xFF1E1E1E),
+                  color: !isMarketSelected
+                      ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
+                      : (isDarkMode ? AppColors.darkCard : AppColors.lightCard),
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(4.r),
                     bottomRight: Radius.circular(4.r),
@@ -258,7 +275,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
-                    color: !isMarketSelected ? Colors.white : Colors.white,
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                   ),
                 ),
               ),
@@ -269,29 +286,29 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
     );
   }
 
-  Widget _buildTradingForm() {
+  Widget _buildTradingForm(bool isDarkMode) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: isMarketSelected ? _buildMarketForm() : _buildLimitForm(),
+      child: isMarketSelected ? _buildMarketForm(isDarkMode) : _buildLimitForm(isDarkMode),
     );
   }
 
-  Widget _buildMarketForm() {
+  Widget _buildMarketForm(bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildFormField("Price", _priceController, isEditable: false),
+        _buildFormField("Price", _priceController, isDarkMode, isEditable: false),
         SizedBox(height: 12.h),
-        _buildFormField("Amount (BTC)", _amountController),
+        _buildFormField("Amount (BTC)", _amountController, isDarkMode),
       ],
     );
   }
 
-  Widget _buildLimitForm() {
+  Widget _buildLimitForm(bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildFormField("Amount (USD)", _usdAmountController),
+        _buildFormField("Amount (USD)", _usdAmountController, isDarkMode),
         SizedBox(height: 8.h),
         Row(
           children: [
@@ -300,21 +317,28 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 "Balance: 11,557.71 USD",
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: Colors.grey[400],
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                 ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-              decoration: BoxDecoration(
-                color: Color(0xFF1E1E1E),
-                borderRadius: BorderRadius.circular(4.r),
-              ),
-              child: Text(
-                "10%",
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: Color(0xFF00685a),
+            GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('10% allocation selected')),
+                );
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+                child: Text(
+                  "10%",
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                  ),
                 ),
               ),
             ),
@@ -325,17 +349,17 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
           "Stop Loss",
           style: TextStyle(
             fontSize: 14.sp,
-            color: Colors.grey[400],
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
           ),
         ),
         SizedBox(height: 8.h),
-        _buildFormField("", _stopLossController, showPrefix: false),
+        _buildFormField("", _stopLossController, isDarkMode, showPrefix: false),
         SizedBox(height: 4.h),
         Text(
           "Potential Loss: \$614.67",
           style: TextStyle(
             fontSize: 14.sp,
-            color: Colors.red,
+            color: AppColors.red,
           ),
         ),
         SizedBox(height: 16.h),
@@ -343,17 +367,17 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
           "Take Profit",
           style: TextStyle(
             fontSize: 14.sp,
-            color: Colors.grey[400],
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
           ),
         ),
         SizedBox(height: 8.h),
-        _buildFormField("", _takeProfitController, showPrefix: false),
+        _buildFormField("", _takeProfitController, isDarkMode, showPrefix: false),
         SizedBox(height: 4.h),
         Text(
           "Potential Profit: \$885.33",
           style: TextStyle(
             fontSize: 14.sp,
-            color: Colors.green,
+            color: AppColors.green,
           ),
         ),
         SizedBox(height: 16.h),
@@ -362,7 +386,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
           ),
         ),
         SizedBox(height: 8.h),
@@ -375,13 +399,13 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 Expanded(
                   flex: 64,
                   child: Container(
-                    color: Colors.green,
+                    color: AppColors.green,
                   ),
                 ),
                 Expanded(
                   flex: 36,
                   child: Container(
-                    color: Colors.red,
+                    color: AppColors.red,
                   ),
                 ),
               ],
@@ -395,15 +419,15 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
               "Buy 64%",
               style: TextStyle(
                 fontSize: 14.sp,
-                color: Colors.green,
+                color: AppColors.green,
               ),
             ),
-            Spacer(),
+            const Spacer(),
             Text(
               "Sell 36%",
               style: TextStyle(
                 fontSize: 14.sp,
-                color: Colors.red,
+                color: AppColors.red,
               ),
             ),
           ],
@@ -412,7 +436,13 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
     );
   }
 
-  Widget _buildFormField(String label, TextEditingController controller, {bool isEditable = true, bool showPrefix = true}) {
+  Widget _buildFormField(
+      String label,
+      TextEditingController controller,
+      bool isDarkMode, {
+        bool isEditable = true,
+        bool showPrefix = true,
+      }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -421,14 +451,14 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
             label,
             style: TextStyle(
               fontSize: 14.sp,
-              color: Colors.grey[400],
+              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
             ),
           ),
         if (label.isNotEmpty) SizedBox(height: 8.h),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           decoration: BoxDecoration(
-            color: Color(0xFF1E1E1E),
+            color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Row(
@@ -438,19 +468,19 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                   label.contains("USD") ? "\$" : "",
                   style: TextStyle(
                     fontSize: 16.sp,
-                    color: Colors.white,
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                   ),
                 ),
               Expanded(
                 child: TextField(
                   controller: controller,
                   enabled: isEditable,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   style: TextStyle(
                     fontSize: 16.sp,
-                    color: Colors.white,
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                   ),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
@@ -464,17 +494,21 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(bool isDarkMode) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       child: Row(
         children: [
           Expanded(
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Buy functionality coming soon!')),
+                );
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.green,
+                foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 padding: EdgeInsets.symmetric(vertical: 16.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.r),
@@ -492,10 +526,14 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
           SizedBox(width: 12.w),
           Expanded(
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sell functionality coming soon!')),
+                );
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.red,
+                foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 padding: EdgeInsets.symmetric(vertical: 16.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.r),
@@ -515,9 +553,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
     );
   }
 
-  Widget _buildAdditionalInfo() {
-    // If we're in market view, show open positions
-    // If in limit view, this section could be empty or show something else
+  Widget _buildAdditionalInfo(bool isDarkMode) {
     if (isMarketSelected) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,7 +565,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
               ),
             ),
           ),
@@ -540,23 +576,35 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
             "+\$521.34",
             "+2.34%",
             isProfit: true,
+            isDarkMode: isDarkMode,
           ),
-          Divider(color: Colors.grey.withOpacity(0.2), height: 1),
+          Divider(
+            color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+            height: 1,
+          ),
           _buildPositionItem(
             "ETH/USD",
             "2.5 ETH",
             "-\$123.45",
             "-1.12%",
             isProfit: false,
+            isDarkMode: isDarkMode,
           ),
         ],
       );
     } else {
-      return SizedBox(); // Empty space for limit view
+      return const SizedBox();
     }
   }
 
-  Widget _buildPositionItem(String pair, String amount, String priceChange, String percentChange, {required bool isProfit}) {
+  Widget _buildPositionItem(
+      String pair,
+      String amount,
+      String priceChange,
+      String percentChange, {
+        required bool isProfit,
+        required bool isDarkMode,
+      }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       color: Colors.transparent,
@@ -570,7 +618,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
+                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 ),
               ),
               SizedBox(height: 4.h),
@@ -578,12 +626,12 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 amount,
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: Colors.grey[400],
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                 ),
               ),
             ],
           ),
-          Spacer(),
+          const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -592,7 +640,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w500,
-                  color: isProfit ? Color(0xFF00E676) : Colors.red,
+                  color: isProfit ? AppColors.green : AppColors.red,
                 ),
               ),
               SizedBox(height: 4.h),
@@ -600,7 +648,7 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
                 percentChange,
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: isProfit ? Color(0xFF00E676) : Colors.red,
+                  color: isProfit ? AppColors.green : AppColors.red,
                 ),
               ),
             ],
@@ -609,69 +657,29 @@ class _CryptoTradingScreenState extends State<CryptoTradingScreen> with SingleTi
       ),
     );
   }
-
-  Widget _buildBottomNavigation() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        border: Border(
-          top: BorderSide(color: Colors.grey.withOpacity(0.2), width: 1),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.home, "Home"),
-          _buildNavItem(Icons.show_chart, "Trade", isSelected: true),
-          _buildNavItem(Icons.account_balance_wallet, "Wallet"),
-          _buildNavItem(Icons.person, "Profile"),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, {bool isSelected = false}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          color: isSelected ? Color(0xFF00685a) : Colors.grey,
-          size: 24.sp,
-        ),
-        SizedBox(height: 4.h),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: isSelected ? Color(0xFF00685a) : Colors.grey,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
-// Custom painter for the candlestick chart
 class CandlestickChartPainter extends CustomPainter {
+  final bool isDarkMode;
+
+  CandlestickChartPainter({required this.isDarkMode});
+
   @override
   void paint(Canvas canvas, Size size) {
     final Paint greenPaint = Paint()
-      ..color = Color(0xFF00685a)
+      ..color = AppColors.green
       ..style = PaintingStyle.fill;
 
     final Paint redPaint = Paint()
-      ..color = Colors.red
+      ..color = AppColors.red
       ..style = PaintingStyle.fill;
 
     final Paint wickPaint = Paint()
-      ..color = Colors.white
+      ..color = isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    // Sample data for candlesticks
-    // Each candlestick is [x, openY, closeY, highY, lowY]
+    // Sample data for candlesticks: [x, openY, closeY, highY, lowY]
     final List<List<double>> candlesticks = [
       [20, 70, 90, 60, 100],
       [50, 90, 70, 60, 100],
@@ -691,8 +699,8 @@ class CandlestickChartPainter extends CustomPainter {
       final double x = candle[0];
       final double open = candle[1];
       final double close = candle[2];
-      final double low = candle[3];
       final double high = candle[4];
+      final double low = candle[3];
 
       // Draw wick
       canvas.drawLine(
@@ -702,8 +710,8 @@ class CandlestickChartPainter extends CustomPainter {
       );
 
       // Draw body
-      final double bodyTop = size.height - Math.max(open, close);
-      final double bodyBottom = size.height - Math.min(open, close);
+      final double bodyTop = size.height - math.max(open, close);
+      final double bodyBottom = size.height - math.min(open, close);
       final double bodyHeight = bodyBottom - bodyTop;
 
       final Paint bodyPaint = open > close ? redPaint : greenPaint;
@@ -717,10 +725,4 @@ class CandlestickChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
-// Import a math library for using max function
-class Math {
-  static double max(double a, double b) => a > b ? a : b;
-  static double min(double a, double b) => a < b ? a : b;
 }

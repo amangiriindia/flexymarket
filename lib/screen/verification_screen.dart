@@ -5,7 +5,7 @@ import 'dart:async';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'main_screen.dart';
+import 'base/main_screen.dart';
 
 class VerificationScreen extends StatefulWidget {
   final String phoneNumber;

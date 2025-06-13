@@ -1,4 +1,4 @@
-import 'package:flexy_markets/screen/login_screen.dart';
+import 'package:flexy_markets/screen/auth/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

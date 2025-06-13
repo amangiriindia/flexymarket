@@ -1,43 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import '../../constant/app_color.dart';
+import '../../providers/theme_provider.dart';
+import '../../widget/common/main_app_bar.dart';
 
-class CommunityScreen extends StatelessWidget {
+
+class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
 
   @override
+  State<CommunityScreen> createState() => _CommunityScreenState();
+}
+
+class _CommunityScreenState extends State<CommunityScreen> {
+  @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+      appBar: const CommonAppBar(
+        title: 'Community',
+        showBackButton: false,
+      ),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // App Bar
-            SliverAppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: Text(
-                'Community',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.search, color: Colors.white, size: 24.sp),
-                  onPressed: () {
-                    // TODO: Implement search functionality
-                  },
-                ),
-              ],
-            ),
-
             // Create New Group Button
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
               sliver: SliverToBoxAdapter(
-                child: _buildCreateGroupButton(),
+                child: _buildCreateGroupButton(isDarkMode),
               ),
             ),
 
@@ -48,7 +42,7 @@ class CommunityScreen extends StatelessWidget {
                 child: Text(
                   'Popular Trading Groups',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -63,12 +57,14 @@ class CommunityScreen extends StatelessWidget {
                     icon: Icons.trending_up,
                     title: 'Day Traders Pro',
                     members: '15.2K',
+                    isDarkMode: isDarkMode,
                   ),
                   SizedBox(height: 12.h),
                   _buildGroupTile(
                     icon: Icons.currency_bitcoin,
                     title: 'Crypto Signals',
                     members: '8.7K',
+                    isDarkMode: isDarkMode,
                   ),
                 ]),
               ),
@@ -81,7 +77,7 @@ class CommunityScreen extends StatelessWidget {
                 child: Text(
                   'Latest Posts',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -101,6 +97,7 @@ class CommunityScreen extends StatelessWidget {
                     chartImagePath: 'assets/images/community2.png',
                     likes: 2100,
                     comments: 156,
+                    isDarkMode: isDarkMode,
                   ),
                   SizedBox(height: 16.h),
                   _buildPostCard(
@@ -110,8 +107,8 @@ class CommunityScreen extends StatelessWidget {
                     chartImagePath: 'assets/images/community1.png',
                     likes: 2100,
                     comments: 156,
+                    isDarkMode: isDarkMode,
                   ),
-                  SizedBox(height: 16.h),
                   _buildPostCard(
                     username: 'John Smith',
                     timeAgo: '2 hours ago',
@@ -119,8 +116,8 @@ class CommunityScreen extends StatelessWidget {
                     chartImagePath: 'assets/images/community2.png',
                     likes: 2100,
                     comments: 156,
+                    isDarkMode: isDarkMode,
                   ),
-                  SizedBox(height: 16.h),
                   _buildPostCard(
                     username: 'Sarah Chen',
                     timeAgo: '5 hours ago',
@@ -128,6 +125,7 @@ class CommunityScreen extends StatelessWidget {
                     chartImagePath: 'assets/images/community1.png',
                     likes: 2100,
                     comments: 156,
+                    isDarkMode: isDarkMode,
                   ),
                   SizedBox(height: 16.h),
                 ]),
@@ -139,13 +137,15 @@ class CommunityScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCreateGroupButton() {
+  Widget _buildCreateGroupButton(bool isDarkMode) {
     return ElevatedButton(
       onPressed: () {
-        // TODO: Implement create new group functionality
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Create New Group functionality coming soon!')),
+        );
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF00685a),
+        backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
         padding: EdgeInsets.symmetric(vertical: 16.h),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -154,12 +154,12 @@ class CommunityScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.add, color: Colors.white, size: 20.sp),
+          Icon(Icons.add, color: AppColors.white, size: 20.sp),
           SizedBox(width: 8.w),
           Text(
             'Create New Group',
             style: TextStyle(
-              color: Colors.white,
+              color: AppColors.white,
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -173,24 +173,36 @@ class CommunityScreen extends StatelessWidget {
     required IconData icon,
     required String title,
     required String members,
+    required bool isDarkMode,
   }) {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12.r),
+        border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
             padding: EdgeInsets.all(8.w),
             decoration: BoxDecoration(
-              color: const Color(0xFF00685a).withOpacity(0.2),
+              color: (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(
               icon,
-              color: const Color(0xFF00685a),
+              color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
               size: 24.sp,
             ),
           ),
@@ -202,7 +214,7 @@ class CommunityScreen extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -210,7 +222,7 @@ class CommunityScreen extends StatelessWidget {
                 Text(
                   '$members members',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                     fontSize: 12.sp,
                   ),
                 ),
@@ -219,10 +231,12 @@ class CommunityScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              // TODO: Implement join group functionality
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Join Group functionality coming soon!')),
+              );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00685a),
+              backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
@@ -231,7 +245,7 @@ class CommunityScreen extends StatelessWidget {
             child: Text(
               'Join',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.white,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -249,11 +263,23 @@ class CommunityScreen extends StatelessWidget {
     required String chartImagePath,
     int? likes,
     int? comments,
+    required bool isDarkMode,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12.r),
+        border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,7 +303,7 @@ class CommunityScreen extends StatelessWidget {
                       Text(
                         username,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -285,7 +311,7 @@ class CommunityScreen extends StatelessWidget {
                       Text(
                         timeAgo,
                         style: TextStyle(
-                          color: Colors.white70,
+                          color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                           fontSize: 12.sp,
                         ),
                       ),
@@ -302,7 +328,7 @@ class CommunityScreen extends StatelessWidget {
             child: Text(
               content,
               style: TextStyle(
-                color: Colors.white,
+                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 fontSize: 14.sp,
               ),
             ),
@@ -322,11 +348,11 @@ class CommunityScreen extends StatelessWidget {
                   return Container(
                     width: double.infinity,
                     height: 200.h,
-                    color: Colors.grey[800],
-                    child: const Center(
+                    color: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+                    child: Center(
                       child: Icon(
                         Icons.broken_image,
-                        color: Colors.white70,
+                        color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                         size: 40,
                       ),
                     ),
@@ -345,16 +371,18 @@ class CommunityScreen extends StatelessWidget {
                   _buildInteractionIcon(
                     icon: Icons.favorite_border,
                     count: likes,
+                    isDarkMode: isDarkMode,
                   ),
                   SizedBox(width: 16.w),
                   _buildInteractionIcon(
                     icon: Icons.comment_outlined,
                     count: comments,
+                    isDarkMode: isDarkMode,
                   ),
                   const Spacer(),
                   Icon(
                     Icons.share,
-                    color: Colors.white70,
+                    color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                     size: 20.sp,
                   ),
                 ],
@@ -368,19 +396,20 @@ class CommunityScreen extends StatelessWidget {
   Widget _buildInteractionIcon({
     required IconData icon,
     required int count,
+    required bool isDarkMode,
   }) {
     return Row(
       children: [
         Icon(
           icon,
-          color: Colors.white70,
+          color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
           size: 20.sp,
         ),
         SizedBox(width: 6.w),
         Text(
           count.toString(),
           style: TextStyle(
-            color: Colors.white70,
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
             fontSize: 12.sp,
           ),
         ),
