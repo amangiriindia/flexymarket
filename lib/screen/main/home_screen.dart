@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
+import '../transation/deposite_fund_screen.dart';
+import '../trade/trade_deatils_screen.dart';
+import 'calculator_screen.dart';
 import 'market_screen.dart';
 
 
@@ -169,19 +172,31 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildOptionCard(Icons.show_chart, 'Trading', isDarkMode),
-        _buildOptionCard(Icons.account_balance_wallet, 'Deposit', isDarkMode),
-        _buildOptionCard(Icons.calculate, 'Calculator', isDarkMode),
+        _buildOptionCard(Icons.show_chart, 'Trading', isDarkMode,targetScreen: CryptoTradingScreen()),
+        _buildOptionCard(Icons.account_balance_wallet, 'Deposit', isDarkMode, targetScreen: DepositFundsScreen() ),
+        _buildOptionCard(Icons.calculate, 'Calculator', isDarkMode, targetScreen: RiskCalculatorScreen()),
       ],
     );
   }
 
-  Widget _buildOptionCard(IconData icon, String title, bool isDarkMode) {
+  Widget _buildOptionCard(
+      IconData icon,
+      String title,
+      bool isDarkMode, {
+        Widget? targetScreen, // optional screen to navigate to
+      }) {
     return GestureDetector(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$title functionality coming soon!')),
-        );
+        if (targetScreen != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => targetScreen),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$title functionality coming soon!')),
+          );
+        }
       },
       child: Container(
         width: 100.w,
@@ -189,7 +204,9 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(12.r),
-          border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
+          border: isDarkMode
+              ? Border.all(color: AppColors.darkBorder, width: 0.5)
+              : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -205,7 +222,9 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                color: isDarkMode
+                    ? AppColors.darkPrimaryText
+                    : AppColors.lightPrimaryText,
               ),
             ),
           ],
@@ -213,6 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   Widget _buildTopMoversSection(bool isDarkMode) {
     return Column(

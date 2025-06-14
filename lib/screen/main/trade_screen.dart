@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
-import '../trade_deatils_screen.dart';
+import '../trade/trade_deatils_screen.dart';
 
 class TradeScreen extends StatefulWidget {
   const TradeScreen({super.key});

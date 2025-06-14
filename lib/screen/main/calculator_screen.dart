@@ -1,168 +1,304 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-// void main() {
-//   runApp(const MyApp());
-// }
-//
-// class MyApp extends StatelessWidget {
-//   const MyApp({Key? key}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return ScreenUtilInit(
-//       designSize: const Size(375, 812), // Design size based on iPhone X
-//       minTextAdaptation: true,
-//       splitScreenMode: true,
-//       builder: (context, child) {
-//         return MaterialApp(
-//           debugShowCheckedModeBanner: false,
-//           title: 'Risk Calculator',
-//           theme: ThemeData(
-//             brightness: Brightness.dark,
-//             scaffoldBackgroundColor: Colors.black,
-//             primaryColor: Colors.green,
-//             inputDecorationTheme: InputDecorationTheme(
-//               filled: true,
-//               fillColor: Colors.grey[900],
-//               border: OutlineInputBorder(
-//                 borderRadius: BorderRadius.circular(8.r),
-//                 borderSide: BorderSide.none,
-//               ),
-//               enabledBorder: OutlineInputBorder(
-//                 borderRadius: BorderRadius.circular(8.r),
-//                 borderSide: BorderSide.none,
-//               ),
-//               focusedBorder: OutlineInputBorder(
-//                 borderRadius: BorderRadius.circular(8.r),
-//                 borderSide: BorderSide(color: Colors.green, width: 2),
-//               ),
-//             ),
-//             textTheme: TextTheme(
-//               bodyMedium: TextStyle(color: Colors.white, fontSize: 16.sp),
-//             ),
-//           ),
-//           home: const RiskCalculatorScreen(),
-//         );
-//       },
-//     );
-//   }
-// }
+import 'package:provider/provider.dart';
+import '../../constant/app_color.dart';
+import '../../providers/theme_provider.dart';
+import '../../widget/common/common_app_bar.dart';
 
 class RiskCalculatorScreen extends StatefulWidget {
-  const RiskCalculatorScreen({Key? key}) : super(key: key);
+  const RiskCalculatorScreen({super.key});
 
   @override
   State<RiskCalculatorScreen> createState() => _RiskCalculatorScreenState();
 }
 
-class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> {
-  // Controllers for text input
-  final TextEditingController _accountBalanceController = TextEditingController(text: "10,000.00");
-  final TextEditingController _riskPercentageController = TextEditingController(text: "1.00");
-  final TextEditingController _stopLossPipsController = TextEditingController(text: "50");
+class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> with SingleTickerProviderStateMixin {
+  final TextEditingController _accountBalanceController = TextEditingController(text: '10000.00');
+  final TextEditingController _riskPercentageController = TextEditingController(text: '1.00');
+  final TextEditingController _stopLossPipsController = TextEditingController(text: '50');
 
-  // Calculated values
-  double _positionSize = 2.5;
-  double _potentialLoss = 100.00;
-  String _riskLevel = "Low Risk";
+  double _positionSize = 0.0;
+  double _potentialLoss = 0.0;
+  String _riskLevel = 'Low Risk';
+
+  late AnimationController _animationController;
+  late Animation<double> _positionFadeAnimation;
+  late Animation<double> _lossFadeAnimation;
+  late Animation<double> _riskFadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _positionFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+      ),
+    );
+    _lossFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.2, 0.7, curve: Curves.easeIn),
+      ),
+    );
+    _riskFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.4, 0.9, curve: Curves.easeIn),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _accountBalanceController.dispose();
+    _riskPercentageController.dispose();
+    _stopLossPipsController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _calculateRisk() {
-    // Parse input values
-    double accountBalance = double.tryParse(_accountBalanceController.text.replaceAll(',', '')) ?? 0;
-    double riskPercentage = double.tryParse(_riskPercentageController.text) ?? 0;
-    int stopLossPips = int.tryParse(_stopLossPipsController.text) ?? 0;
+    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final accountBalance = double.tryParse(_accountBalanceController.text.replaceAll(',', '')) ?? 0;
+    final riskPercentage = double.tryParse(_riskPercentageController.text) ?? 0;
+    final stopLossPips = int.tryParse(_stopLossPipsController.text) ?? 0;
 
-    // Validate inputs
-    if (accountBalance <= 0 || riskPercentage <= 0 || stopLossPips <= 0) {
+    if (_accountBalanceController.text.isEmpty ||
+        _riskPercentageController.text.isEmpty ||
+        _stopLossPipsController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter valid positive numbers")),
+        SnackBar(
+          content: Text(
+            'Please fill all fields',
+            style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+          ),
+          backgroundColor: AppColors.red,
+        ),
       );
       return;
     }
 
-    // Calculate risk
-    double riskAmount = accountBalance * (riskPercentage / 100);
+    if (accountBalance <= 0 || riskPercentage <= 0 || stopLossPips <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter valid positive numbers',
+            style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+          ),
+          backgroundColor: AppColors.red,
+        ),
+      );
+      return;
+    }
 
-    // Calculate position size (simplified calculation)
-    // Assuming 1 lot = $10 per pip for this example
-    double positionSize = riskAmount / (stopLossPips * 10);
+    final riskAmount = accountBalance * (riskPercentage / 100);
+    final positionSize = riskAmount / (stopLossPips * 10);
 
     setState(() {
       _positionSize = double.parse(positionSize.toStringAsFixed(2));
       _potentialLoss = double.parse(riskAmount.toStringAsFixed(2));
-
-      // Determine risk level
-      if (riskPercentage <= 1) {
-        _riskLevel = "Low Risk";
-      } else if (riskPercentage <= 2) {
-        _riskLevel = "Medium Risk";
-      } else {
-        _riskLevel = "High Risk";
-      }
+      _riskLevel = riskPercentage <= 1
+          ? 'Low Risk'
+          : riskPercentage <= 2
+          ? 'Medium Risk'
+          : 'High Risk';
+      _animationController.reset();
+      _animationController.forward();
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Risk calculated successfully',
+          style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+        ),
+        backgroundColor: AppColors.green,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
+
     return Scaffold(
-      body: SafeArea(
+      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+      appBar: AppBar(
+        title: Text('Risk Calculator'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Returning to Profile',
+                  style: TextStyle(
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                  ),
+                ),
+                backgroundColor: AppColors.red,
+              ),
+            );
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.help_outline,
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+              size: 24.sp,
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  title: Text(
+                    'Risk Calculator Help',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    ),
+                    semanticsLabel: 'Risk Calculator Help',
+                  ),
+                  content: Text(
+                    'Calculate your trading risk by entering your account balance, risk percentage, and stop loss in pips.',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'Close',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                        ),
+                        semanticsLabel: 'Close Help Dialog',
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+
+        body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                _buildHeader(),
-                SizedBox(height: 24.h),
-
-                // Account Balance Input
+                SizedBox(height: 12.h),
                 _buildInputField(
                   controller: _accountBalanceController,
-                  label: "Account Balance",
-                  prefixIcon: Icons.account_balance_wallet,
-                  inputType: TextInputType.number,
-                  prefixText: "\$ ",
+                  label: 'Account Balance',
+                  prefixText: '\$ ',
+                  inputType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                  ],
+                  semanticsLabel: 'Enter Account Balance',
+                  isDarkMode: isDarkMode,
                 ),
                 SizedBox(height: 16.h),
-
-                // Risk and Stop Loss Inputs
                 Row(
                   children: [
                     Expanded(
                       child: _buildInputField(
                         controller: _riskPercentageController,
-                        label: "Risk Percentage",
-                        suffixText: "%",
-                        inputType: TextInputType.number,
+                        label: 'Risk Percentage',
+                        suffixText: '%',
+                        inputType: TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                        ],
+                        semanticsLabel: 'Enter Risk Percentage',
+                        isDarkMode: isDarkMode,
                       ),
                     ),
                     SizedBox(width: 16.w),
                     Expanded(
                       child: _buildInputField(
                         controller: _stopLossPipsController,
-                        label: "Stop Loss (Pips)",
+                        label: 'Stop Loss (Pips)',
                         inputType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        semanticsLabel: 'Enter Stop Loss in Pips',
+                        isDarkMode: isDarkMode,
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 24.h),
-
-                // Calculation Results
-                _buildResultRow("Position Size", "${_positionSize} Lots"),
+                FadeTransition(
+                  opacity: _positionFadeAnimation,
+                  child: _buildResultRow(
+                    label: 'Position Size',
+                    value: '$_positionSize Lots',
+                    isDarkMode: isDarkMode,
+                    semanticsLabel: 'Position Size: $_positionSize Lots',
+                  ),
+                ),
                 SizedBox(height: 16.h),
-                _buildResultRow("Potential Loss", "\$$_potentialLoss"),
+                FadeTransition(
+                  opacity: _lossFadeAnimation,
+                  child: _buildResultRow(
+                    label: 'Potential Loss',
+                    value: '\$$_potentialLoss',
+                    isDarkMode: isDarkMode,
+                    semanticsLabel: 'Potential Loss: $_potentialLoss',
+                  ),
+                ),
                 SizedBox(height: 24.h),
-
-                // Calculate Button
-                _buildCalculateButton(),
+                GestureDetector(
+                  onTap: _calculateRisk,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                    decoration: BoxDecoration(
+                      color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Calculate',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                        ),
+                        semanticsLabel: 'Calculate Risk',
+                      ),
+                    ),
+                  ),
+                ),
                 SizedBox(height: 24.h),
-
-                // Risk Level Indicator
-                _buildRiskLevelIndicator(),
+                FadeTransition(
+                  opacity: _riskFadeAnimation,
+                  child: _buildRiskLevelIndicator(isDarkMode),
+                ),
+                SizedBox(height: 24.h),
               ],
             ),
           ),
@@ -171,96 +307,84 @@ class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          icon: Icon(Icons.arrow_back, size: 24.sp),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        Text(
-          "Risk Calculator",
-          style: TextStyle(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.bold,
-            color: Colors.white
-          ),
-        ),
-        IconButton(
-          icon: Icon(Icons.help_outline, size: 24.sp,color: Colors.white),
-          onPressed: () {
-            // Show help dialog
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text("Risk Calculator Help"),
-                content: Text(
-                  "Calculate your trading risk by entering your account balance, "
-                      "risk percentage, and stop loss in pips.",
-                  style: TextStyle(fontSize: 14.sp),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text("Close"),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
-    TextInputType inputType = TextInputType.number,
-    IconData? prefixIcon,
+    required bool isDarkMode,
+    TextInputType inputType = TextInputType.text,
     String? prefixText,
     String? suffixText,
+    List<TextInputFormatter>? inputFormatters,
+    String? semanticsLabel,
   }) {
-    return TextField(
-      controller: controller,
-      keyboardType: inputType,
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 16.sp,
-        fontWeight: FontWeight.bold,
-      ),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 16.sp,
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          decoration: BoxDecoration(
+            color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+          ),
+          child: TextField(
+            controller: controller,
+            keyboardType: inputType,
+            inputFormatters: inputFormatters,
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            ),
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              prefixText: prefixText,
+              suffixText: suffixText,
+              prefixStyle: TextStyle(
+                fontSize: 16.sp,
+                color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              ),
+              suffixStyle: TextStyle(
+                fontSize: 16.sp,
+                color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              ),
+            ),
+
+          ),
+        ),
       ],
-      decoration: InputDecoration(
-        hintText: label,
-        hintStyle: TextStyle(
-          color: Colors.grey,
-          fontSize: 16.sp,
-        ),
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color(0xFF00685a)) : null,
-        prefixText: prefixText,
-        suffixText: suffixText,
-        prefixStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 16.sp,
-          fontWeight: FontWeight.bold,
-        ),
-        suffixStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 16.sp,
-        ),
-      ),
     );
   }
 
-  Widget _buildResultRow(String label, String value) {
+  Widget _buildResultRow({
+    required String label,
+    required String value,
+    required bool isDarkMode,
+    String? semanticsLabel,
+  }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(8.r),
+        color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -269,55 +393,39 @@ class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> {
             label,
             style: TextStyle(
               fontSize: 16.sp,
-              color: Colors.grey,
+              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
             ),
           ),
           Text(
             value,
             style: TextStyle(
               fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             ),
           ),
         ],
       ),
+
     );
   }
 
-  Widget _buildCalculateButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFF00685a),
-          foregroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(vertical: 16.h),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-        ),
-        onPressed: _calculateRisk,
-        child: Text(
-          "Calculate",
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _buildRiskLevelIndicator(bool isDarkMode) {
+    final riskColor = _riskLevel == 'Low Risk'
+        ? AppColors.green
+        : _riskLevel == 'Medium Risk'
+        ? Colors.orange
+        : AppColors.red;
+    final flexValue = _riskLevel == 'Low Risk' ? 2 : _riskLevel == 'Medium Risk' ? 4 : 6;
 
-  Widget _buildRiskLevelIndicator() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Risk Level",
+          'Risk Level',
           style: TextStyle(
             fontSize: 16.sp,
-            color: Colors.grey,
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
           ),
         ),
         SizedBox(height: 8.h),
@@ -325,31 +433,27 @@ class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> {
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 12.h),
           decoration: BoxDecoration(
-            color: Colors.grey[900],
+            color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
             borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
           ),
           child: Row(
             children: [
               Expanded(
-                flex: _riskLevel == "Low Risk" ? 2 :
-                _riskLevel == "Medium Risk" ? 4 : 6,
+                flex: flexValue,
                 child: Container(
                   height: 8.h,
                   decoration: BoxDecoration(
-                    color: _riskLevel == "Low Risk" ? Color(0xFF00685a) :
-                    _riskLevel == "Medium Risk" ? Colors.orange : Colors.red,
+                    color: riskColor,
                     borderRadius: BorderRadius.circular(4.r),
                   ),
                 ),
               ),
               Expanded(
-                flex: 6 - (
-                    _riskLevel == "Low Risk" ? 2 :
-                    _riskLevel == "Medium Risk" ? 4 : 6
-                ),
+                flex: 6 - flexValue,
                 child: Container(
                   height: 8.h,
-                  color: Colors.grey[800],
+                  color: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
                 ),
               ),
             ],
@@ -360,9 +464,9 @@ class _RiskCalculatorScreenState extends State<RiskCalculatorScreen> {
           _riskLevel,
           style: TextStyle(
             fontSize: 14.sp,
-            color: _riskLevel == "Low Risk" ? Colors.white :
-            _riskLevel == "Medium Risk" ? Colors.orange : Colors.red,
+            color: riskColor,
           ),
+          semanticsLabel: 'Risk Level: $_riskLevel',
         ),
       ],
     );

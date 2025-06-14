@@ -8,16 +8,16 @@ import '../partnership_program_screen.dart';
 import '../performance_screen.dart';
 import '../profile/permotions_screen.dart';
 import '../setting_screen.dart';
-import '../social_trading.dart';
+import '../profile/social_trading.dart';
 import '../support/my_tickets_screen.dart';
 import '../profile/support_screen.dart';
-import '../transation_history_screen.dart';
-import '../transfer_money_screen.dart';
+import '../transation/transation_history_screen.dart';
+import '../transation/transfer_money_screen.dart';
 import '../auth/welcome_screen.dart';
 import '../profile/about_us_screen.dart';
-import '../deposite_fund_screen.dart';
+import '../transation/deposite_fund_screen.dart';
 import '../profile/feedback_screen.dart';
-import '../withdraw_fund_screen.dart';
+import '../transation/withdraw_fund_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -452,15 +452,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           isDarkMode,
         ),
-        _buildSupportRow(
-          Icons.swap_horiz,
-          "Transfer Money",
-              () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const TransferMoneyScreen()),
-          ),
-          isDarkMode,
-        ),
+        // _buildSupportRow(
+        //   Icons.swap_horiz,
+        //   "Transfer Money",
+        //       () => Navigator.push(
+        //     context,
+        //     MaterialPageRoute(builder: (context) => const TransferMoneyScreen()),
+        //   ),
+        //   isDarkMode,
+        // ),
         SizedBox(height: 16.h),
         Text(
           "Support & Settings",
