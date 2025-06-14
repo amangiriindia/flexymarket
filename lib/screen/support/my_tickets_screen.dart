@@ -124,20 +124,9 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 20.h),
-                Text(
-                  'My Tickets',
-                  style: TextStyle(
-                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
                 SizedBox(height: 16.h),
                 _buildSearchBar(isDarkMode),
                 SizedBox(height: 16.h),
-                _buildListHeader(isDarkMode),
-                SizedBox(height: 8.h),
                 _allTickets.isEmpty
                     ? _buildEmptyState(isDarkMode)
                     : ListView.builder(
@@ -214,101 +203,6 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildListHeader(bool isDarkMode) {
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
-        border: Border(
-          bottom: BorderSide(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
-        ),
-      ),
-      child: Row(
-        children: [
-          Flexible(
-            flex: 1,
-            child: Text(
-              'Serial No.',
-              style: TextStyle(
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Flexible(
-            flex: 2,
-            child: Text(
-              'Enquiry Type',
-              style: TextStyle(
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Text(
-              'Ticket ID',
-              style: TextStyle(
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Flexible(
-            flex: 3,
-            child: Text(
-              'Title',
-              style: TextStyle(
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Text(
-              'Status',
-              style: TextStyle(
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Flexible(
-            flex: 2,
-            child: Text(
-              'Last Updated',
-              style: TextStyle(
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Text(
-              'Action',
-              style: TextStyle(
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildEmptyState(bool isDarkMode) {
     return Center(
@@ -352,17 +246,22 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
   }
 
   Widget _buildTicketCard(Map<String, dynamic> ticket, bool isDarkMode) {
+    final textColor = isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText;
+    final cardColor = isDarkMode ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDarkMode ? AppColors.darkBorder : AppColors.lightBorder;
+
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => TicketDetailsScreen(ticket: ticket)),
       ),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.symmetric(vertical: 12.h),
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 10.h),
+        padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          color: cardColor,
           borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: borderColor),
           boxShadow: isDarkMode
               ? null
               : [
@@ -372,133 +271,104 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> with SingleTickerProv
               offset: const Offset(0, 2),
             ),
           ],
-          border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
         ),
-        transform: Matrix4.identity()..scale(1.0),
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Row(
-            children: [
-              Flexible(
-                flex: 1,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 40.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Row 1: Title
+            Text(
+              ticket['title'],
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: textColor,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: 8.h),
+
+            // Row 2: Status and Date
+            Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: ticket['status'] == 'Closed' ? AppColors.green : AppColors.red,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
                   child: Text(
-                    ticket['serialNo'].toString(),
+                    ticket['status'],
                     style: TextStyle(
-                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                      fontSize: 14.sp,
+                      color: Colors.white,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              ),
-              Flexible(
-                flex: 2,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 80.w),
-                  child: Text(
-                    ticket['enquiryType'],
-                    style: TextStyle(
-                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                      fontSize: 14.sp,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                Spacer(),
+                Icon(Icons.calendar_today, size: 14.sp, color: textColor),
+                SizedBox(width: 4.w),
+                Text(
+                  ticket['lastUpdated'],
+                  style: TextStyle(fontSize: 12.sp, color: textColor),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+
+            // Row 3: Other Info
+            Wrap(
+              spacing: 16.w,
+              runSpacing: 8.h,
+              children: [
+                _buildInfoItem(Icons.confirmation_number, 'ID', ticket['ticketId'], textColor),
+                _buildInfoItem(Icons.question_answer, 'Enquiry', ticket['enquiryType'], textColor),
+                _buildInfoItem(Icons.numbers, 'Serial', ticket['serialNo'].toString(), textColor),
+              ],
+            ),
+            SizedBox(height: 12.h),
+
+            // Row 4: View Button
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton.icon(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TicketDetailsScreen(ticket: ticket)),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                  foregroundColor: textColor,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                ),
+                icon: Icon(Icons.visibility, size: 16.sp),
+                label: Text(
+                  'View',
+                  style: TextStyle(fontSize: 13.sp),
                 ),
               ),
-              Flexible(
-                flex: 1,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 60.w),
-                  child: Text(
-                    ticket['ticketId'],
-                    style: TextStyle(
-                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                ),
-              ),
-              Flexible(
-                flex: 3,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 100.w),
-                  child: Text(
-                    ticket['title'],
-                    style: TextStyle(
-                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                      fontSize: 14.sp,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-              Flexible(
-                flex: 1,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 60.w),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: ticket['status'] == 'Closed' ? AppColors.green : AppColors.red,
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    child: Text(
-                      ticket['status'],
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-              Flexible(
-                flex: 2,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 80.w),
-                  child: Text(
-                    ticket['lastUpdated'],
-                    style: TextStyle(
-                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                      fontSize: 14.sp,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              Flexible(
-                flex: 1,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 40.w),
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => TicketDetailsScreen(ticket: ticket)),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-                      foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                      minimumSize: Size(40.w, 32.h),
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-                    ),
-                    child: Text(
-                      'View',
-                      style: TextStyle(fontSize: 12.sp),
-                      semanticsLabel: 'View Ticket ${ticket['ticketId']}',
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  Widget _buildInfoItem(IconData icon, String label, String value, Color textColor) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14.sp, color: textColor),
+        SizedBox(width: 4.w),
+        Text(
+          '$label: $value',
+          style: TextStyle(fontSize: 13.sp, color: textColor),
+        ),
+      ],
+    );
+  }
+
+
 }

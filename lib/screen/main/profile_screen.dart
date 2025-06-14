@@ -6,17 +6,17 @@ import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
 import '../partnership_program_screen.dart';
 import '../performance_screen.dart';
-import '../permotions_screen.dart';
+import '../profile/permotions_screen.dart';
 import '../setting_screen.dart';
 import '../social_trading.dart';
 import '../support/my_tickets_screen.dart';
-import '../support_screen.dart';
+import '../profile/support_screen.dart';
 import '../transation_history_screen.dart';
 import '../transfer_money_screen.dart';
 import '../auth/welcome_screen.dart';
-import '../about_us_screen.dart';
+import '../profile/about_us_screen.dart';
 import '../deposite_fund_screen.dart';
-import '../feedback_screen.dart';
+import '../profile/feedback_screen.dart';
 import '../withdraw_fund_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -496,15 +496,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const PromotionsScreen()),
-          ),
-          isDarkMode,
-        ),
-        _buildSupportRow(
-          Icons.lightbulb_outline,
-          "Suggest Feature",
-              () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const FeedbackScreen()),
           ),
           isDarkMode,
         ),

@@ -75,34 +75,15 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 20.h),
-                Text(
-                  'Create New Ticket',
-                  style: TextStyle(
-                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Card(
-                  color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-                  elevation: isDarkMode ? 0 : 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                  child: Padding(
+
+                 Padding(
                     padding: EdgeInsets.all(16.w),
                     child: Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Fill Details',
-                            style: TextStyle(
-                              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                          SizedBox(height: 8.h),
+
                           Divider(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
                           SizedBox(height: 16.h),
                           Wrap(
@@ -197,7 +178,6 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
                       ),
                     ),
                   ),
-                ),
                 SizedBox(height: 20.h),
               ],
             ),
