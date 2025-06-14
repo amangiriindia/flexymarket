@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
+import '../../screenutils/notification_screen.dart';
 
 class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -99,19 +100,9 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
             semanticLabel: 'Notifications',
           ),
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Notifications coming soon!',
-                  style: TextStyle(
-                    color:
-                        isDarkMode
-                            ? AppColors.darkPrimaryText
-                            : AppColors.lightPrimaryText,
-                  ),
-                ),
-                backgroundColor: AppColors.green,
-              ),
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => NotificationScreen()),
             );
           },
         ),

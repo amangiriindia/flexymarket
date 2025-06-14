@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../constant/app_color.dart';
 import '../../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
+import '../transation/deposite_fund_screen.dart';
+import '../transation/withdraw_fund_screen.dart';
 
 
 class WalletScreen extends StatefulWidget {
@@ -259,8 +261,9 @@ class _WalletScreenState extends State<WalletScreen> {
           label: 'Deposit',
           isDarkMode: isDarkMode,
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Deposit functionality coming soon!')),
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => DepositFundsScreen()),
             );
           },
         ),
@@ -271,14 +274,16 @@ class _WalletScreenState extends State<WalletScreen> {
           label: 'Withdraw',
           isDarkMode: isDarkMode,
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Withdraw functionality coming soon!')),
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => WithdrawFundsScreen()),
             );
           },
         ),
       ],
     );
   }
+
 
   Widget _buildActionButton(
       BuildContext context, {
