@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
+import '../metatrade/create_meta_trade_screen.dart';
+import '../metatrade/meta_trade_list_screen.dart';
 import '../partnership_program_screen.dart';
 import '../performance_screen.dart';
 import '../profile/permotions_screen.dart';
@@ -19,6 +21,7 @@ import '../transation/deposite_fund_screen.dart';
 import '../profile/feedback_screen.dart';
 import '../transation/withdraw_fund_screen.dart';
 
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
@@ -26,13 +29,41 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   final String name = "John Doe";
   final String id = "284591";
   final double balance = 188.84;
   final double total = 440.90;
   final int referrals = 28;
   final String email = "john.doe@email.com";
+
+  late AnimationController _animationController;
+  late List<Animation<double>> _fadeAnimations;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _fadeAnimations = List.generate(
+      2, // For the two MT5 rows
+          (index) => Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Interval(0.1 * index, 0.3 + 0.1 * index, curve: Curves.easeIn),
+        ),
+      ),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
-                    color:  isDarkMode ? AppColors.white : Colors.black,
+                    color: isDarkMode ? AppColors.white : Colors.black,
                   ),
                 ),
               ),
@@ -367,7 +398,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>  SocialTradingScreen()),
+                MaterialPageRoute(builder: (context) => SocialTradingScreen()),
               );
             },
             isDarkMode,
@@ -417,6 +448,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
+          "MT5 Accounts",
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        FadeTransition(
+          opacity: _fadeAnimations[0],
+          child: _buildSupportRow(
+            Icons.add_circle_outline,
+            "Create New Account",
+                () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreateMetaAccountScreen()),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "Opening Create Account",
+                    style: TextStyle(
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    ),
+                  ),
+                  backgroundColor: AppColors.green,
+                ),
+              );
+            },
+            isDarkMode,
+            semanticLabel: "Create New MT5 Account",
+          ),
+        ),
+        FadeTransition(
+          opacity: _fadeAnimations[1],
+          child: _buildSupportRow(
+            Icons.list_alt,
+            "MT5 List Account",
+                () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>  MetaTradeListScreen()),
+              );
+            },
+            isDarkMode,
+            semanticLabel: "View MT5 Account List",
+          ),
+        ),
+        SizedBox(height: 16.h),
+        Text(
           "Financial Actions",
           style: TextStyle(
             fontSize: 16.sp,
@@ -452,15 +534,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           isDarkMode,
         ),
-        // _buildSupportRow(
-        //   Icons.swap_horiz,
-        //   "Transfer Money",
-        //       () => Navigator.push(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => const TransferMoneyScreen()),
-        //   ),
-        //   isDarkMode,
-        // ),
         SizedBox(height: 16.h),
         Text(
           "Support & Settings",
@@ -480,7 +553,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           isDarkMode,
         ),
-
         _buildSupportRow(
           Icons.support,
           "My Ticket",
@@ -521,7 +593,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSupportRow(IconData icon, String title, VoidCallback onPressed, bool isDarkMode) {
+  Widget _buildSupportRow(
+      IconData icon,
+      String title,
+      VoidCallback onPressed,
+      bool isDarkMode, {
+        String? semanticLabel,
+      }) {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
@@ -566,6 +644,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
+      //  semanticsLabel: semanticLabel ?? title,
       ),
     );
   }
