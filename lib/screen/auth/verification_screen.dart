@@ -6,15 +6,15 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import '../../../constant/app_color.dart';
 import '../../../providers/theme_provider.dart';
-import '../base/main_screen.dart';
-
+import '../../service/auth_service.dart';
+import '../auth/login_screen.dart';
 
 class VerificationScreen extends StatefulWidget {
-  final String phoneNumber;
+  final String email;
 
   const VerificationScreen({
     super.key,
-    required this.phoneNumber,
+    required this.email,
   });
 
   @override
@@ -22,11 +22,15 @@ class VerificationScreen extends StatefulWidget {
 }
 
 class _VerificationScreenState extends State<VerificationScreen> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  final List<TextEditingController> _emailOtpControllers = List.generate(6, (_) => TextEditingController());
+  final List<FocusNode> _emailFocusNodes = List.generate(6, (_) => FocusNode());
   Timer? _timer;
   int _resendTime = 59;
   bool _canResend = false;
+  bool _isEmailVerified = false;
+  bool _isLoading = false;
+
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -37,10 +41,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
   @override
   void dispose() {
     _timer?.cancel();
-    for (var controller in _controllers) {
+    for (var controller in _emailOtpControllers) {
       controller.dispose();
     }
-    for (var node in _focusNodes) {
+    for (var node in _emailFocusNodes) {
       node.dispose();
     }
     super.dispose();
@@ -59,55 +63,68 @@ class _VerificationScreenState extends State<VerificationScreen> {
     });
   }
 
-  void _resendCode() {
+  void _resendCode() async {
     if (_canResend) {
-      for (var controller in _controllers) {
-        controller.clear();
-      }
       setState(() {
-        _resendTime = 59;
-        _canResend = false;
+        _isLoading = true;
       });
-      _startResendTimer();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Verification code resent',
-            style: TextStyle(color: AppColors.white),
+
+      try {
+        await _authService.sendOtpToEmail(widget.email);
+        for (var controller in _emailOtpControllers) {
+          controller.clear();
+        }
+
+        setState(() {
+          _resendTime = 59;
+          _canResend = false;
+        });
+        _startResendTimer();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Verification code resent to email',
+              style: TextStyle(
+                color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
+                    ? AppColors.darkPrimaryText
+                    : AppColors.lightPrimaryText,
+              ),
+            ),
+            backgroundColor: AppColors.green,
           ),
-          backgroundColor: AppColors.green,
-        ),
-      );
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error: $e',
+              style: TextStyle(
+                color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
+                    ? AppColors.darkPrimaryText
+                    : AppColors.lightPrimaryText,
+              ),
+            ),
+            backgroundColor: AppColors.red,
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
-  void _verifyCode() {
-    String code = _controllers.map((controller) => controller.text).join();
+  Future<void> _verifyCode() async {
+    final code = _emailOtpControllers.map((controller) => controller.text).join();
     final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    if (code.length == 6) {
-      print('Verifying code: $code');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const MainScreen(),
-        ),
-      );
+
+    if (code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Verification successful',
-            style: TextStyle(
-              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-            ),
-          ),
-          backgroundColor: AppColors.green,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please enter all digits',
+            'Please enter all email OTP digits',
             style: TextStyle(
               color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             ),
@@ -115,9 +132,55 @@ class _VerificationScreenState extends State<VerificationScreen> {
           backgroundColor: AppColors.red,
         ),
       );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _authService.verifyOtpForEmail(widget.email, code);
+      setState(() {
+        _isEmailVerified = true;
+      });
+
+      // Navigate to LoginScreen upon successful email verification
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Email verified successfully',
+            style: TextStyle(
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            ),
+          ),
+          backgroundColor: AppColors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error: $e',
+            style: TextStyle(
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            ),
+          ),
+          backgroundColor: AppColors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +195,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-
                 SizedBox(height: 40.h),
                 _buildLogo(isDarkMode),
                 SizedBox(height: 20.h),
@@ -140,10 +202,15 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 SizedBox(height: 20.h),
                 _buildTitle(isDarkMode),
                 SizedBox(height: 30.h),
-                _buildOtpFields(isDarkMode),
+                _buildOtpSection(
+                  isDarkMode: isDarkMode,
+                  title: 'Enter the code sent to your email:',
+                  subtitle: widget.email,
+                  controllers: _emailOtpControllers,
+                  focusNodes: _emailFocusNodes,
+                  isVerified: _isEmailVerified,
+                ),
                 SizedBox(height: 40.h),
-                _buildVerifyButton(isDarkMode),
-                SizedBox(height: 20.h),
                 _buildResendOption(isDarkMode),
                 SizedBox(height: 20.h),
               ],
@@ -153,7 +220,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
       ),
     );
   }
-
 
   Widget _buildLogo(bool isDarkMode) {
     return Row(
@@ -168,10 +234,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
         Text(
           'Flexy Markets',
           style: TextStyle(
-            color:
-            isDarkMode
-                ? AppColors.darkPrimaryText
-                : AppColors.lightPrimaryText,
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             fontSize: 24.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -203,16 +266,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
         ),
         SizedBox(height: 8.h),
         Text(
-          'Enter the code we sent to:',
-          style: TextStyle(
-            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-            fontSize: 14.sp,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 4.h),
-        Text(
-          widget.phoneNumber,
+          'Enter the code sent to your email to continue',
           style: TextStyle(
             color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
             fontSize: 14.sp,
@@ -223,90 +277,149 @@ class _VerificationScreenState extends State<VerificationScreen> {
     );
   }
 
-  Widget _buildOtpFields(bool isDarkMode) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(
-        6,
-            (index) => ClipRRect(
-          borderRadius: BorderRadius.circular(8.r),
-          child: SizedBox(
-            width: 50.w,
-            height: 50.h,
-            child: TextField(
-              controller: _controllers[index],
-              focusNode: _focusNodes[index],
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLength: 1,
-              decoration: InputDecoration(
-                counterText: '',
-                filled: true,
-                fillColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: BorderSide(
-                    color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
-                    width: 1,
+  Widget _buildOtpSection({
+    required bool isDarkMode,
+    required String title,
+    required String subtitle,
+    required List<TextEditingController> controllers,
+    required List<FocusNode> focusNodes,
+    required bool isVerified,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+            fontSize: 14.sp,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          subtitle,
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 16.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(
+            6,
+                (index) => ClipRRect(
+              borderRadius: BorderRadius.circular(8.r),
+              child: SizedBox(
+                width: 50.w,
+                height: 50.h,
+                child: TextField(
+                  controller: controllers[index],
+                  focusNode: focusNodes[index],
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
                   ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: BorderSide(
-                    color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-                    width: 2,
+                  maxLength: 1,
+                  readOnly: isVerified,
+                  decoration: InputDecoration(
+                    counterText: '',
+                    filled: true,
+                    fillColor: isVerified
+                        ? AppColors.green.withOpacity(0.2)
+                        : isDarkMode
+                        ? AppColors.darkCard
+                        : AppColors.lightCard,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: BorderSide(
+                        color: isVerified
+                            ? AppColors.green
+                            : isDarkMode
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      borderSide: BorderSide(
+                        color: isVerified
+                            ? AppColors.green
+                            : isDarkMode
+                            ? AppColors.darkAccent
+                            : AppColors.lightAccent,
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
                   ),
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (value) {
+                    if (!isVerified) {
+                      if (value.isNotEmpty && index < 5) {
+                        focusNodes[index + 1].requestFocus();
+                      } else if (value.isEmpty && index > 0) {
+                        focusNodes[index - 1].requestFocus();
+                      }
+                      if (index == 5 && value.isNotEmpty) {
+                        bool allFilled = controllers.every((controller) => controller.text.isNotEmpty);
+                        if (allFilled) {
+                          FocusScope.of(context).unfocus();
+                        }
+                      }
+                    }
+                  },
                 ),
-                contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
               ),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              onChanged: (value) {
-                if (value.isNotEmpty && index < 5) {
-                  _focusNodes[index + 1].requestFocus();
-                } else if (value.isEmpty && index > 0) {
-                  _focusNodes[index - 1].requestFocus();
-                }
-                if (index == 5 && value.isNotEmpty) {
-                  bool allFilled = _controllers.every((controller) => controller.text.isNotEmpty);
-                  if (allFilled) {
-                    FocusScope.of(context).unfocus();
-                  }
-                }
-              },
-            ///  semanticsLabel: 'OTP Digit ${index + 1}',
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildVerifyButton(bool isDarkMode) {
-    return ElevatedButton(
-      onPressed: _verifyCode,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-        foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-        elevation: isDarkMode ? 0 : 2,
-        minimumSize: Size(double.infinity, 50.h),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.r),
+        SizedBox(height: 16.h),
+        ElevatedButton(
+          onPressed: isVerified || _isLoading ? null : _verifyCode,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isVerified
+                ? AppColors.green
+                : isDarkMode
+                ? AppColors.darkAccent
+                : AppColors.lightAccent,
+            foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            disabledBackgroundColor:
+            (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
+            disabledForegroundColor:
+            (isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText).withOpacity(0.5),
+            elevation: isDarkMode ? 0 : 2,
+            minimumSize: Size(double.infinity, 50.h),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            shadowColor: isDarkMode ? null : AppColors.lightShadow,
+          ),
+          child: _isLoading && !isVerified
+              ? SizedBox(
+            width: 24.w,
+            height: 24.h,
+            child: CircularProgressIndicator(
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+              strokeWidth: 2,
+            ),
+          )
+              : Text(
+            isVerified ? 'Verified' : 'Verify Email',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-        shadowColor: isDarkMode ? null : AppColors.lightShadow,
-      ),
-      child: Text(
-        'Verify Code',
-        style: TextStyle(
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
-        ),
-        semanticsLabel: 'Verify Code',
-      ),
+      ],
     );
   }
 
@@ -314,17 +427,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
     return Column(
       children: [
         TextButton(
-          onPressed: _canResend ? _resendCode : null,
+          onPressed: _canResend && !_isEmailVerified ? _resendCode : null,
           child: Text(
-            'Resend Code',
+            'Resend Email Code',
             style: TextStyle(
-              color: _canResend
+              color: _canResend && !_isEmailVerified
                   ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
                   : (isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText),
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
             ),
-            semanticsLabel: 'Resend Code',
+            semanticsLabel: 'Resend Email Code',
           ),
         ),
         SizedBox(height: 4.h),

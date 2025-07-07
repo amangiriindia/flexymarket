@@ -1,13 +1,12 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
+import '../../service/auth_service.dart';
 import '../auth/login_screen.dart';
 import 'verification_screen.dart';
-
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -17,18 +16,119 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  final TextEditingController _phoneController = TextEditingController();
+  // final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _agreedToTerms = false;
+  bool _isLoading = false;
+
+  final AuthService _authService = AuthService();
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    //_phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleSignUp() async {
+    if (
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please fill all fields',
+            style: TextStyle(
+              color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
+                  ? AppColors.darkPrimaryText
+                  : AppColors.lightPrimaryText,
+            ),
+          ),
+          backgroundColor: AppColors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!_agreedToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please agree to the Terms of Service and Privacy Policy',
+            style: TextStyle(
+              color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
+                  ? AppColors.darkPrimaryText
+                  : AppColors.lightPrimaryText,
+            ),
+          ),
+          backgroundColor: AppColors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Call signup API (only email, password, country)
+      await _authService.signup(
+        _emailController.text,
+        _passwordController.text,
+        'india', // Fixed as per your API example
+      );
+
+      // Send OTP to email
+      await _authService.sendOtpToEmail(_emailController.text);
+
+      // Send OTP to phone
+
+      // Navigate to VerificationScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VerificationScreen(
+            email: _emailController.text,
+          ),
+        ),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'OTPs sent to email and phone',
+            style: TextStyle(
+              color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
+                  ? AppColors.darkPrimaryText
+                  : AppColors.lightPrimaryText,
+            ),
+          ),
+          backgroundColor: AppColors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error: $e',
+            style: TextStyle(
+              color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
+                  ? AppColors.darkPrimaryText
+                  : AppColors.lightPrimaryText,
+            ),
+          ),
+          backgroundColor: AppColors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -37,7 +137,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -49,15 +148,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 _buildLogo(isDarkMode),
                 SizedBox(height: 20.h),
                 _buildTitle(isDarkMode),
-                SizedBox(height: 24.h),
-                _buildTextField(
-                  label: 'Phone Number',
-                  controller: _phoneController,
-                  hintText: 'Enter phone number',
-                  icon: Icons.phone,
-                  keyboardType: TextInputType.phone,
-                  isDarkMode: isDarkMode,
-                ),
+
                 SizedBox(height: 16.h),
                 _buildTextField(
                   label: 'Email',
@@ -100,6 +191,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLogo(bool isDarkMode) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          FontAwesomeIcons.chartLine,
+          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+          size: 28.sp,
+        ),
+        SizedBox(width: 8.w),
+        Text(
+          'Flexy Markets',
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 
@@ -295,78 +408,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-
-  Widget _buildLogo(bool isDarkMode) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          FontAwesomeIcons.chartLine,
-          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-          size: 28.sp,
-        ),
-        SizedBox(width: 8.w),
-        Text(
-          'Flexy Markets',
-          style: TextStyle(
-            color:
-            isDarkMode
-                ? AppColors.darkPrimaryText
-                : AppColors.lightPrimaryText,
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
-
   Widget _buildSignUpButton(bool isDarkMode) {
     return ElevatedButton(
-      onPressed: _agreedToTerms
-          ? () {
-        if (_phoneController.text.isEmpty ||
-            _emailController.text.isEmpty ||
-            _passwordController.text.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Please fill all fields',
-                style: TextStyle(
-                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                ),
-              ),
-            ),
-          );
-          return;
-        }
-        print('Phone: ${_phoneController.text}');
-        print('Email: ${_emailController.text}');
-        print('Password: ${_passwordController.text}');
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const VerificationScreen(phoneNumber: '+91 ••• ••• 4785'),
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Navigating to Verification',
-              style: TextStyle(
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-              ),
-            ),
-          ),
-        );
-      }
-          : null,
+      onPressed: _isLoading ? null : _handleSignUp,
       style: ElevatedButton.styleFrom(
         backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
         foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-        disabledBackgroundColor: (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
-        disabledForegroundColor: (isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText).withOpacity(0.5),
+        disabledBackgroundColor:
+        (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
+        disabledForegroundColor:
+        (isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText).withOpacity(0.5),
         elevation: isDarkMode ? 0 : 2,
         minimumSize: Size(double.infinity, 50.h),
         shape: RoundedRectangleBorder(
@@ -374,7 +425,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
         shadowColor: isDarkMode ? null : AppColors.lightShadow,
       ),
-      child: Text(
+      child: _isLoading
+          ? SizedBox(
+        width: 24.w,
+        height: 24.h,
+        child: CircularProgressIndicator(
+          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+          strokeWidth: 2,
+        ),
+      )
+          : Text(
         'Sign Up',
         style: TextStyle(
           fontSize: 16.sp,

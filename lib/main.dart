@@ -1,8 +1,8 @@
+import 'package:flexy_markets/screenutils/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
-import 'screen/base/main_screen.dart';
 import 'constant/app_color.dart';
 
 void main() {
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
             home: child,
           );
         },
-        child: const MainScreen(),
+        child: const SplashScreen(),
       ),
     );
   }

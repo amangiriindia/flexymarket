@@ -1,3 +1,4 @@
+import 'package:flexy_markets/constant/user_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import '../metatrade/create_meta_trade_screen.dart';
 import '../metatrade/meta_trade_list_screen.dart';
 import '../partnership_program_screen.dart';
 import '../performance_screen.dart';
+import '../profile/login_history_screen.dart';
 import '../profile/permotions_screen.dart';
 import '../setting_screen.dart';
 import '../profile/social_trading.dart';
@@ -30,8 +32,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
-  final String name = "John Doe";
-  final String id = "284591";
+
   final double balance = 188.84;
   final double total = 440.90;
   final int referrals = 28;
@@ -94,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 _buildSupportSection(isDarkMode),
                 SizedBox(height: 20.h),
                 Text(
-                  "Logged in as $email",
+                  "Logged in as ${UserConstants.EMAIL}",
                   style: TextStyle(
                     color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                     fontSize: 12.sp,
@@ -147,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    UserConstants.NAME,
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
@@ -155,7 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     ),
                   ),
                   Text(
-                    "ID: $id",
+                    '${UserConstants.USER_ID}',
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
@@ -568,6 +569,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const PromotionsScreen()),
+          ),
+          isDarkMode,
+        ),
+        _buildSupportRow(
+          Icons.local_offer,
+          "Login History",
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginHistoryScreen()),
           ),
           isDarkMode,
         ),

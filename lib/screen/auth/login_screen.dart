@@ -3,9 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
+import '../../constant/common_utills.dart';
+import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
-import 'verification_screen.dart';
+import '../../service/auth_service.dart';
+import '../base/main_screen.dart';
 import 'registation_screen.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,6 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  final AuthService _authService = AuthService();
 
   @override
   void dispose() {
@@ -26,13 +32,54 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // Login using AuthService
+
+  // Login using AuthService
+  Future<void> _login() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      CommonUtils.showMessage('Please enter username and password');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final responseData = await _authService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      // Save user data using UserConstants
+      await UserConstants.storeUserData(responseData);
+      CommonUtils.showMessage(responseData['message'], backgroundColor: Colors.green);
+      // Navigate to MainScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(),
+        ),
+      );
+    } catch (e) {
+      // Show error toast
+      CommonUtils.showMessage(e.toString(), backgroundColor: Colors.red);
+      //
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
 
     return Scaffold(
       backgroundColor:
-          isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+      isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -45,9 +92,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 50.h),
                 _buildTextField(
                   controller: _emailController,
-                  hintText: 'Email or Phone',
-                  icon: Icons.email_outlined,
-                  keyboardType: TextInputType.emailAddress,
+                  hintText: 'Username',
+                  icon: Icons.person_outline,
+                  keyboardType: TextInputType.text,
                   isDarkMode: isDarkMode,
                 ),
                 SizedBox(height: 16.h),
@@ -66,10 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       _obscurePassword
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color:
-                          isDarkMode
-                              ? AppColors.darkSecondaryText
-                              : AppColors.lightSecondaryText,
+                      color: isDarkMode
+                          ? AppColors.darkSecondaryText
+                          : AppColors.lightSecondaryText,
                       size: 20.sp,
                     ),
                   ),
@@ -107,9 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
           'Flexy Markets',
           style: TextStyle(
             color:
-                isDarkMode
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+            isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             fontSize: 24.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -130,8 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextField(
       controller: controller,
       style: TextStyle(
-        color:
-            isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+        color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
         fontSize: 14.sp,
       ),
       obscureText: obscureText,
@@ -139,18 +182,16 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(
-          color:
-              isDarkMode
-                  ? AppColors.darkSecondaryText
-                  : AppColors.lightSecondaryText,
+          color: isDarkMode
+              ? AppColors.darkSecondaryText
+              : AppColors.lightSecondaryText,
           fontSize: 14.sp,
         ),
         prefixIcon: Icon(
           icon,
-          color:
-              isDarkMode
-                  ? AppColors.darkSecondaryText
-                  : AppColors.lightSecondaryText,
+          color: isDarkMode
+              ? AppColors.darkSecondaryText
+              : AppColors.lightSecondaryText,
           size: 20.sp,
         ),
         suffixIcon: suffixIcon,
@@ -176,58 +217,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildLoginButton(bool isDarkMode) {
     return ElevatedButton(
-      onPressed: () {
-        if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Please enter email/phone and password',
-                style: TextStyle(
-                  color:
-                      isDarkMode
-                          ? AppColors.darkPrimaryText
-                          : AppColors.lightPrimaryText,
-                ),
-              ),
-            ),
-          );
-          return;
-        }
-        print('Email: ${_emailController.text}');
-        print('Password: ${_passwordController.text}');
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) =>
-                    const VerificationScreen(phoneNumber: '+91 ••• ••• 4785'),
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Navigating to Verification',
-              style: TextStyle(
-                color:
-                    isDarkMode
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
-              ),
-            ),
-          ),
-        );
-      },
+      onPressed: _isLoading ? null : _login,
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+        backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
         foregroundColor:
-            isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+        isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
         elevation: isDarkMode ? 0 : 2,
         minimumSize: Size(double.infinity, 50.h),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
         shadowColor: isDarkMode ? null : AppColors.lightShadow,
       ),
-      child: Text(
+      child: _isLoading
+          ? SizedBox(
+        width: 20.w,
+        height: 20.h,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            isDarkMode
+                ? AppColors.darkPrimaryText
+                : AppColors.lightPrimaryText,
+          ),
+        ),
+      )
+          : Text(
         'Login',
         style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
       ),
@@ -245,10 +258,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 content: Text(
                   'Fingerprint login coming soon!',
                   style: TextStyle(
-                    color:
-                        isDarkMode
-                            ? AppColors.darkPrimaryText
-                            : AppColors.lightPrimaryText,
+                    color: isDarkMode
+                        ? AppColors.darkPrimaryText
+                        : AppColors.lightPrimaryText,
                   ),
                 ),
               ),
@@ -273,10 +285,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 content: Text(
                   'Forgot password functionality coming soon!',
                   style: TextStyle(
-                    color:
-                        isDarkMode
-                            ? AppColors.darkPrimaryText
-                            : AppColors.lightPrimaryText,
+                    color: isDarkMode
+                        ? AppColors.darkPrimaryText
+                        : AppColors.lightPrimaryText,
                   ),
                 ),
               ),
@@ -285,10 +296,9 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Text(
             'Forgot PIN/Password?',
             style: TextStyle(
-              color:
-                  isDarkMode
-                      ? AppColors.darkSecondaryText
-                      : AppColors.lightSecondaryText,
+              color: isDarkMode
+                  ? AppColors.darkSecondaryText
+                  : AppColors.lightSecondaryText,
               fontSize: 12.sp,
             ),
           ),
@@ -312,10 +322,9 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Text(
             'or continue with',
             style: TextStyle(
-              color:
-                  isDarkMode
-                      ? AppColors.darkSecondaryText
-                      : AppColors.lightSecondaryText,
+              color: isDarkMode
+                  ? AppColors.darkSecondaryText
+                  : AppColors.lightSecondaryText,
               fontSize: 12.sp,
             ),
           ),
@@ -343,10 +352,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     content: Text(
                       'Google login coming soon!',
                       style: TextStyle(
-                        color:
-                            isDarkMode
-                                ? AppColors.darkPrimaryText
-                                : AppColors.lightPrimaryText,
+                        color: isDarkMode
+                            ? AppColors.darkPrimaryText
+                            : AppColors.lightPrimaryText,
                       ),
                     ),
                   ),
@@ -354,11 +362,9 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                isDarkMode ? AppColors.darkCard : AppColors.lightCard,
                 foregroundColor:
-                    isDarkMode
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
+                isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 elevation: 0,
                 minimumSize: Size(0, 50.h),
                 shape: RoundedRectangleBorder(
@@ -385,10 +391,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     content: Text(
                       'Apple login coming soon!',
                       style: TextStyle(
-                        color:
-                            isDarkMode
-                                ? AppColors.darkPrimaryText
-                                : AppColors.lightPrimaryText,
+                        color: isDarkMode
+                            ? AppColors.darkPrimaryText
+                            : AppColors.lightPrimaryText,
                       ),
                     ),
                   ),
@@ -396,11 +401,9 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                isDarkMode ? AppColors.darkCard : AppColors.lightCard,
                 foregroundColor:
-                    isDarkMode
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
+                isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 elevation: 0,
                 minimumSize: Size(0, 50.h),
                 shape: RoundedRectangleBorder(
@@ -410,10 +413,9 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Icon(
                 Icons.apple,
                 size: 24.sp,
-                color:
-                    isDarkMode
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
+                color: isDarkMode
+                    ? AppColors.darkPrimaryText
+                    : AppColors.lightPrimaryText,
                 semanticLabel: 'Apple Login',
               ),
             ),
@@ -430,10 +432,9 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           "Don't have an account?",
           style: TextStyle(
-            color:
-                isDarkMode
-                    ? AppColors.darkSecondaryText
-                    : AppColors.lightSecondaryText,
+            color: isDarkMode
+                ? AppColors.darkSecondaryText
+                : AppColors.lightSecondaryText,
             fontSize: 14.sp,
           ),
         ),
@@ -450,10 +451,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 content: Text(
                   'Navigating to Sign Up',
                   style: TextStyle(
-                    color:
-                        isDarkMode
-                            ? AppColors.darkPrimaryText
-                            : AppColors.lightPrimaryText,
+                    color: isDarkMode
+                        ? AppColors.darkPrimaryText
+                        : AppColors.lightPrimaryText,
                   ),
                 ),
               ),
