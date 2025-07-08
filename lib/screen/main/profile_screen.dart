@@ -7,16 +7,12 @@ import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
 import '../metatrade/create_meta_trade_screen.dart';
 import '../metatrade/meta_trade_list_screen.dart';
-import '../partnership_program_screen.dart';
-import '../performance_screen.dart';
 import '../profile/login_history_screen.dart';
 import '../profile/permotions_screen.dart';
-import '../setting_screen.dart';
 import '../profile/social_trading.dart';
 import '../support/my_tickets_screen.dart';
 import '../profile/support_screen.dart';
 import '../transation/transation_history_screen.dart';
-import '../transation/transfer_money_screen.dart';
 import '../auth/welcome_screen.dart';
 import '../profile/about_us_screen.dart';
 import '../transation/deposite_fund_screen.dart';
@@ -36,7 +32,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   final double balance = 188.84;
   final double total = 440.90;
   final int referrals = 28;
-  final String email = "john.doe@email.com";
 
   late AnimationController _animationController;
   late List<Animation<double>> _fadeAnimations;

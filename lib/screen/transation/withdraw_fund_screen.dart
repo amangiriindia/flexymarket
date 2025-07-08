@@ -1,9 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../constant/app_color.dart';
 import '../../../providers/theme_provider.dart';
+import '../../../service/wallet_service.dart';
 import '../../../widget/common/common_app_bar.dart';
 
 class WithdrawFundsScreen extends StatefulWidget {
@@ -15,7 +18,11 @@ class WithdrawFundsScreen extends StatefulWidget {
 
 class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _amountController = TextEditingController(text: '0.00');
+  final TextEditingController _remarkController = TextEditingController();
+  final WalletService _walletService = WalletService();
   String selectedMethod = '';
+  bool _isLoading = false;
+  String? _errorMessage;
   final double availableBalance = 12450.00;
 
   late AnimationController _animationController;
@@ -27,23 +34,14 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
       'subtitle': '1-3 business days • Free',
       'icon': Icons.account_balance,
     },
-    {
-      'title': 'Crypto',
-      'subtitle': 'Instant • Free',
-      'icon': Icons.currency_bitcoin,
-    },
-    {
-      'title': 'UPI',
-      'subtitle': 'Instant • Free',
-      'icon': Icons.smartphone,
-    },
+
   ];
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     _fadeAnimations = List.generate(
@@ -51,7 +49,7 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
           (index) => Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
           parent: _animationController,
-          curve: Interval(index * 0.1, 1.0, curve: Curves.easeIn),
+          curve: Interval(index * 0.1, 1.0, curve: Curves.easeOut),
         ),
       ),
     );
@@ -61,8 +59,180 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
   @override
   void dispose() {
     _amountController.dispose();
+    _remarkController.dispose();
     _animationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleWithdrawal() async {
+    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final amountText = _amountController.text.replaceAll(',', '');
+    final amount = double.tryParse(amountText) ?? 0.0;
+    final remark = _remarkController.text.trim();
+
+    if (amount <= 0) {
+      _showSnackBar('Please enter a valid amount', AppColors.red, isDarkMode);
+      return;
+    }
+
+    if (amount > availableBalance) {
+      _showSnackBar('Amount exceeds available balance', AppColors.red, isDarkMode);
+      return;
+    }
+
+    if (selectedMethod.isEmpty) {
+      _showSnackBar('Please select a withdrawal method', AppColors.red, isDarkMode);
+      return;
+    }
+
+    if (remark.isEmpty) {
+      _showSnackBar('Please enter a remark', AppColors.red, isDarkMode);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await _walletService.submitWithdrawalRequest(amount, remark);
+      if (response['status'] == true) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showConfirmationDialog(amount, remark, response['data']);
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = response['message'] ?? 'Failed to submit withdrawal request';
+        });
+        _showSnackBar(_errorMessage!, AppColors.red, isDarkMode);
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Error: $e';
+      });
+      _showSnackBar(_errorMessage!, AppColors.red, isDarkMode);
+    }
+  }
+
+  void _showSnackBar(String message, Color backgroundColor, bool isDarkMode) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            fontSize: 14.sp,
+          ),
+        ),
+        backgroundColor: backgroundColor,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+    );
+  }
+
+  void _showConfirmationDialog(double amount, String remark, Map<String, dynamic> data) {
+    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          title: Row(
+            children: [
+              Icon(
+                FontAwesomeIcons.checkCircle,
+                color: AppColors.green,
+                size: 24.sp,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                'Withdrawal Submitted',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Amount: \$${amount.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                'Method: $selectedMethod',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                'Remark: $remark',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                'Status: ${data['status']}',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                ),
+              ),
+              if (data['transactionReference'] != null) ...[
+                SizedBox(height: 8.h),
+                Text(
+                  'Reference: ${data['transactionReference']}',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _amountController.text = '0.00';
+                  _remarkController.clear();
+                  selectedMethod = '';
+                });
+              },
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                  fontWeight: FontWeight.w600,
+                ),
+                semanticsLabel: 'Close Confirmation Dialog',
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -76,309 +246,250 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
         showBackButton: true,
         onBackPressed: () {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Returning to Profile',
-                style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-              ),
-            ),
-          );
+          _showSnackBar('Returning to Profile', AppColors.green, isDarkMode);
         },
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 12.h),
-              Text(
-                'Available Balance',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                '\$${availableBalance.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 32.sp,
-                  fontWeight: FontWeight.w700,
-                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                ),
-                semanticsLabel: 'Available Balance \$${availableBalance.toStringAsFixed(2)}',
-              ),
-              SizedBox(height: 24.h),
-              Text(
-                'Enter Amount',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                decoration: BoxDecoration(
-                  color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      '\$',
-                      style: TextStyle(
-                        fontSize: 20.sp,
-                        color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: TextField(
-                        controller: _amountController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                        ],
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                        ),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 24.h),
-              Text(
-                'Select Withdrawal Method',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                ),
-              ),
-              SizedBox(height: 16.h),
-              ...withdrawalMethods.asMap().entries.map((entry) {
-                final index = entry.key;
-                final method = entry.value;
-                return FadeTransition(
-                  opacity: _fadeAnimations[index],
-                  child: WithdrawalMethodTile(
-                    icon: Icon(
-                      method['icon'],
-                      color: AppColors.green,
-                      size: 24.sp,
-                    ),
-                    title: method['title'],
-                    subtitle: method['subtitle'],
-                    isSelected: selectedMethod == method['title'],
-                    onTap: () {
-                      setState(() {
-                        selectedMethod = method['title'];
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            '${method['title']} selected',
-                            style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                          ),
-                          backgroundColor: AppColors.green,
-                        ),
-                      );
-                    },
-                  ),
-                );
-              }).toList(),
-              SizedBox(height: 16.h),
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.lock,
-                      size: 16.sp,
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Available Balance',
+                    style: TextStyle(
+                      fontSize: 16.sp,
                       color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                     ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'All transactions are encrypted',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                      ),
-                      semanticsLabel: 'All transactions are encrypted',
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: _handleContinue,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: double.infinity,
-                  margin: EdgeInsets.only(bottom: 24.h),
-                  padding: EdgeInsets.symmetric(vertical: 16.h),
-                  decoration: BoxDecoration(
-                    color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-                    borderRadius: BorderRadius.circular(12.r),
                   ),
-                  child: Center(
-                    child: Text(
-                      'Continue',
+                  SizedBox(height: 8.h),
+                  Text(
+                    '\$${availableBalance.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 32.sp,
+                      fontWeight: FontWeight.bold,
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    ),
+                    semanticsLabel: 'Available Balance \$${availableBalance.toStringAsFixed(2)}',
+                  ),
+                  SizedBox(height: 24.h),
+                  Text(
+                    'Enter Amount',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                    decoration: BoxDecoration(
+                      color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+                      boxShadow: isDarkMode
+                          ? null
+                          : [
+                        BoxShadow(
+                          color: AppColors.lightShadow,
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          '\$',
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: TextField(
+                            controller: _amountController,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                            ],
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                            ),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'Enter amount',
+                              hintStyle: TextStyle(
+                                fontSize: 20.sp,
+                                color: isDarkMode ? AppColors.darkSecondaryText.withOpacity(0.5) : AppColors.lightSecondaryText.withOpacity(0.5),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                  Text(
+                    'Remark',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                    decoration: BoxDecoration(
+                      color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+                      boxShadow: isDarkMode
+                          ? null
+                          : [
+                        BoxShadow(
+                          color: AppColors.lightShadow,
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _remarkController,
                       style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp,
                         color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                       ),
-                      semanticsLabel: 'Continue with Withdrawal',
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Enter remark (e.g., Withdrawal for savings)',
+                        hintStyle: TextStyle(
+                          fontSize: 16.sp,
+                          color: isDarkMode ? AppColors.darkSecondaryText.withOpacity(0.5) : AppColors.lightSecondaryText.withOpacity(0.5),
+                        ),
+                      ),
                     ),
+                  ),
+                  SizedBox(height: 24.h),
+                  Text(
+                    'Select Withdrawal Method',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  ...withdrawalMethods.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final method = entry.value;
+                    return FadeTransition(
+                      opacity: _fadeAnimations[index],
+                      child: WithdrawalMethodTile(
+                        icon: Icon(
+                          method['icon'],
+                          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                          size: 24.sp,
+                        ),
+                        title: method['title'],
+                        subtitle: method['subtitle'],
+                        isSelected: selectedMethod == method['title'],
+                        onTap: () {
+                          setState(() {
+                            selectedMethod = method['title'];
+                          });
+                          _showSnackBar('${method['title']} selected', AppColors.green, isDarkMode);
+                        },
+                      ),
+                    );
+                  }).toList(),
+                  SizedBox(height: 24.h),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.lock,
+                          size: 16.sp,
+                          color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'All transactions are secure and encrypted',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                          ),
+                          semanticsLabel: 'All transactions are secure and encrypted',
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 32.h),
+                  GestureDetector(
+                    onTap: _isLoading ? null : _handleWithdrawal,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      decoration: BoxDecoration(
+                        color: _isLoading
+                            ? (isDarkMode ? AppColors.darkAccent.withOpacity(0.5) : AppColors.lightAccent.withOpacity(0.5))
+                            : (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent),
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: isDarkMode
+                            ? null
+                            : [
+                          BoxShadow(
+                            color: AppColors.lightShadow,
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: _isLoading
+                            ? SizedBox(
+                          width: 24.sp,
+                          height: 24.sp,
+                          child: CircularProgressIndicator(
+                            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                            strokeWidth: 2,
+                          ),
+                        )
+                            : Text(
+                          'Submit Withdrawal',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                          ),
+                          semanticsLabel: 'Submit Withdrawal',
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                ],
+              ),
+            ),
+            if (_isLoading)
+              Container(
+                color: isDarkMode ? AppColors.darkBackground.withOpacity(0.7) : AppColors.lightBackground.withOpacity(0.7),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                    strokeWidth: 3,
                   ),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
-    );
-  }
-
-  void _handleContinue() {
-    final amountText = _amountController.text.replaceAll(',', '');
-    final amount = double.tryParse(amountText) ?? 0.0;
-
-    if (amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please enter a valid amount',
-            style: TextStyle(color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
-                ? AppColors.darkPrimaryText
-                : AppColors.lightPrimaryText),
-          ),
-          backgroundColor: AppColors.red,
-        ),
-      );
-      return;
-    }
-
-    if (amount > availableBalance) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Amount exceeds available balance',
-            style: TextStyle(color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
-                ? AppColors.darkPrimaryText
-                : AppColors.lightPrimaryText),
-          ),
-          backgroundColor: AppColors.red,
-        ),
-      );
-      return;
-    }
-
-    if (selectedMethod.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please select a withdrawal method',
-            style: TextStyle(color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
-                ? AppColors.darkPrimaryText
-                : AppColors.lightPrimaryText),
-          ),
-          backgroundColor: AppColors.red,
-        ),
-      );
-      return;
-    }
-
-    _showConfirmationDialog(amount);
-  }
-
-  void _showConfirmationDialog(double amount) {
-    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-          title: Text(
-            'Confirm Withdrawal',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Amount: \$${amount.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                'Method: $selectedMethod',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                ),
-                semanticsLabel: 'Cancel Withdrawal',
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Withdrawal of \$${amount.toStringAsFixed(2)} via $selectedMethod initiated',
-                      style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                    ),
-                    backgroundColor: AppColors.green,
-                  ),
-                );
-              },
-              child: Text(
-                'Confirm',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-                ),
-                semanticsLabel: 'Confirm Withdrawal',
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }
@@ -406,21 +517,21 @@ class WithdrawalMethodTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 300),
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         decoration: BoxDecoration(
           color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(12.r),
           border: isSelected
-              ? Border.all(color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent, width: 1)
+              ? Border.all(color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent, width: 2)
               : Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
           boxShadow: isDarkMode
               ? null
               : [
             BoxShadow(
               color: AppColors.lightShadow,
-              blurRadius: 4,
+              blurRadius: 6,
               offset: const Offset(0, 2),
             ),
           ],
@@ -437,7 +548,7 @@ class WithdrawalMethodTile extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                     ),
                   ),
@@ -453,13 +564,14 @@ class WithdrawalMethodTile extends StatelessWidget {
               ),
             ),
             Icon(
-              Icons.chevron_right,
-              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              isSelected ? Icons.check_circle : Icons.chevron_right,
+              color: isSelected
+                  ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
+                  : (isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText),
               size: 24.sp,
             ),
           ],
         ),
-
       ),
     );
   }

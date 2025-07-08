@@ -1,0 +1,99 @@
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'dart:io';
+
+import '../constant/user_constant.dart';
+
+
+class WalletService {
+  static const String _baseUrl = 'https://backend.boostbullion.com';
+
+  // Submit withdrawal request
+  Future<Map<String, dynamic>> submitWithdrawalRequest(double amount, String remark) async {
+    final url = Uri.parse('$_baseUrl/user/bank/withdraw');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': UserConstants.TOKEN ?? '',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'amount': amount.toString(),
+        'remark': remark,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to submit withdrawal request: ${response.statusCode} - ${response.body}');
+    }
+  }
+
+  // Submit deposit request
+  Future<Map<String, dynamic>> submitDepositRequest({
+    required double amount,
+    required String transactionReference,
+    required String remark,
+    required File? image,
+  }) async {
+    final url = Uri.parse(
+      '$_baseUrl/user/bank/deposit?transactionReference=$transactionReference&amount=$amount&remark=$remark',
+    );
+    final request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = UserConstants.TOKEN ?? ''
+      ..headers['Content-Type'] = 'multipart/form-data';
+
+    if (image != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          image.path,
+          contentType: MediaType('image', 'jpeg'), // Adjust based on image type
+        ),
+      );
+    }
+
+    final response = await request.send();
+    final responseBody = await response.stream.bytesToString();
+
+    if (response.statusCode == 200) {
+      return jsonDecode(responseBody) as Map<String, dynamic>;
+    } else {
+      // Handle HTML error response
+      if (responseBody.contains('<html') || responseBody.contains('<pre>')) {
+        final errorMessage = responseBody.replaceAll(RegExp(r'<[^>]+>'), '').trim();
+        throw Exception('Server error: ${response.statusCode} - $errorMessage');
+      }
+      throw Exception('Failed to submit deposit request: ${response.statusCode} - $responseBody');
+    }
+  }
+
+  // Fetch deposit and withdraw transaction list
+  Future<Map<String, dynamic>> fetchTransactionList({
+    int page = 1,
+    int sizePerPage = 10,
+  }) async {
+    final url = Uri.parse('$_baseUrl/user/deposit-withdraw/list?page=$page&sizePerPage=$sizePerPage');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': UserConstants.TOKEN ?? '',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      // Handle HTML error response
+      if (response.body.contains('<html') || response.body.contains('<pre>')) {
+        final errorMessage = response.body.replaceAll(RegExp(r'<[^>]+>'), '').trim();
+        throw Exception('Server error: ${response.statusCode} - $errorMessage');
+      }
+      throw Exception('Failed to fetch transaction list: ${response.statusCode} - ${response.body}');
+    }
+  }
+}
