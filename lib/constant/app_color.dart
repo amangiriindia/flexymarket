@@ -37,4 +37,6 @@ class AppColors {
   static var darkSecondary = Color(0xFF00685a);
 
   static var lightSecondary = Color(0xFF00685a);
+
+  static var yellow =  Colors.yellow;
 }
