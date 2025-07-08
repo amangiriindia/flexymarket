@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -62,7 +61,6 @@ class WalletService {
     if (response.statusCode == 200) {
       return jsonDecode(responseBody) as Map<String, dynamic>;
     } else {
-      // Handle HTML error response
       if (responseBody.contains('<html') || responseBody.contains('<pre>')) {
         final errorMessage = responseBody.replaceAll(RegExp(r'<[^>]+>'), '').trim();
         throw Exception('Server error: ${response.statusCode} - $errorMessage');
@@ -88,12 +86,36 @@ class WalletService {
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
-      // Handle HTML error response
       if (response.body.contains('<html') || response.body.contains('<pre>')) {
         final errorMessage = response.body.replaceAll(RegExp(r'<[^>]+>'), '').trim();
         throw Exception('Server error: ${response.statusCode} - $errorMessage');
       }
       throw Exception('Failed to fetch transaction list: ${response.statusCode} - ${response.body}');
+    }
+  }
+
+  // Fetch user transaction list
+  Future<Map<String, dynamic>> fetchUserTransactionList({
+    int page = 1,
+    int sizePerPage = 10,
+  }) async {
+    final url = Uri.parse('$_baseUrl/user/transaction/list?page=$page&sizePerPage=$sizePerPage');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': UserConstants.TOKEN ?? '',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      if (response.body.contains('<html') || response.body.contains('<pre>')) {
+        final errorMessage = response.body.replaceAll(RegExp(r'<[^>]+>'), '').trim();
+        throw Exception('Server error: ${response.statusCode} - $errorMessage');
+      }
+      throw Exception('Failed to fetch user transaction list: ${response.statusCode} - ${response.body}');
     }
   }
 }
