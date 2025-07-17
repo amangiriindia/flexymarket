@@ -7,6 +7,7 @@ import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
 import '../metatrade/create_meta_trade_screen.dart';
 import '../metatrade/meta_trade_list_screen.dart';
+import '../profile/edit_profile_screen.dart';
 import '../profile/login_history_screen.dart';
 import '../profile/permotions_screen.dart';
 import '../profile/social_trading.dart';
@@ -18,6 +19,9 @@ import '../profile/about_us_screen.dart';
 import '../transation/deposite_fund_screen.dart';
 import '../profile/feedback_screen.dart';
 import '../transation/withdraw_fund_screen.dart';
+import '../user/bank_deatils_screen.dart';
+import '../user/change_password_screen.dart';
+import '../user/document_upload_screen.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -198,8 +202,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget _buildPersonalDetailsSection(bool isDarkMode) {
     return GestureDetector(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("View verification details")),
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const EditProfileScreen()),
         );
       },
       child: Container(
@@ -262,6 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       ),
     );
   }
+
 
   Widget _buildBenefitsSection(bool isDarkMode) {
     return Container(
@@ -539,6 +545,36 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
           ),
         ),
+
+        SizedBox(height: 8.h),
+        _buildSupportRow(
+          Icons.account_balance,
+          "Bank Details",
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const BankDetailsScreen()),
+          ),
+          isDarkMode,
+        ),
+        SizedBox(height: 8.h),
+        _buildSupportRow(
+          Icons.upload_file,
+          "Upload Documents",
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const DocumentUploadScreen()),
+          ),
+          isDarkMode,
+        ),
+        _buildSupportRow(
+          Icons.lock,
+          "Change Password",
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+          ),
+          isDarkMode,
+        ),
         SizedBox(height: 8.h),
         _buildSupportRow(
           Icons.support_agent,
@@ -558,15 +594,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ),
           isDarkMode,
         ),
-        _buildSupportRow(
-          Icons.local_offer,
-          "Promotions",
-              () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const PromotionsScreen()),
-          ),
-          isDarkMode,
-        ),
+
         _buildSupportRow(
           Icons.local_offer,
           "Login History",
