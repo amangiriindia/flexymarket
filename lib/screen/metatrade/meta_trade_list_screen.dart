@@ -3,12 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
+import '../../service/meta_trade_service.dart';
 import '../../widget/common/common_app_bar.dart';
 import 'create_meta_trade_screen.dart';
 
-
 class MT5Account {
-  final String id;
+  final String login; // Changed from id to login
   final String planName;
   final double balance;
   final String leverage;
@@ -18,7 +18,7 @@ class MT5Account {
   final String creationDate;
 
   MT5Account({
-    required this.id,
+    required this.login,
     required this.planName,
     required this.balance,
     required this.leverage,
@@ -27,6 +27,21 @@ class MT5Account {
     required this.status,
     required this.creationDate,
   });
+
+  factory MT5Account.fromJson(Map<String, dynamic> json) {
+    return MT5Account(
+      login: json['Login'] ?? '',
+      planName: json['Group']?.split('\\').last ?? 'Unknown', // Extract plan name from Group (e.g., "Dev\Dev" -> "Dev")
+      balance: double.tryParse(json['Balance'] ?? '0.00') ?? 0.00,
+      leverage: '1:${json['Leverage'] ?? '0'}',
+      spread: 'From 0.20', // API doesn't provide spread, using default
+      commission: json['CommissionDaily'] == '0.00' && json['CommissionMonthly'] == '0.00'
+          ? 'No commission'
+          : '${json['CommissionDaily']}/${json['CommissionMonthly']}',
+      status: json['Status']?.isEmpty ?? true ? 'Active' : json['Status'], // Default to Active if empty
+      creationDate: (json['createdAt'] ?? '').split('T').first,
+    );
+  }
 }
 
 class MetaTradeListScreen extends StatefulWidget {
@@ -39,38 +54,9 @@ class MetaTradeListScreen extends StatefulWidget {
 class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final List<bool> _expandedStates = [];
-  final List<MT5Account> _accounts = [
-    MT5Account(
-      id: '123456',
-      planName: 'Pro',
-      balance: 1234.56,
-      leverage: '1:500',
-      spread: 'From 0.20',
-      commission: 'No commission',
-      status: 'Active',
-      creationDate: '2025-01-15',
-    ),
-    MT5Account(
-      id: '789012',
-      planName: 'Standard',
-      balance: 567.89,
-      leverage: '1:200',
-      spread: 'From 0.30',
-      commission: 'No commission',
-      status: 'Active',
-      creationDate: '2025-03-22',
-    ),
-    MT5Account(
-      id: '345678',
-      planName: 'Group7',
-      balance: 890.12,
-      leverage: '1:100',
-      spread: 'From 0.25',
-      commission: 'No commission',
-      status: 'Pending',
-      creationDate: '2025-06-10',
-    ),
-  ];
+  List<MT5Account> _accounts = [];
+  bool _isLoading = true;
+  final MetaTradeService _metaTradeService = MetaTradeService();
 
   @override
   void initState() {
@@ -79,14 +65,39 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _expandedStates.addAll(List.generate(_accounts.length, (_) => false));
-    _animationController.forward();
+    _fetchAccounts();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchAccounts() async {
+    setState(() => _isLoading = true);
+    final result = await _metaTradeService.getMT5AccountList();
+    setState(() {
+      _isLoading = false;
+      if (result['success'] && result['data'] != null) {
+        _accounts = (result['data']['mt5AccountList'] as List)
+            .map((account) => MT5Account.fromJson(account))
+            .toList();
+        _expandedStates.clear();
+        _expandedStates.addAll(List.generate(_accounts.length, (_) => false));
+        _animationController.forward();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result['message'],
+              style: TextStyle(color: AppColors.white),
+            ),
+            backgroundColor: AppColors.red,
+          ),
+        );
+      }
+    });
   }
 
   void _toggleExpansion(int index) {
@@ -166,9 +177,16 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
                 semanticsLabel: 'Your MT5 Accounts',
               ),
               SizedBox(height: 16.h),
-              _accounts.isEmpty ? _buildEmptyState(isDarkMode) : _buildAccountList(isDarkMode),
+              _isLoading
+                  ? Center(
+                child: CircularProgressIndicator(
+                  color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                ),
+              )
+                  : _accounts.isEmpty
+                  ? _buildEmptyState(isDarkMode)
+                  : _buildAccountList(isDarkMode),
               SizedBox(height: 16.h),
-              _buildInfoFooter(isDarkMode),
             ],
           ),
         ),
@@ -287,7 +305,7 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'ID: ${account.id}',
+                          'Login: ${account.login}', // Changed from ID to Login
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
@@ -349,15 +367,12 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
                   children: [
                     _buildActionButton('Deposit', () => _showFeatureSnackBar('Deposit'), isDarkMode),
                     _buildActionButton('Withdraw', () => _showFeatureSnackBar('Withdraw'), isDarkMode),
-                    _buildActionButton('Trade', () => _showFeatureSnackBar('Trade'), isDarkMode),
                   ],
                 ),
               ],
             ],
           ),
         ),
-        //semanticsLabel:
-        //'Account ID: ${account.id}, Plan: ${account.planName}, Balance: \$${account.balance.toStringAsFixed(2)}, Leverage: ${account.leverage}',
       ),
     );
   }
@@ -416,38 +431,5 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
     );
   }
 
-  Widget _buildInfoFooter(bool isDarkMode) {
-    return Row(
-      children: [
-        Icon(
-          Icons.info_outline,
-          size: 20.sp,
-          color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-        ),
-        SizedBox(width: 8.w),
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-              ),
-              children: [
-                const TextSpan(text: 'Learn more about MT5 accounts on our '),
-                TextSpan(
-                  text: 'Account Types',
-                  style: TextStyle(
-                    color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-                const TextSpan(text: ' page.'),
-              ],
-            ),
-         //   semanticsLabel: 'Learn more about MT5 accounts on our Account Types page.',
-          ),
-        ),
-      ],
-    );
-  }
+
 }

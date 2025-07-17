@@ -9,7 +9,6 @@ import '../metatrade/create_meta_trade_screen.dart';
 import '../metatrade/meta_trade_list_screen.dart';
 import '../profile/edit_profile_screen.dart';
 import '../profile/login_history_screen.dart';
-import '../profile/permotions_screen.dart';
 import '../profile/social_trading.dart';
 import '../support/my_tickets_screen.dart';
 import '../profile/support_screen.dart';

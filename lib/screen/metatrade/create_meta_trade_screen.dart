@@ -3,11 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
+import '../../service/meta_trade_service.dart';
 import '../../widget/common/common_app_bar.dart';
+
 
 enum ScreenView { empty, plans, form }
 
 class Plan {
+  final int groupId; // Added groupId
   final String name;
   final String chipLabel;
   final String minDeposit;
@@ -15,12 +18,24 @@ class Plan {
   final String commission;
 
   Plan({
+    required this.groupId,
     required this.name,
     required this.chipLabel,
     required this.minDeposit,
     required this.spread,
     required this.commission,
   });
+
+  factory Plan.fromJson(Map<String, dynamic> json) {
+    return Plan(
+      groupId: json['id'] ?? 0,
+      name: json['name'] ?? 'Unknown',
+      chipLabel: json['status'] == 'ACTIVE' ? 'Professional' : 'Standard', // Simplified logic
+      minDeposit: '10 USD', // API doesn't provide, using default
+      spread: 'From 0.20', // API doesn't provide, using default
+      commission: 'No commission', // API doesn't provide, using default
+    );
+  }
 }
 
 class CreateMetaAccountScreen extends StatefulWidget {
@@ -32,7 +47,7 @@ class CreateMetaAccountScreen extends StatefulWidget {
 
 class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with SingleTickerProviderStateMixin {
   ScreenView _currentView = ScreenView.empty;
-  String? _selectedPlan;
+  Plan? _selectedPlan; // Changed to Plan type to store groupId
   String? _selectedLeverage;
   final TextEditingController _mainPasswordController = TextEditingController();
   final TextEditingController _investorPasswordController = TextEditingController();
@@ -40,17 +55,12 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
   bool _showInvestorPassword = false;
   int _mainPasswordStrength = 0;
   int _investorPasswordStrength = 0;
+  bool _isLoading = true;
+  List<Plan> _plans = [];
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-
-  final List<Plan> _plans = [
-    Plan(name: 'Pro', chipLabel: 'Professional', minDeposit: '10 USD', spread: 'From 0.20', commission: 'No commission'),
-    Plan(name: 'Standard', chipLabel: 'Recommended', minDeposit: '10 USD', spread: 'From 0.20', commission: 'No commission'),
-    Plan(name: 'Group7', chipLabel: 'Professional', minDeposit: '10 USD', spread: 'From 0.20', commission: 'No commission'),
-    Plan(name: 'Group51', chipLabel: 'Professional', minDeposit: '10 USD', spread: 'From 0.20', commission: 'No commission'),
-    Plan(name: 'Prakash k', chipLabel: 'Professional', minDeposit: '10 USD', spread: 'From 0.20', commission: 'No commission'),
-  ];
+  final MetaTradeService _metaTradeService = MetaTradeService();
 
   @override
   void initState() {
@@ -65,6 +75,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
     _animationController.forward();
     _mainPasswordController.addListener(_updateMainPasswordStrength);
     _investorPasswordController.addListener(_updateInvestorPasswordStrength);
+    _fetchPlans();
   }
 
   @override
@@ -73,6 +84,32 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
     _mainPasswordController.dispose();
     _investorPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchPlans() async {
+    setState(() => _isLoading = true);
+    final result = await _metaTradeService.getMT5GroupList();
+    setState(() {
+      _isLoading = false;
+      if (result['success'] && result['data'] != null) {
+        _plans = (result['data']['groupList'] as List)
+            .map((group) => Plan.fromJson(group))
+            .toList();
+        if (_plans.isNotEmpty && _currentView == ScreenView.empty) {
+          _switchView(ScreenView.plans);
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result['message'],
+              style: TextStyle(color: AppColors.white),
+            ),
+            backgroundColor: AppColors.red,
+          ),
+        );
+      }
+    });
   }
 
   void _updateMainPasswordStrength() {
@@ -95,7 +132,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
     setState(() => _investorPasswordStrength = strength);
   }
 
-  void _switchView(ScreenView view, {String? plan}) {
+  void _switchView(ScreenView view, {Plan? plan}) {
     setState(() {
       _currentView = view;
       if (plan != null) _selectedPlan = plan;
@@ -104,9 +141,10 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
     });
   }
 
-  void _validateAndCreateAccount() {
+  Future<void> _validateAndCreateAccount() async {
     final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    if (_selectedLeverage == null ||
+    if (_selectedPlan == null ||
+        _selectedLeverage == null ||
         _mainPasswordController.text.isEmpty ||
         _investorPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -132,16 +170,29 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
       );
       return;
     }
+
+    setState(() => _isLoading = true);
+    final result = await _metaTradeService.createMT5Account(
+      groupId: _selectedPlan!.groupId,
+      leverage: _selectedLeverage!.split(':').last, // Convert "1:100" to "100"
+      mainPassword: _mainPasswordController.text,
+      investorPassword: _investorPasswordController.text,
+    );
+    setState(() => _isLoading = false);
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Account created successfully!',
-          style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+          result['message'],
+          style: TextStyle(color: AppColors.white),
         ),
-        backgroundColor: AppColors.green,
+        backgroundColor: result['success'] ? AppColors.green : AppColors.red,
       ),
     );
-    Navigator.pop(context);
+
+    if (result['success']) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -188,7 +239,13 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
           opacity: _fadeAnimation,
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            child: _buildView(isDarkMode),
+            child: _isLoading
+                ? Center(
+              child: CircularProgressIndicator(
+                color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+              ),
+            )
+                : _buildView(isDarkMode),
           ),
         ),
       ),
@@ -277,18 +334,29 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
           semanticsLabel: 'MT5 Account Type',
         ),
         SizedBox(height: 16.h),
-        ...List.generate(
-          _plans.length,
-              (index) => FadeTransition(
-            opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-              CurvedAnimation(
-                parent: _animationController,
-                curve: Interval(0.1 * index, 0.3 + 0.1 * index, curve: Curves.easeIn),
+        if (_plans.isEmpty)
+          Center(
+            child: Text(
+              'No plans available',
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
               ),
             ),
-            child: _buildPlanCard(_plans[index], isDarkMode),
+          )
+        else
+          ...List.generate(
+            _plans.length,
+                (index) => FadeTransition(
+              opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+                CurvedAnimation(
+                  parent: _animationController,
+                  curve: Interval(0.1 * index, 0.3 + 0.1 * index, curve: Curves.easeIn),
+                ),
+              ),
+              child: _buildPlanCard(_plans[index], isDarkMode),
+            ),
           ),
-        ),
         SizedBox(height: 16.h),
         _buildInfoFooter(isDarkMode),
       ],
@@ -297,7 +365,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
 
   Widget _buildPlanCard(Plan plan, bool isDarkMode) {
     return GestureDetector(
-      onTap: () => _switchView(ScreenView.form, plan: plan.name),
+      onTap: () => _switchView(ScreenView.form, plan: plan),
       child: Container(
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.all(16.w),
@@ -357,7 +425,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
             ),
             SizedBox(height: 8.h),
             Text(
-              'Most popular! A great account for all types of traders',
+              'A great account for all types of traders',
               style: TextStyle(
                 fontSize: 14.sp,
                 color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
@@ -372,7 +440,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
             _buildPlanDetail('commission', plan.commission, isDarkMode),
             SizedBox(height: 12.h),
             GestureDetector(
-              onTap: () => _switchView(ScreenView.form, plan: plan.name),
+              onTap: () => _switchView(ScreenView.form, plan: plan),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -394,7 +462,6 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
             ),
           ],
         ),
-      //  semanticsLabel: '${plan.name} plan: ${plan.chipLabel}, ${plan.minDeposit}, ${plan.spread}, ${plan.commission}',
       ),
     );
   }
@@ -451,16 +518,27 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
         ),
         SizedBox(height: 16.h),
         GestureDetector(
-          onTap: _validateAndCreateAccount,
+          onTap: _isLoading ? null : _validateAndCreateAccount,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             padding: EdgeInsets.symmetric(vertical: 12.h),
             decoration: BoxDecoration(
-              color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+              color: _isLoading
+                  ? (isDarkMode ? AppColors.darkAccent.withOpacity(0.5) : AppColors.lightAccent.withOpacity(0.5))
+                  : (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent),
               borderRadius: BorderRadius.circular(12.r),
             ),
             alignment: Alignment.center,
-            child: Text(
+            child: _isLoading
+                ? SizedBox(
+              height: 20.h,
+              width: 20.h,
+              child: CircularProgressIndicator(
+                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                strokeWidth: 2,
+              ),
+            )
+                : Text(
               'Create an Account',
               style: TextStyle(
                 fontSize: 16.sp,
@@ -538,7 +616,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
                 color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
               ),
               dropdownColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-              items: ['1:100', '1:200', '1:500'].map((String value) {
+              items: ['1:100', '1:200', '1:500', '1:1000', '1:5000', '1:10000'].map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(
@@ -553,7 +631,6 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
               onChanged: (value) => setState(() => _selectedLeverage = value),
             ),
           ),
-        //  semanticLabel: 'Select Maximum Leverage',
         ),
       ],
     );
@@ -618,7 +695,6 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
-                //  semanticsLabel: label,
                 ),
               ),
               IconButton(
@@ -628,7 +704,6 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
                   color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 ),
                 onPressed: toggleVisibility,
-                //semanticLabel: 'Toggle ${label} visibility',
               ),
             ],
           ),
@@ -693,13 +768,13 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            _selectedPlan ?? 'Unknown',
+            _selectedPlan?.name ?? 'Unknown',
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
               color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             ),
-            semanticsLabel: 'Selected plan: ${_selectedPlan ?? 'Unknown'}',
+            semanticsLabel: 'Selected plan: ${_selectedPlan?.name ?? 'Unknown'}',
           ),
           SizedBox(height: 12.h),
           Row(
@@ -713,7 +788,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
                 ),
               ),
               Text(
-                '0.2',
+                _selectedPlan?.spread ?? '0.2',
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
@@ -733,7 +808,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
                 ),
               ),
               Text(
-                '0',
+                _selectedPlan?.commission ?? '0',
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
@@ -774,7 +849,6 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
                 const TextSpan(text: ' page.'),
               ],
             ),
-           // semanticsLabel: 'Detailed information on our instruments and trading conditions can be found on the Contract Specifications page.',
           ),
         ),
       ],
