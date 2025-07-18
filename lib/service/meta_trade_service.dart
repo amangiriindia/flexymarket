@@ -15,6 +15,9 @@ class MetaTradeService {
       );
 
       final responseData = json.decode(response.body);
+
+      print(responseData);
+      print(response.statusCode);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {
           'success': true,

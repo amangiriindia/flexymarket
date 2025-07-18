@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
-import '../transation/deposite_fund_screen.dart';
+import '../transation/deposit_screen.dart';
 import '../trade/trade_deatils_screen.dart';
 import 'calculator_screen.dart';
 import 'market_screen.dart';
@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _buildOptionCard(Icons.show_chart, 'Trading', isDarkMode,targetScreen: CryptoTradingScreen()),
-        _buildOptionCard(Icons.account_balance_wallet, 'Deposit', isDarkMode, targetScreen: DepositFundsScreen() ),
+        _buildOptionCard(Icons.account_balance_wallet, 'Deposit', isDarkMode, targetScreen: DepositScreen() ),
         _buildOptionCard(Icons.calculate, 'Calculator', isDarkMode, targetScreen: RiskCalculatorScreen()),
       ],
     );

@@ -12,16 +12,15 @@ import '../profile/login_history_screen.dart';
 import '../profile/social_trading.dart';
 import '../support/my_tickets_screen.dart';
 import '../profile/support_screen.dart';
+import '../transation/deposit_screen.dart';
 import '../transation/transation_history_screen.dart';
 import '../auth/welcome_screen.dart';
 import '../profile/about_us_screen.dart';
-import '../transation/deposite_fund_screen.dart';
 import '../profile/feedback_screen.dart';
 import '../transation/withdraw_fund_screen.dart';
 import '../user/bank_deatils_screen.dart';
 import '../user/change_password_screen.dart';
 import '../user/document_upload_screen.dart';
-
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -31,7 +30,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
-
   final double balance = 188.84;
   final double total = 440.90;
   final int referrals = 28;
@@ -89,6 +87,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 _buildBenefitsSection(isDarkMode),
                 SizedBox(height: 20.h),
                 _buildSocialTradingSection(isDarkMode),
+                SizedBox(height: 20.h),
+                _buildComplianceSection(isDarkMode),
                 SizedBox(height: 20.h),
                 _buildSupportSection(isDarkMode),
                 SizedBox(height: 20.h),
@@ -267,7 +267,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-
   Widget _buildBenefitsSection(bool isDarkMode) {
     return Container(
       padding: EdgeInsets.all(16.r),
@@ -444,6 +443,43 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
+  Widget _buildComplianceSection(bool isDarkMode) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Compliance",
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        _buildSupportRow(
+          Icons.account_balance,
+          "Bank Details",
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const BankDetailsScreen()),
+          ),
+          isDarkMode,
+          semanticLabel: "View Bank Details",
+        ),
+        _buildSupportRow(
+          Icons.upload_file,
+          "Upload Documents",
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const DocumentUploadScreen()),
+          ),
+          isDarkMode,
+          semanticLabel: "Upload Documents",
+        ),
+      ],
+    );
+  }
+
   Widget _buildSupportSection(bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,7 +527,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>  MetaTradeListScreen()),
+                MaterialPageRoute(builder: (context) => MetaTradeListScreen()),
               );
             },
             isDarkMode,
@@ -513,7 +549,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           "Deposit",
               () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const DepositFundsScreen()),
+            MaterialPageRoute(builder: (context) =>  DepositScreen()),
           ),
           isDarkMode,
         ),
@@ -544,27 +580,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
           ),
         ),
-
         SizedBox(height: 8.h),
-        _buildSupportRow(
-          Icons.account_balance,
-          "Bank Details",
-              () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const BankDetailsScreen()),
-          ),
-          isDarkMode,
-        ),
-        SizedBox(height: 8.h),
-        _buildSupportRow(
-          Icons.upload_file,
-          "Upload Documents",
-              () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const DocumentUploadScreen()),
-          ),
-          isDarkMode,
-        ),
         _buildSupportRow(
           Icons.lock,
           "Change Password",
@@ -574,7 +590,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ),
           isDarkMode,
         ),
-        SizedBox(height: 8.h),
         _buildSupportRow(
           Icons.support_agent,
           "Help Center",
@@ -593,7 +608,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ),
           isDarkMode,
         ),
-
         _buildSupportRow(
           Icons.local_offer,
           "Login History",
@@ -676,7 +690,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
           ],
         ),
-      //  semanticsLabel: semanticLabel ?? title,
       ),
     );
   }

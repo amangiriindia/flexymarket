@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,14 +10,14 @@ import '../../../providers/theme_provider.dart';
 import '../../../service/wallet_service.dart';
 import '../../../widget/common/common_app_bar.dart';
 
-class DepositFundsScreen extends StatefulWidget {
-  const DepositFundsScreen({super.key});
+class BankDepositScreen extends StatefulWidget {
+  const BankDepositScreen({super.key});
 
   @override
-  State<DepositFundsScreen> createState() => _DepositFundsScreenState();
+  State<BankDepositScreen> createState() => _DepositFundsScreenState();
 }
 
-class _DepositFundsScreenState extends State<DepositFundsScreen> with SingleTickerProviderStateMixin {
+class _DepositFundsScreenState extends State<BankDepositScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _amountController = TextEditingController(text: '0.00');
   final TextEditingController _transactionReferenceController = TextEditingController();
   final TextEditingController _remarkController = TextEditingController();
@@ -253,7 +252,7 @@ class _DepositFundsScreenState extends State<DepositFundsScreen> with SingleTick
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: CommonAppBar(
-        title: 'Deposit Funds',
+        title: 'Bank Deposit',
         showBackButton: true,
         onBackPressed: () {
           Navigator.pop(context);
