@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
+import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
 import '../transation/deposit_screen.dart';
 import '../trade/trade_deatils_screen.dart';
+import '../user/document_upload_screen.dart';
 import 'calculator_screen.dart';
 import 'market_screen.dart';
+import '../user/bank_deatils_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -17,7 +20,202 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  @override
+  void initState() {
+    super.initState();
+    // Check KYC and bank status after the first frame to ensure context is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkVerificationStatus();
+    });
+  }
+
+  void _checkVerificationStatus() {
+    final isKycVerified = UserConstants.KYC_STATUS == "true";
+    final isBankVerified = UserConstants.BANK_STATUS == "true";
+
+    if (!isKycVerified || !isBankVerified) {
+      _showVerificationDialog(isKycVerified, isBankVerified);
+    }
+  }
+
+  void _showVerificationDialog(bool isKycVerified, bool isBankVerified) {
+    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return ScaleTransition(
+          scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+            CurvedAnimation(
+              parent: ModalRoute.of(context)!.animation!,
+              curve: Curves.easeOutCubic,
+            ),
+          ),
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+            backgroundColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+            contentPadding: EdgeInsets.zero,
+            content: Container(
+              padding: EdgeInsets.all(20.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Complete Your Profile',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    'To fully access all features, please complete the following verifications:',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  if (!isKycVerified)
+                    _buildVerificationItem(
+                      'Upload Verification',
+                      'Upload your documents for KYC verification.',
+                      Icons.verified_user,
+                      isDarkMode,
+                          () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const DocumentUploadScreen()),
+                      ),
+                    ),
+                  if (!isKycVerified && !isBankVerified) SizedBox(height: 12.h),
+                  if (!isBankVerified)
+                    _buildVerificationItem(
+                      'Bank Details',
+                      'Add and verify your bank details for transactions.',
+                      Icons.account_balance,
+                      isDarkMode,
+                          () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const BankDetailsScreen()),
+                      ),
+                    ),
+                  SizedBox(height: 20.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Skip',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          if (!isKycVerified) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const DocumentUploadScreen()),
+                            );
+                          } else if (!isBankVerified) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const BankDetailsScreen()),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                        ),
+                        child: Text(
+                          'Complete Now',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildVerificationItem(
+      String title, String description, IconData icon, bool isDarkMode, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: isDarkMode ? AppColors.darkBorder : AppColors.lightShadow.withOpacity(0.3),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 20.sp,
+              color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              size: 20.sp,
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
@@ -172,8 +370,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildOptionCard(Icons.show_chart, 'Trading', isDarkMode,targetScreen: CryptoTradingScreen()),
-        _buildOptionCard(Icons.account_balance_wallet, 'Deposit', isDarkMode, targetScreen: DepositScreen() ),
+        _buildOptionCard(Icons.show_chart, 'Trading', isDarkMode, targetScreen: CryptoTradingScreen()),
+        _buildOptionCard(Icons.account_balance_wallet, 'Deposit', isDarkMode, targetScreen: DepositScreen()),
         _buildOptionCard(Icons.calculate, 'Calculator', isDarkMode, targetScreen: RiskCalculatorScreen()),
       ],
     );
@@ -183,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
       IconData icon,
       String title,
       bool isDarkMode, {
-        Widget? targetScreen, // optional screen to navigate to
+        Widget? targetScreen,
       }) {
     return GestureDetector(
       onTap: () {
@@ -204,9 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(12.r),
-          border: isDarkMode
-              ? Border.all(color: AppColors.darkBorder, width: 0.5)
-              : null,
+          border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -222,9 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
-                color: isDarkMode
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
               ),
             ),
           ],
@@ -232,7 +426,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildTopMoversSection(bool isDarkMode) {
     return Column(
@@ -514,8 +707,7 @@ class _HomeScreenState extends State<HomeScreen> {
       String signal,
       Color buttonColor,
       bool isUptrend,
-      bool isDarkMode,
-      ) {
+      bool isDarkMode) {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(

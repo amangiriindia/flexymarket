@@ -5,7 +5,6 @@ import '../../../constant/app_color.dart';
 import '../../../providers/theme_provider.dart';
 import '../../service/apiservice/wallet_service.dart';
 import '../../widget/common/main_app_bar.dart';
-import '../transation/bank_deposit_screen.dart';
 import '../transation/deposit_screen.dart';
 import '../transation/withdraw_fund_screen.dart';
 
@@ -18,39 +17,45 @@ class WalletScreen extends StatefulWidget {
 
 class _WalletScreenState extends State<WalletScreen> {
   final WalletService _walletService = WalletService();
-  String _selectedFilter = 'All'; // Changed default to 'All'
+  String _selectedFilter = 'All';
   List<Map<String, dynamic>> _transactions = [];
   bool _isLoading = false;
   String? _errorMessage;
+  Map<String, dynamic>? _assetData;
 
   @override
   void initState() {
     super.initState();
-    _fetchTransactions();
+    _fetchData();
   }
 
-  Future<void> _fetchTransactions() async {
+  Future<void> _fetchData() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final response = await _walletService.fetchTransactionList(
+      final transactionResponse = await _walletService.fetchTransactionList(
         page: 1,
         sizePerPage: 10,
       );
-      if (response['status'] == true) {
+      final userDataResponse = await _walletService.fetchUserData();
+
+      if (transactionResponse['status'] == true && userDataResponse['status'] == true) {
         setState(() {
           _transactions = List<Map<String, dynamic>>.from(
-            response['data']['depositWithdrawList'],
+            transactionResponse['data']['depositWithdrawList'],
           );
+          _assetData = userDataResponse['data']['assetData'];
           _isLoading = false;
         });
       } else {
         setState(() {
           _isLoading = false;
-          _errorMessage = response['message'] ?? 'Failed to fetch transactions';
+          _errorMessage = transactionResponse['status'] == false
+              ? (transactionResponse['message'] ?? 'Failed to fetch transactions')
+              : (userDataResponse['message'] ?? 'Failed to fetch user data');
         });
         _showSnackBar(_errorMessage!, AppColors.red);
       }
@@ -118,7 +123,7 @@ class _WalletScreenState extends State<WalletScreen> {
             ? SnackBarAction(
           label: 'Retry',
           textColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-          onPressed: _fetchTransactions,
+          onPressed: _fetchData,
         )
             : null,
       ),
@@ -148,9 +153,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   Text(
                     'Transaction List',
                     style: TextStyle(
-                      color: isDarkMode
-                          ? AppColors.darkPrimaryText
-                          : AppColors.lightPrimaryText,
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -231,10 +234,10 @@ class _WalletScreenState extends State<WalletScreen> {
             ? null
             : [
           BoxShadow(
-            color: AppColors.lightShadow,
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColors.lightShadow.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -242,72 +245,125 @@ class _WalletScreenState extends State<WalletScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Total Balance',
-            style: TextStyle(
-              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-              fontSize: 14.sp,
-            ),
-          ),
-          SizedBox(height: 6.h),
-          Text(
-            '\$11,557.71 USD',
+            'Wallet Overview',
             style: TextStyle(
               color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-              fontSize: 28.sp,
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 16.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Equity',
-                    style: TextStyle(
-                      color: isDarkMode
-                          ? AppColors.darkSecondaryText
-                          : AppColors.lightSecondaryText,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    '+\$1,245.32',
-                    style: TextStyle(
-                      color: AppColors.green,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Margin',
-                    style: TextStyle(
-                      color: isDarkMode
-                          ? AppColors.darkSecondaryText
-                          : AppColors.lightSecondaryText,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    '-\$245.89',
-                    style: TextStyle(
-                      color: AppColors.red,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          SizedBox(height: 8.h),
+          Text(
+            _assetData != null
+                ? '\$${(_assetData!['mainBalance'] as num).toStringAsFixed(2)} USD'
+                : '\$0.00 USD',
+            style: TextStyle(
+              color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+              fontSize: 24.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildBalanceItem(
+                  label: 'Total Deposit',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalDeposit'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.green,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'Total Withdrawal',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalWithdrawal'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.red,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'Meta Deposit',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalMetaDeposit'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.green,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'Meta Withdrawal',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalMetaWithdrawal'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.red,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'Internal Transfer',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalInternalTransfer'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'IB Income',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalIBIncome'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.green,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBalanceItem({
+    required String label,
+    required String value,
+    required bool isDarkMode,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(
+          color: isDarkMode ? AppColors.darkBorder : AppColors.lightShadow.withOpacity(0.3),
+          width: 0.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
@@ -339,7 +395,13 @@ class _WalletScreenState extends State<WalletScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const WithdrawFundsScreen()),
+              MaterialPageRoute(
+                builder: (_) => WithdrawFundsScreen(
+                  mainBalance: _assetData != null
+                      ? (_assetData!['mainBalance'] as num).toDouble()
+                      : 0.0,
+                ),
+              ),
             );
           },
         ),

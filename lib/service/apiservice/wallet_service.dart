@@ -1,14 +1,36 @@
+import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import 'dart:io';
-
 import '../../constant/user_constant.dart';
 import '../authloginservice/auth_check_vaild_user.dart';
 
 
 class WalletService {
   static const String _baseUrl = 'https://backend.boostbullion.com';
+
+
+  Future<Map<String, dynamic>> fetchUserData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/user/updated/data'),
+        headers: {
+          'Authorization': UserConstants.TOKEN ?? '',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      );
+      print(response.statusCode);
+      print(response.body);
+      await checkValidUser(response.statusCode);
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to fetch user data: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching user data: $e');
+    }
+  }
 
   // Submit withdrawal request
   Future<Map<String, dynamic>> submitWithdrawalRequest(double amount, String remark) async {

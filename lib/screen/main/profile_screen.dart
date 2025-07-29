@@ -4,12 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
+import '../../service/apiservice/wallet_service.dart';
 import '../../widget/common/main_app_bar.dart';
 import '../metatrade/create_meta_trade_screen.dart';
 import '../metatrade/meta_trade_list_screen.dart';
 import '../profile/edit_profile_screen.dart';
 import '../profile/login_history_screen.dart';
-import '../profile/social_trading.dart';
 import '../support/my_tickets_screen.dart';
 import '../profile/support_screen.dart';
 import '../transation/deposit_screen.dart';
@@ -30,9 +30,11 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
-  final double balance = 188.84;
-  final double total = 440.90;
-  final int referrals = 28;
+  final WalletService _walletService = WalletService();
+  final int referrals = 28; // Retained as hardcoded since not in API response
+  Map<String, dynamic>? _assetData;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   late AnimationController _animationController;
   late List<Animation<double>> _fadeAnimations;
@@ -54,6 +56,64 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       ),
     );
     _animationController.forward();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final userDataResponse = await _walletService.fetchUserData();
+      if (userDataResponse['status'] == true) {
+        setState(() {
+          _assetData = userDataResponse['data']['assetData'];
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = userDataResponse['message'] ?? 'Failed to fetch user data';
+        });
+        _showSnackBar(_errorMessage!, AppColors.red);
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString().contains('EACCES')
+            ? 'Server error: Unable to process request. Please try again or contact support.'
+            : e.toString();
+      });
+      _showSnackBar(_errorMessage!, AppColors.red);
+    }
+  }
+
+  void _showSnackBar(String message, Color backgroundColor) {
+    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            fontSize: 14.sp,
+          ),
+        ),
+        backgroundColor: backgroundColor,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+        action: message.contains('Server error')
+            ? SnackBarAction(
+          label: 'Retry',
+          textColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+          onPressed: _fetchData,
+        )
+            : null,
+      ),
+    );
   }
 
   @override
@@ -73,38 +133,50 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         showBackButton: true,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 16.h),
-                _buildBalanceSection(isDarkMode),
-                SizedBox(height: 20.h),
-                _buildPersonalDetailsSection(isDarkMode),
-                SizedBox(height: 20.h),
-                _buildBenefitsSection(isDarkMode),
-                SizedBox(height: 20.h),
-                _buildSocialTradingSection(isDarkMode),
-                SizedBox(height: 20.h),
-                _buildComplianceSection(isDarkMode),
-                SizedBox(height: 20.h),
-                _buildSupportSection(isDarkMode),
-                SizedBox(height: 20.h),
-                Text(
-                  "Logged in as ${UserConstants.EMAIL}",
-                  style: TextStyle(
-                    color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                    fontSize: 12.sp,
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 16.h),
+                    _buildBalanceSection(isDarkMode),
+                    SizedBox(height: 20.h),
+                    _buildPersonalDetailsSection(isDarkMode),
+                    SizedBox(height: 20.h),
+                    _buildComplianceSection(isDarkMode),
+                    SizedBox(height: 20.h),
+                    _buildSupportSection(isDarkMode),
+                    SizedBox(height: 20.h),
+                    Text(
+                      "Logged in as ${UserConstants.EMAIL}",
+                      style: TextStyle(
+                        color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    _buildLogoutButton(isDarkMode),
+                    SizedBox(height: 20.h),
+                  ],
+                ),
+              ),
+            ),
+            if (_isLoading)
+              Container(
+                color: isDarkMode
+                    ? AppColors.darkBackground.withOpacity(0.7)
+                    : AppColors.lightBackground.withOpacity(0.7),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                    strokeWidth: 3,
                   ),
                 ),
-                SizedBox(height: 16.h),
-                _buildLogoutButton(isDarkMode),
-                SizedBox(height: 20.h),
-              ],
-            ),
-          ),
+              ),
+          ],
         ),
       ),
     );
@@ -112,7 +184,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildBalanceSection(bool isDarkMode) {
     return Container(
-      padding: EdgeInsets.all(16.r),
+      width: double.infinity,
+      padding: EdgeInsets.all(16.sp),
       decoration: BoxDecoration(
         color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12.r),
@@ -121,10 +194,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ? null
             : [
           BoxShadow(
-            color: AppColors.lightShadow,
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColors.lightShadow.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -165,40 +238,155 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ],
           ),
           SizedBox(height: 20.h),
-          _buildBalanceRow("Balance", "\$$balance USD", isDarkMode),
+          Text(
+            'Wallet Overview',
+            style: TextStyle(
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            _assetData != null
+                ? '\$${(_assetData!['mainBalance'] as num).toStringAsFixed(2)} USD'
+                : '\$0.00 USD',
+            style: TextStyle(
+              color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+              fontSize: 24.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           SizedBox(height: 12.h),
-          _buildBalanceRow("Total", "\$$total USD", isDarkMode),
-          SizedBox(height: 12.h),
-          _buildBalanceRow("Referrals", "$referrals", isDarkMode),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildBalanceItem(
+                  label: 'Total Deposit',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalDeposit'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.green,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'Total Withdrawal',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalWithdrawal'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.red,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'Meta Deposit',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalMetaDeposit'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.green,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'Meta Withdrawal',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalMetaWithdrawal'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.red,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'Internal Transfer',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalInternalTransfer'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'IB Income',
+                  value: _assetData != null
+                      ? '\$${(_assetData!['totalIBIncome'] as num).toStringAsFixed(2)}'
+                      : '\$0.00',
+                  isDarkMode: isDarkMode,
+                  color: AppColors.green,
+                ),
+                SizedBox(width: 8.w),
+                _buildBalanceItem(
+                  label: 'Referrals',
+                  value: '$referrals',
+                  isDarkMode: isDarkMode,
+                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBalanceRow(String label, String value, bool isDarkMode) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16.sp,
-            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-          ),
+  Widget _buildBalanceItem({
+    required String label,
+    required String value,
+    required bool isDarkMode,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(
+          color: isDarkMode ? AppColors.darkBorder : AppColors.lightShadow.withOpacity(0.3),
+          width: 0.5,
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+          SizedBox(height: 4.h),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildPersonalDetailsSection(bool isDarkMode) {
+    // Check verification statuses from UserConstants
+    final isKycVerified = UserConstants.KYC_STATUS == "true";
+    final isBankVerified = UserConstants.BANK_STATUS == "true";
+
+    // Determine verification status text
+    String verificationStatus;
+    if (isKycVerified && isBankVerified) {
+      verificationStatus = "Fully Verified";
+    } else {
+      List<String> pendingStatuses = [];
+      if (!isKycVerified) pendingStatuses.add("KYC Pending");
+      if (!isBankVerified) pendingStatuses.add("Bank Verification Pending");
+      verificationStatus = pendingStatuses.join(", ");
+    }
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -207,6 +395,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         );
       },
       child: Container(
+        padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(12.r),
@@ -222,226 +411,87 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
           ],
         ),
-        child: ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-          leading: Icon(
-            Icons.person,
-            color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-            size: 24.sp,
-          ),
-          title: Text(
-            "Personal Details",
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-            ),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: AppColors.green.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-                child: Text(
-                  "Fully Verified",
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.bold,
-                    color: isDarkMode ? AppColors.white : Colors.black,
-                  ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              Icon(
-                Icons.chevron_right,
-                size: 24.sp,
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBenefitsSection(bool isDarkMode) {
-    return Container(
-      padding: EdgeInsets.all(16.r),
-      decoration: BoxDecoration(
-        color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(12.r),
-        border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
-        boxShadow: isDarkMode
-            ? null
-            : [
-          BoxShadow(
-            color: AppColors.lightShadow,
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Benefits",
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          _buildBenefitRow(Icons.star, "Premier Client", "Active", isDarkMode),
-          SizedBox(height: 12.h),
-          _buildBenefitRow(Icons.swap_horiz, "Swap-Free", "Qualified", isDarkMode),
-          SizedBox(height: 12.h),
-          _buildBenefitRow(Icons.shield, "Negative Balance Protection", "Active", isDarkMode),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBenefitRow(IconData icon, String benefit, String status, bool isDarkMode) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
-              icon,
+              Icons.person,
               color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-              size: 20.sp,
+              size: 24.sp,
             ),
-            SizedBox(width: 8.w),
-            Text(
-              benefit,
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Personal Details",
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    UserConstants.NAME.isNotEmpty ? UserConstants.NAME : "Name not set",
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    UserConstants.EMAIL.isNotEmpty ? UserConstants.EMAIL : "Email not set",
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    UserConstants.PHONE.isNotEmpty ? UserConstants.PHONE : "Phone not set",
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                    decoration: BoxDecoration(
+                      color: verificationStatus == "Fully Verified"
+                          ? AppColors.green.withOpacity(0.3)
+                          : AppColors.orange.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Text(
+                      verificationStatus,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.bold,
+                        color: isDarkMode ? AppColors.white : Colors.black,
+                      ),
+                      maxLines: 2, // Allow wrapping for long text
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              size: 24.sp,
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             ),
           ],
         ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-          decoration: BoxDecoration(
-            color: status == "Active" ? AppColors.green.withOpacity(0.2) : AppColors.orange.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Text(
-            status,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.bold,
-              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSocialTradingSection(bool isDarkMode) {
-    return Container(
-      padding: EdgeInsets.all(16.r),
-      decoration: BoxDecoration(
-        color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(12.r),
-        border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
-        boxShadow: isDarkMode
-            ? null
-            : [
-          BoxShadow(
-            color: AppColors.lightShadow,
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Social Trading",
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          _buildSocialTradingRow(
-            "For Traders",
-            "Share your strategy",
-                () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SocialTradingScreen()),
-              );
-            },
-            isDarkMode,
-          ),
-          Divider(
-            height: 32.h,
-            color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
-          ),
-          _buildSocialTradingRow(
-            "For Investors",
-            "Copy successful traders",
-                () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SocialTradingScreen()),
-              );
-            },
-            isDarkMode,
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildSocialTradingRow(String title, String subtitle, VoidCallback onPressed, bool isDarkMode) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                ),
-              ),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                ),
-              ),
-            ],
-          ),
-          Icon(
-            Icons.chevron_right,
-            size: 24.sp,
-            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-          ),
-        ],
-      ),
-    );
-  }
+
+
 
   Widget _buildComplianceSection(bool isDarkMode) {
     return Column(
@@ -549,7 +599,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           "Deposit",
               () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) =>  DepositScreen()),
+            MaterialPageRoute(builder: (context) => DepositScreen()),
           ),
           isDarkMode,
         ),
@@ -558,7 +608,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           "Withdraw",
               () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const WithdrawFundsScreen()),
+            MaterialPageRoute(
+              builder: (context) => WithdrawFundsScreen(
+                mainBalance: _assetData != null
+                    ? (_assetData!['mainBalance'] as num).toDouble()
+                    : 0.0,
+              ),
+            ),
           ),
           isDarkMode,
         ),

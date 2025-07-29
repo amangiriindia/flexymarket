@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,7 +9,9 @@ import '../../service/apiservice/wallet_service.dart';
 import '../../../widget/common/common_app_bar.dart';
 
 class WithdrawFundsScreen extends StatefulWidget {
-  const WithdrawFundsScreen({super.key});
+  final double mainBalance;
+
+  const WithdrawFundsScreen({super.key, required this.mainBalance});
 
   @override
   State<WithdrawFundsScreen> createState() => _WithdrawFundsScreenState();
@@ -23,7 +24,6 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
   String selectedMethod = '';
   bool _isLoading = false;
   String? _errorMessage;
-  final double availableBalance = 12450.00;
 
   late AnimationController _animationController;
   late List<Animation<double>> _fadeAnimations;
@@ -34,7 +34,6 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
       'subtitle': '1-3 business days • Free',
       'icon': Icons.account_balance,
     },
-
   ];
 
   @override
@@ -75,7 +74,7 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
       return;
     }
 
-    if (amount > availableBalance) {
+    if (amount > widget.mainBalance) {
       _showSnackBar('Amount exceeds available balance', AppColors.red, isDarkMode);
       return;
     }
@@ -246,7 +245,7 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
         showBackButton: true,
         onBackPressed: () {
           Navigator.pop(context);
-          _showSnackBar('Returning to Profile', AppColors.green, isDarkMode);
+          _showSnackBar('Returning to Wallet', AppColors.green, isDarkMode);
         },
       ),
       body: SafeArea(
@@ -266,13 +265,13 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    '\$${availableBalance.toStringAsFixed(2)}',
+                    '\$${widget.mainBalance.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 32.sp,
                       fontWeight: FontWeight.bold,
                       color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                     ),
-                    semanticsLabel: 'Available Balance \$${availableBalance.toStringAsFixed(2)}',
+                    semanticsLabel: 'Available Balance \$${widget.mainBalance.toStringAsFixed(2)}',
                   ),
                   SizedBox(height: 24.h),
                   Text(
