@@ -291,4 +291,87 @@ class UserService {
     }
   }
 
+
+
+  Future<Map<String, dynamic>> getIBRequestStatus() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/user/ib/request'),
+        headers: {
+          'Authorization': '${UserConstants.TOKEN}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      );
+      print(response.body);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
+      final responseData = jsonDecode(response.body);
+      return {
+        'success': response.statusCode == 200 && responseData['status'] == true,
+        'message': responseData['message'] ?? 'Failed to fetch IB request status',
+        'data': responseData['data'],
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: Unable to fetch IB request status. Please try again.',
+        'data': null,
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> submitIBRequest() async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/user/ib/request'),
+        headers: {
+          'Authorization':'${UserConstants.TOKEN}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      );
+      print(response.body);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
+      final responseData = jsonDecode(response.body);
+      return {
+        'success': response.statusCode == 200 && responseData['status'] == true,
+        'message': responseData['message'] ?? 'Failed to submit IB request',
+        'data': responseData['data'],
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: Unable to submit IB request. Please try again.',
+        'data': null,
+      };
+    }
+  }
+
+
+  Future<Map<String, dynamic>> setup2FA({String? otp}) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/user/auth/setup/mfa'),
+        headers: {
+          'Authorization': '${UserConstants.TOKEN}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: otp != null ? {'otp': otp} : {},
+      );
+
+      final responseData = jsonDecode(response.body);
+      return {
+        'success': response.statusCode == 200 && responseData['status'] == true,
+        'message': responseData['message'] ?? 'Failed to process 2FA setup',
+        'data': responseData['data'],
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: Unable to process 2FA setup. Please try again.',
+        'data': null,
+      };
+    }
+  }
+
 }

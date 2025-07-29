@@ -6,6 +6,7 @@ import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 import '../../service/apiservice/wallet_service.dart';
 import '../../widget/common/main_app_bar.dart';
+import '../ib/ib_request_screen.dart';
 import '../metatrade/create_meta_trade_screen.dart';
 import '../metatrade/meta_trade_list_screen.dart';
 import '../profile/edit_profile_screen.dart';
@@ -18,6 +19,7 @@ import '../auth/welcome_screen.dart';
 import '../profile/about_us_screen.dart';
 import '../profile/feedback_screen.dart';
 import '../transation/withdraw_fund_screen.dart';
+import '../twofa/twofa_setup_screen.dart';
 import '../user/bank_deatils_screen.dart';
 import '../user/change_password_screen.dart';
 import '../user/document_upload_screen.dart';
@@ -372,18 +374,18 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   Widget _buildPersonalDetailsSection(bool isDarkMode) {
-    // Check verification statuses from UserConstants
     final isKycVerified = UserConstants.KYC_STATUS == "true";
     final isBankVerified = UserConstants.BANK_STATUS == "true";
+    final is2FAEnabled = UserConstants.TWO_FA_STATUS == "true";
 
-    // Determine verification status text
     String verificationStatus;
-    if (isKycVerified && isBankVerified) {
+    if (isKycVerified && isBankVerified && is2FAEnabled) {
       verificationStatus = "Fully Verified";
     } else {
       List<String> pendingStatuses = [];
       if (!isKycVerified) pendingStatuses.add("KYC Pending");
       if (!isBankVerified) pendingStatuses.add("Bank Verification Pending");
+      if (!is2FAEnabled) pendingStatuses.add("2FA Not Enabled");
       verificationStatus = pendingStatuses.join(", ");
     }
 
@@ -472,7 +474,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         fontWeight: FontWeight.bold,
                         color: isDarkMode ? AppColors.white : Colors.black,
                       ),
-                      maxLines: 2, // Allow wrapping for long text
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -489,9 +491,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       ),
     );
   }
-
-
-
 
   Widget _buildComplianceSection(bool isDarkMode) {
     return Column(
@@ -525,6 +524,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ),
           isDarkMode,
           semanticLabel: "Upload Documents",
+        ),
+        _buildSupportRow(
+          Icons.group_add,
+          "IB Request",
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const IBRequestScreen()),
+          ),
+          isDarkMode,
+          semanticLabel: "IB Request",
         ),
       ],
     );
@@ -645,6 +654,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
           ),
           isDarkMode,
+        ),
+        _buildSupportRow(
+          Icons.security,
+          "2FA Setup",
+              () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TwoFASetupScreen()),
+          ),
+          isDarkMode,
+          semanticLabel: "2FA Setup",
         ),
         _buildSupportRow(
           Icons.support_agent,

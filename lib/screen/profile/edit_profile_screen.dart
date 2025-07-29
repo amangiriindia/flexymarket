@@ -6,6 +6,7 @@ import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
 import '../../service/apiservice/user_service.dart';
 import '../../widget/common/main_app_bar.dart';
+import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
@@ -29,6 +30,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _dobController.dispose();
     _addressController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)), // Default to 18 years ago
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData(
+            colorScheme: ColorScheme(
+              brightness: isDarkMode ? Brightness.dark : Brightness.light,
+              primary: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+              onPrimary: AppColors.white,
+              secondary: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              onSecondary: AppColors.white,
+              surface: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+              onSurface: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+              background: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+              onBackground: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+              error: AppColors.red,
+              onError: AppColors.white,
+            ),
+            dialogBackgroundColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      final formattedDate = DateFormat('dd-MM-yyyy').format(picked);
+      setState(() {
+        _dobController.text = formattedDate;
+      });
+    }
   }
 
   Future<void> _updateProfile() async {
@@ -114,6 +158,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
                       ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(
+                          color: isDarkMode ? AppColors.darkBorder : AppColors.lightShadow.withOpacity(0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(
+                          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                        ),
+                      ),
                     ),
                     style: TextStyle(
                       color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
@@ -126,29 +182,58 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     },
                   ),
                   SizedBox(height: 16.h),
-                  TextFormField(
-                    controller: _dobController,
-                    decoration: InputDecoration(
-                      labelText: 'Date of Birth (DD-MM-YYYY)',
-                      labelStyle: TextStyle(
-                        color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.r),
+                  GestureDetector(
+                    onTap: () => _selectDate(context),
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        controller: _dobController,
+                        decoration: InputDecoration(
+                          labelText: 'Date of Birth (DD-MM-YYYY)',
+                          labelStyle: TextStyle(
+                            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(
+                              color: isDarkMode ? AppColors.darkBorder : AppColors.lightShadow.withOpacity(0.3),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(
+                              color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                            ),
+                          ),
+                          suffixIcon: Icon(
+                            Icons.calendar_today,
+                            color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                            size: 20.sp,
+                          ),
+                        ),
+                        style: TextStyle(
+                          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select your date of birth';
+                          }
+                          final dateFormat = DateFormat('dd-MM-yyyy');
+                          try {
+                            final date = dateFormat.parseStrict(value);
+                            final age = DateTime.now().difference(date).inDays ~/ 365;
+                            if (age < 18) {
+                              return 'You must be at least 18 years old';
+                            }
+                          } catch (e) {
+                            return 'Invalid date format (use DD-MM-YYYY)';
+                          }
+                          return null;
+                        },
                       ),
                     ),
-                    style: TextStyle(
-                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your date of birth';
-                      }
-                      if (!RegExp(r'^\d{2}-\d{2}-\d{4}$').hasMatch(value)) {
-                        return 'Please enter date in DD-MM-YYYY format';
-                      }
-                      return null;
-                    },
                   ),
                   SizedBox(height: 16.h),
                   DropdownButtonFormField<String>(
@@ -160,6 +245,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(
+                          color: isDarkMode ? AppColors.darkBorder : AppColors.lightShadow.withOpacity(0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(
+                          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                        ),
                       ),
                     ),
                     style: TextStyle(
@@ -192,6 +289,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
                       ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(
+                          color: isDarkMode ? AppColors.darkBorder : AppColors.lightShadow.withOpacity(0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                        borderSide: BorderSide(
+                          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                        ),
+                      ),
                     ),
                     style: TextStyle(
                       color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
@@ -209,7 +318,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.green,
+                        backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
                         foregroundColor: AppColors.white,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
@@ -236,7 +345,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
