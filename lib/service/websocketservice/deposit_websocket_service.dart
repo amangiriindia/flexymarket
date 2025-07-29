@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'package:flexy_markets/constant/user_constant.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class WebSocketService {
   static const String _baseUrl = 'wss://backend.boostbullion.com';
-
-  WebSocketChannel? _channel;
+  IO.Socket? _socket;
   bool _isConnected = false;
 
   // Event callbacks
@@ -14,38 +12,95 @@ class WebSocketService {
   Function(Map<String, dynamic>)? onPaymentStatus;
   Function(String)? onError;
   Function()? onDisconnected;
+  Function()? onConnected; // Added connection callback
 
   bool get isConnected => _isConnected;
 
   Future<void> connect() async {
     try {
-      _channel = IOWebSocketChannel.connect(
-        Uri.parse(_baseUrl),
-        headers: {
-          'Authorization':UserConstants.TOKEN,
-        },
+      // Validate token
+      if (UserConstants.TOKEN!.isEmpty) {
+        throw Exception('Authorization token is missing');
+      }
+
+      // Decode JWT to check expiration
+      final jwtParts = UserConstants.TOKEN!.split('.');
+      if (jwtParts.length != 3) {
+        throw Exception('Invalid JWT format');
+      }
+      final payload = jsonDecode(
+          String.fromCharCodes(base64Url.decode(base64Url.normalize(jwtParts[1]))));
+      final exp = payload['exp'] as int;
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      if (exp < now) {
+        throw Exception('Token expired');
+      }
+
+      _socket = IO.io(
+        _baseUrl,
+        IO.OptionBuilder()
+            .setTransports(['websocket'])
+            .setPath('/socket.io')
+            .setExtraHeaders({'Authorization': UserConstants.TOKEN})
+            .setQuery({'v': '3'})
+            .build(),
       );
 
-      _isConnected = true;
+      // Set up ALL event listeners BEFORE connecting
+      _socket!.onConnect((_) {
+        _isConnected = true;
+        print('WebSocket connected successfully');
+        onConnected?.call(); // Notify connection established
+      });
 
-      // Listen to incoming messages
-      _channel!.stream.listen(
-            (message) {
-          _handleMessage(message);
-        },
-        onError: (error) {
-          print('WebSocket Error: $error');
-          _isConnected = false;
-          onError?.call(error.toString());
-        },
-        onDone: () {
-          print('WebSocket connection closed');
-          _isConnected = false;
-          onDisconnected?.call();
-        },
-      );
+      _socket!.on('paymentReady', (data) {
+        print('Received paymentReady event: $data');
+        try {
+          final paymentData = data is Map<String, dynamic>
+              ? data
+              : Map<String, dynamic>.from(data);
+          onPaymentReady?.call(paymentData);
+        } catch (e) {
+          print('Error processing paymentReady data: $e');
+          onError?.call('Error processing paymentReady: $e');
+        }
+      });
 
-      print('WebSocket connected successfully');
+      _socket!.on('paymentStatus', (data) {
+        print('Received paymentStatus event: $data');
+        try {
+          final statusData = data is Map<String, dynamic>
+              ? data
+              : Map<String, dynamic>.from(data);
+          onPaymentStatus?.call(statusData);
+        } catch (e) {
+          print('Error processing paymentStatus data: $e');
+          onError?.call('Error processing paymentStatus: $e');
+        }
+      });
+
+      _socket!.onError((error) {
+        print('WebSocket Error: $error');
+        _isConnected = false;
+        onError?.call(error.toString());
+      });
+
+      _socket!.onDisconnect((reason) {
+        print('WebSocket connection closed: $reason');
+        _isConnected = false;
+        onDisconnected?.call();
+      });
+
+      // Add connection timeout handling
+      _socket!.onConnectError((error) {
+        print('WebSocket Connection Error: $error');
+        _isConnected = false;
+        onError?.call('Connection failed: $error');
+      });
+
+      // Now connect after all listeners are set up
+      _socket!.connect();
+
     } catch (e) {
       print('Failed to connect WebSocket: $e');
       _isConnected = false;
@@ -53,46 +108,23 @@ class WebSocketService {
     }
   }
 
-  void _handleMessage(dynamic message) {
-    try {
-      final data = jsonDecode(message);
-      final event = data['event'] ?? data['type'];
-
-      switch (event) {
-        case 'paymentReady':
-          onPaymentReady?.call(data);
-          break;
-        case 'paymentStatus':
-          onPaymentStatus?.call(data);
-          break;
-        default:
-          print('Unknown event: $event');
-      }
-    } catch (e) {
-      print('Error parsing message: $e');
-      onError?.call('Error parsing message: $e');
-    }
-  }
-
   void startPayment({
     required String network,
     required double amount,
   }) {
-    if (!_isConnected || _channel == null) {
+    if (!_isConnected || _socket == null) {
+      print('WebSocket not connected - cannot start payment');
       onError?.call('WebSocket not connected');
       return;
     }
 
     final paymentData = {
-
-      'startPayment': {
-        'network': network,
-        'amount': amount,
-      }
+      'network': network,
+      'amount': amount,
     };
 
     try {
-      _channel!.sink.add(jsonEncode(paymentData));
+      _socket!.emit('startPayment', paymentData);
       print('Payment started: $paymentData');
     } catch (e) {
       print('Error sending payment data: $e');
@@ -100,14 +132,75 @@ class WebSocketService {
     }
   }
 
+  // Method to check connection status and reconnect if needed
+  Future<void> ensureConnection() async {
+    if (!_isConnected || _socket == null) {
+      print('Connection lost, attempting to reconnect...');
+      await connect();
+    }
+  }
+
   void disconnect() {
-    _channel?.sink.close();
+    if (_socket != null) {
+      _socket!.disconnect();
+      _socket!.dispose();
+      _socket = null;
+    }
     _isConnected = false;
     print('WebSocket disconnected');
   }
 }
 
-// Payment models
+// Usage example class
+class PaymentService {
+  final WebSocketService _webSocketService = WebSocketService();
+
+  Future<void> initializePayment() async {
+    // Set up event handlers BEFORE connecting
+    _webSocketService.onConnected = () {
+      print('WebSocket connection established, ready for payments');
+    };
+
+    _webSocketService.onPaymentReady = (data) {
+      print('Payment ready received: $data');
+      // Handle payment ready data
+      try {
+        final paymentData = PaymentData.fromJson(data);
+        // Process payment data
+      } catch (e) {
+        print('Error parsing payment data: $e');
+      }
+    };
+
+    _webSocketService.onPaymentStatus = (data) {
+      print('Payment status received: $data');
+      // Handle payment status updates
+    };
+
+    _webSocketService.onError = (error) {
+      print('WebSocket error: $error');
+      // Handle errors, maybe show user notification
+    };
+
+    _webSocketService.onDisconnected = () {
+      print('WebSocket disconnected');
+      // Handle disconnection, maybe try to reconnect
+    };
+
+    // Now connect
+    await _webSocketService.connect();
+  }
+
+  void makePayment(String network, double amount) {
+    _webSocketService.startPayment(network: network, amount: amount);
+  }
+
+  void dispose() {
+    _webSocketService.disconnect();
+  }
+}
+
+// Payment models (unchanged)
 class PaymentInfo {
   final String paymentAddress;
   final String tokenSymbol;
@@ -184,7 +277,8 @@ class PaymentData {
       expireTime: json['expire_time'] ?? 0,
       paymentInfo: (json['payment_info'] as List<dynamic>?)
           ?.map((item) => PaymentInfo.fromJson(item))
-          .toList() ?? [],
+          .toList() ??
+          [],
     );
   }
 }

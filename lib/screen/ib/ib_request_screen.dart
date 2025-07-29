@@ -1,3 +1,4 @@
+import 'package:flexy_markets/widget/common/common_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -111,7 +112,7 @@ class _IBRequestScreenState extends State<IBRequestScreen> {
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: const MainAppBar(
+      appBar: const CommonAppBar(
         title: 'IB Request',
         showBackButton: true,
       ),

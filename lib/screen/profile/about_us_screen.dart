@@ -24,14 +24,6 @@ class AboutUsScreen extends StatelessWidget {
         showBackButton: true,
         onBackPressed: () {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Returning to Profile',
-                style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-              ),
-            ),
-          );
         },
       ),
       body: SafeArea(

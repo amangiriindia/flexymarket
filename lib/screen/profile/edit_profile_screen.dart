@@ -5,6 +5,7 @@ import '../../constant/app_color.dart';
 import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
 import '../../service/apiservice/user_service.dart';
+import '../../widget/common/common_app_bar.dart';
 import '../../widget/common/main_app_bar.dart';
 import 'package:intl/intl.dart';
 
@@ -110,8 +111,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: const MainAppBar(
-        title: 'Edit Profile',
+      appBar: const CommonAppBar(
+        title: 'Update Profile',
         showBackButton: true,
       ),
       body: SafeArea(

@@ -25,50 +25,23 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     final isDarkMode = themeProvider.isDarkMode;
 
     return AppBar(
-      backgroundColor:
-          isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+      backgroundColor: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
       elevation: 0,
-      leading:
-          showBackButton
-              ? IconButton(
-                icon:
-                    leadingIcon ??
-                    Icon(
-                      Icons.arrow_back,
-                      size: 24.sp,
-                      color:
-                          isDarkMode
-                              ? AppColors.darkSurface
-                              : AppColors.lightSurface,
-                      semanticLabel: 'Back',
-                    ),
-                onPressed:
-                    onBackPressed ??
-                    () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Returning to previous screen',
-                            style: TextStyle(
-                              color:
-                                  isDarkMode
-                                      ? AppColors.darkPrimaryText
-                                      : AppColors.lightPrimaryText,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-              )
-              : null,
-      title: Text(
+       leading: Padding(
+    padding: EdgeInsets.only(left: 16.w, top: 8.h, bottom: 8.h),
+    child: Image.asset(
+    'assets/images/logo.png',
+    width: 150.w,
+    height: 100.h,
+    fit: BoxFit.contain,
+    semanticLabel: 'App Logo',
+    ),
+    ),
+
+    title: Text(
         title,
         style: TextStyle(
-          color:
-              isDarkMode
-                  ? AppColors.darkPrimaryText
-                  : AppColors.lightPrimaryText,
+          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
           fontSize: 24.sp,
           fontWeight: FontWeight.bold,
         ),
@@ -79,10 +52,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: Icon(
             isDarkMode ? Icons.light_mode : Icons.dark_mode,
             size: 24.sp,
-            color:
-                isDarkMode
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             semanticLabel: 'Toggle Theme',
           ),
           onPressed: () {
@@ -93,10 +63,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: Icon(
             Icons.notifications_outlined,
             size: 24.sp,
-            color:
-                isDarkMode
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             semanticLabel: 'Notifications',
           ),
           onPressed: () {

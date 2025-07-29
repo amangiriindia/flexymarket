@@ -37,6 +37,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Map<String, dynamic>? _assetData;
   bool _isLoading = false;
   String? _errorMessage;
+  int _retryCount = 0;
+  static const int _maxRetries = 3;
 
   late AnimationController _animationController;
   late List<Animation<double>> _fadeAnimations;
@@ -62,6 +64,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   Future<void> _fetchData() async {
+    if (_retryCount >= _maxRetries) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Maximum retry attempts reached. Please try again later or contact support.';
+      });
+      _showSnackBar(_errorMessage!, AppColors.red);
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -73,11 +84,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         setState(() {
           _assetData = userDataResponse['data']['assetData'];
           _isLoading = false;
+          _retryCount = 0;
         });
       } else {
         setState(() {
           _isLoading = false;
           _errorMessage = userDataResponse['message'] ?? 'Failed to fetch user data';
+          _retryCount++;
         });
         _showSnackBar(_errorMessage!, AppColors.red);
       }
@@ -86,7 +99,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         _isLoading = false;
         _errorMessage = e.toString().contains('EACCES')
             ? 'Server error: Unable to process request. Please try again or contact support.'
-            : e.toString();
+            : 'Error fetching data: ${e.toString()}';
+        _retryCount++;
       });
       _showSnackBar(_errorMessage!, AppColors.red);
     }
@@ -107,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-        action: message.contains('Server error')
+        action: _retryCount < _maxRetries
             ? SnackBarAction(
           label: 'Retry',
           textColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
@@ -116,6 +130,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             : null,
       ),
     );
+  }
+
+  // Helper function to safely extract num values from _assetData
+  double _getBalanceValue(String key) {
+    if (_assetData == null || _assetData![key] == null) {
+      return 0.0;
+    }
+    return (_assetData![key] is num) ? (_assetData![key] as num).toDouble() : 0.0;
   }
 
   @override
@@ -250,15 +272,40 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ),
           SizedBox(height: 8.h),
           Text(
-            _assetData != null
-                ? '\$${(_assetData!['mainBalance'] as num).toStringAsFixed(2)} USD'
-                : '\$0.00 USD',
+            _errorMessage != null
+                ? 'Balance Unavailable'
+                : '\$${_getBalanceValue('mainBalance').toStringAsFixed(2)} USD',
             style: TextStyle(
               color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
               fontSize: 24.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
+          if (_errorMessage != null) ...[
+            SizedBox(height: 8.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TextButton(
+                  onPressed: _fetchData,
+                  child: Text(
+                    'Retry',
+                    style: TextStyle(
+                      color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ),
+                Text(
+                  'Failed to load balance',
+                  style: TextStyle(
+                    color: AppColors.red,
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ],
+            ),
+          ],
           SizedBox(height: 12.h),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -266,54 +313,42 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               children: [
                 _buildBalanceItem(
                   label: 'Total Deposit',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalDeposit'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalDeposit').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.green,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'Total Withdrawal',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalWithdrawal'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalWithdrawal').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.red,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'Meta Deposit',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalMetaDeposit'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalMetaDeposit').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.green,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'Meta Withdrawal',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalMetaWithdrawal'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalMetaWithdrawal').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.red,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'Internal Transfer',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalInternalTransfer'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalInternalTransfer').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'IB Income',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalIBIncome'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalIBIncome').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.green,
                 ),
@@ -619,9 +654,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             context,
             MaterialPageRoute(
               builder: (context) => WithdrawFundsScreen(
-                mainBalance: _assetData != null
-                    ? (_assetData!['mainBalance'] as num).toDouble()
-                    : 0.0,
+                mainBalance: _getBalanceValue('mainBalance'),
               ),
             ),
           ),

@@ -1,3 +1,4 @@
+import 'package:flexy_markets/widget/common/common_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -66,7 +67,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: const MainAppBar(
+      appBar: const CommonAppBar(
         title: 'Change Password',
         showBackButton: true,
       ),
@@ -216,7 +217,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.green,
+                        backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
                         foregroundColor: AppColors.white,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(

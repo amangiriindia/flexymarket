@@ -300,7 +300,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
                   Icon(
                     Icons.add,
                     size: 20.sp,
-                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    color: AppColors.white,
                   ),
                   SizedBox(width: 8.w),
                   Text(
@@ -308,7 +308,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
-                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                      color: AppColors.white,
                     ),
                     semanticsLabel: 'Open New Account',
                   ),
@@ -454,7 +454,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
-                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                    color:  AppColors.white,
                   ),
                   semanticsLabel: 'Select ${plan.name} Plan',
                 ),
@@ -543,7 +543,7 @@ class _CreateMetaAccountScreenState extends State<CreateMetaAccountScreen> with 
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                color: AppColors.white,
               ),
               semanticsLabel: 'Create Account',
             ),

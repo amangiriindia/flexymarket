@@ -240,7 +240,7 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
-                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                  color: AppColors.white,
                 ),
                 semanticsLabel: 'Create New Account',
               ),
@@ -365,8 +365,8 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildActionButton('Deposit', () => _showFeatureSnackBar('Deposit'), isDarkMode),
-                    _buildActionButton('Withdraw', () => _showFeatureSnackBar('Withdraw'), isDarkMode),
+                   // _buildActionButton('Deposit', () => _showFeatureSnackBar('Deposit'), isDarkMode),
+                   // _buildActionButton('Withdraw', () => _showFeatureSnackBar('Withdraw'), isDarkMode),
                   ],
                 ),
               ],

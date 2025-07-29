@@ -439,6 +439,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         style: TextStyle(
           fontSize: 16.sp,
           fontWeight: FontWeight.w600,
+          color: AppColors.white
         ),
       ),
     );

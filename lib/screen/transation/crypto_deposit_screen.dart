@@ -1,14 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../constant/app_color.dart';
+import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
 import '../../service/websocketservice/deposit_websocket_service.dart';
 import '../../service/apiservice/meta_trade_service.dart';
-
-import '../../widget/common/common_app_bar.dart';
+import '../../widget/common/main_app_bar.dart';
 
 class CryptoDepositScreen extends StatefulWidget {
   const CryptoDepositScreen({Key? key}) : super(key: key);
@@ -69,8 +70,7 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
       if (response['success']) {
         setState(() {
           mt5Accounts = List<Map<String, dynamic>>.from(
-              response['data']['mt5AccountList'] ?? []
-          );
+              response['data']['mt5AccountList'] ?? []);
         });
       } else {
         _showErrorSnackBar(response['message']);
@@ -86,16 +86,33 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
 
   void _initializeWebSocket() {
     _webSocketService.onPaymentReady = (data) {
-      setState(() {
-        isProcessingPayment = false;
-        paymentData = PaymentData.fromJson(data['data']);
-      });
-      _showPaymentDetailsDialog();
+      final receivedData = PaymentData.fromJson(data);
+      // Validate response matches request
+      if (receivedData.orderAmount == _amountController.text &&
+          receivedData.paymentInfo.any((info) => info.blockchain.contains(selectedNetwork!))) {
+        setState(() {
+          isProcessingPayment = false;
+          paymentData = receivedData;
+        });
+        _showPaymentDetailsDialog();
+      } else {
+        setState(() {
+          isProcessingPayment = false;
+        });
+        _showErrorSnackBar('Received invalid payment data');
+      }
     };
 
     _webSocketService.onPaymentStatus = (data) {
-      print('Payment Status: $data');
-      // Handle payment status updates
+      final status = data['status']?.toString() ?? 'Unknown';
+      setState(() {
+        isProcessingPayment = false;
+      });
+      if (status == 'success') {
+        _showSuccessSnackBar('Payment completed successfully');
+      } else {
+        _showErrorSnackBar('Payment status: $status');
+      }
     };
 
     _webSocketService.onError = (error) {
@@ -258,7 +275,9 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
             ),
           ),
           ElevatedButton(
-            onPressed: isProcessingPayment ? null : () {
+            onPressed: isProcessingPayment
+                ? null
+                : () {
               Navigator.pop(context);
               _connectWebSocketAndStartPayment();
             },
@@ -335,6 +354,14 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
                         color: Colors.grey.shade600,
                       ),
                     ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      'Created: ${_formatTimestamp(paymentData!.createdTime)}',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -391,6 +418,14 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
                       ),
                       SizedBox(height: 4.h),
                       Text(
+                        'Exchange Rate: ${info.exchangeRate}',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
                         'Payment Address:',
                         style: TextStyle(
                           fontSize: 12.sp,
@@ -418,7 +453,8 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
                             IconButton(
                               icon: Icon(Icons.copy, size: 16.sp),
                               onPressed: () {
-                                Clipboard.setData(ClipboardData(text: info.paymentAddress));
+                                Clipboard.setData(
+                                    ClipboardData(text: info.paymentAddress));
                                 _showSuccessSnackBar('Address copied to clipboard');
                               },
                             ),
@@ -494,6 +530,7 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
                 final url = Uri.parse(paymentData!.checkoutUrl);
                 if (await canLaunchUrl(url)) {
                   await launchUrl(url, mode: LaunchMode.externalApplication);
+                  _showSuccessSnackBar('Payment URL opened');
                 } else {
                   _showErrorSnackBar('Could not launch payment URL');
                 }
@@ -527,13 +564,18 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  String _formatTimestamp(int timestamp) {
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: const CommonAppBar(
+      appBar: const MainAppBar(
         title: 'Crypto Deposit',
         showBackButton: true,
       ),
@@ -579,19 +621,25 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
                   child: Container(
                     padding: EdgeInsets.all(24.w),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isDarkMode ? AppColors.darkCard : Colors.white,
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircularProgressIndicator(),
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              isDarkMode ? AppColors.darkAccent : AppColors.lightAccent),
+                        ),
                         SizedBox(height: 16.h),
                         Text(
                           'Processing payment...',
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w500,
+                            color: isDarkMode
+                                ? AppColors.darkPrimaryText
+                                : AppColors.lightPrimaryText,
                           ),
                         ),
                       ],
@@ -621,7 +669,9 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(
-          color: isDarkMode ? AppColors.darkSecondaryText.withOpacity(0.3) : AppColors.lightSecondaryText.withOpacity(0.3),
+          color: isDarkMode
+              ? AppColors.darkSecondaryText.withOpacity(0.3)
+              : AppColors.lightSecondaryText.withOpacity(0.3),
         ),
       ),
       child: DropdownButtonFormField<String>(
@@ -658,7 +708,9 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(
-          color: isDarkMode ? AppColors.darkSecondaryText.withOpacity(0.3) : AppColors.lightSecondaryText.withOpacity(0.3),
+          color: isDarkMode
+              ? AppColors.darkSecondaryText.withOpacity(0.3)
+              : AppColors.lightSecondaryText.withOpacity(0.3),
         ),
       ),
       child: DropdownButtonFormField<String>(
@@ -681,7 +733,9 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
             child: Text('${account['Login']} - ${account['Name']}'),
           );
         }).toList(),
-        onChanged: isLoadingAccounts ? null : (value) {
+        onChanged: isLoadingAccounts
+            ? null
+            : (value) {
           setState(() {
             selectedAccount = value;
           });
@@ -695,7 +749,9 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(
-          color: isDarkMode ? AppColors.darkSecondaryText.withOpacity(0.3) : AppColors.lightSecondaryText.withOpacity(0.3),
+          color: isDarkMode
+              ? AppColors.darkSecondaryText.withOpacity(0.3)
+              : AppColors.lightSecondaryText.withOpacity(0.3),
         ),
       ),
       child: TextFormField(
@@ -720,7 +776,9 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
                   'USD',
                   style: TextStyle(
                     fontSize: 14.sp,
-                    color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    color: isDarkMode
+                        ? AppColors.darkSecondaryText
+                        : AppColors.lightSecondaryText,
                   ),
                 ),
               ],
@@ -738,10 +796,14 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: isDarkMode ? AppColors.darkAccent.withOpacity(0.1) : AppColors.lightAccent.withOpacity(0.1),
+        color: isDarkMode
+            ? AppColors.darkAccent.withOpacity(0.1)
+            : AppColors.lightAccent.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(
-          color: isDarkMode ? AppColors.darkAccent.withOpacity(0.3) : AppColors.lightAccent.withOpacity(0.3),
+          color: isDarkMode
+              ? AppColors.darkAccent.withOpacity(0.3)
+              : AppColors.lightAccent.withOpacity(0.3),
         ),
       ),
       child: Column(
@@ -795,17 +857,22 @@ class _CryptoDepositScreenState extends State<CryptoDepositScreen> {
           end: Alignment.centerRight,
           colors: [
             isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-            isDarkMode ? AppColors.darkAccent.withOpacity(0.8) : AppColors.lightAccent.withOpacity(0.8),
+            isDarkMode
+                ? AppColors.darkAccent.withOpacity(0.8)
+                : AppColors.lightAccent.withOpacity(0.8),
           ],
         )
             : null,
-        boxShadow: isEnabled ? [
+        boxShadow: isEnabled
+            ? [
           BoxShadow(
-            color: (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+            color: (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
+                .withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
-        ] : null,
+        ]
+            : null,
       ),
       child: SizedBox(
         width: double.infinity,

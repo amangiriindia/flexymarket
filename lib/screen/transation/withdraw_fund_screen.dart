@@ -465,7 +465,7 @@ class _WithdrawFundsScreenState extends State<WithdrawFundsScreen> with SingleTi
                           style: TextStyle(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w600,
-                            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                            color: AppColors.white,
                           ),
                           semanticsLabel: 'Submit Withdrawal',
                         ),

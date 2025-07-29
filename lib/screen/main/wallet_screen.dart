@@ -22,6 +22,8 @@ class _WalletScreenState extends State<WalletScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   Map<String, dynamic>? _assetData;
+  int _retryCount = 0;
+  static const int _maxRetries = 3;
 
   @override
   void initState() {
@@ -30,6 +32,15 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Future<void> _fetchData() async {
+    if (_retryCount >= _maxRetries) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Maximum retry attempts reached. Please try again later or contact support.';
+      });
+      _showSnackBar(_errorMessage!, AppColors.red);
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -45,10 +56,11 @@ class _WalletScreenState extends State<WalletScreen> {
       if (transactionResponse['status'] == true && userDataResponse['status'] == true) {
         setState(() {
           _transactions = List<Map<String, dynamic>>.from(
-            transactionResponse['data']['depositWithdrawList'],
+            transactionResponse['data']['depositWithdrawList'] ?? [],
           );
           _assetData = userDataResponse['data']['assetData'];
           _isLoading = false;
+          _retryCount = 0;
         });
       } else {
         setState(() {
@@ -56,6 +68,7 @@ class _WalletScreenState extends State<WalletScreen> {
           _errorMessage = transactionResponse['status'] == false
               ? (transactionResponse['message'] ?? 'Failed to fetch transactions')
               : (userDataResponse['message'] ?? 'Failed to fetch user data');
+          _retryCount++;
         });
         _showSnackBar(_errorMessage!, AppColors.red);
       }
@@ -64,10 +77,19 @@ class _WalletScreenState extends State<WalletScreen> {
         _isLoading = false;
         _errorMessage = e.toString().contains('EACCES')
             ? 'Server error: Unable to process request. Please try again or contact support.'
-            : e.toString();
+            : 'Error fetching data: ${e.toString()}';
+        _retryCount++;
       });
       _showSnackBar(_errorMessage!, AppColors.red);
     }
+  }
+
+  // Helper function to safely extract num values from _assetData
+  double _getBalanceValue(String key) {
+    if (_assetData == null || _assetData![key] == null) {
+      return 0.0;
+    }
+    return (_assetData![key] is num) ? (_assetData![key] as num).toDouble() : 0.0;
   }
 
   List<Map<String, dynamic>> _getFilteredTransactions() {
@@ -98,7 +120,7 @@ class _WalletScreenState extends State<WalletScreen> {
     }
 
     return _transactions.where((tx) {
-      final txDate = DateTime.parse(tx['createdAt']);
+      final txDate = DateTime.tryParse(tx['createdAt'] ?? '') ?? DateTime.now();
       return (tx['transactionType'] == 'DEPOSIT' || tx['transactionType'] == 'WITHDRAW') &&
           (txDate.isAfter(startDate) || txDate.isAtSameMomentAs(startDate));
     }).toList();
@@ -119,7 +141,7 @@ class _WalletScreenState extends State<WalletScreen> {
         duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-        action: message.contains('Server error')
+        action: _retryCount < _maxRetries
             ? SnackBarAction(
           label: 'Retry',
           textColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
@@ -191,12 +213,12 @@ class _WalletScreenState extends State<WalletScreen> {
                         child: _buildTransactionCard(
                           type: tx['transactionType'] == 'DEPOSIT' ? 'Deposit' : 'Withdraw',
                           amount: (tx['transactionType'] == 'DEPOSIT' ? '+' : '-') +
-                              '\$${double.parse(tx['amount']).toStringAsFixed(2)}',
-                          date: tx['createdAt'].split('T')[0],
-                          status: tx['status'],
+                              '\$${(double.tryParse(tx['amount']?.toString() ?? '0.0') ?? 0.0).toStringAsFixed(2)}',
+                          date: tx['createdAt']?.toString().split('T')[0] ?? 'Unknown',
+                          status: tx['status']?.toString() ?? 'Unknown',
                           isPositive: tx['transactionType'] == 'DEPOSIT',
                           isDarkMode: isDarkMode,
-                          remark: tx['remark'],
+                          remark: tx['remark']?.toString() ?? 'No remark',
                         ),
                       );
                     },
@@ -254,15 +276,40 @@ class _WalletScreenState extends State<WalletScreen> {
           ),
           SizedBox(height: 8.h),
           Text(
-            _assetData != null
-                ? '\$${(_assetData!['mainBalance'] as num).toStringAsFixed(2)} USD'
-                : '\$0.00 USD',
+            _errorMessage != null
+                ? 'Balance Unavailable'
+                : '\$${_getBalanceValue('mainBalance').toStringAsFixed(2)} USD',
             style: TextStyle(
               color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
               fontSize: 24.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
+          if (_errorMessage != null) ...[
+            SizedBox(height: 8.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TextButton(
+                  onPressed: _fetchData,
+                  child: Text(
+                    'Retry',
+                    style: TextStyle(
+                      color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ),
+                Text(
+                  'Failed to load balance',
+                  style: TextStyle(
+                    color: AppColors.red,
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ],
+            ),
+          ],
           SizedBox(height: 12.h),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -270,54 +317,42 @@ class _WalletScreenState extends State<WalletScreen> {
               children: [
                 _buildBalanceItem(
                   label: 'Total Deposit',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalDeposit'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalDeposit').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.green,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'Total Withdrawal',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalWithdrawal'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalWithdrawal').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.red,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'Meta Deposit',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalMetaDeposit'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalMetaDeposit').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.green,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'Meta Withdrawal',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalMetaWithdrawal'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalMetaWithdrawal').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.red,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'Internal Transfer',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalInternalTransfer'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalInternalTransfer').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                 ),
                 SizedBox(width: 8.w),
                 _buildBalanceItem(
                   label: 'IB Income',
-                  value: _assetData != null
-                      ? '\$${(_assetData!['totalIBIncome'] as num).toStringAsFixed(2)}'
-                      : '\$0.00',
+                  value: '\$${_getBalanceValue('totalIBIncome').toStringAsFixed(2)}',
                   isDarkMode: isDarkMode,
                   color: AppColors.green,
                 ),
@@ -397,9 +432,7 @@ class _WalletScreenState extends State<WalletScreen> {
               context,
               MaterialPageRoute(
                 builder: (_) => WithdrawFundsScreen(
-                  mainBalance: _assetData != null
-                      ? (_assetData!['mainBalance'] as num).toDouble()
-                      : 0.0,
+                  mainBalance: _getBalanceValue('mainBalance'),
                 ),
               ),
             );
