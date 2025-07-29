@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import '../../../constant/app_color.dart';
 import '../../../providers/theme_provider.dart';
-import '../../service/auth_service.dart';
+import '../../service/apiservice/auth_service.dart';
 import '../auth/login_screen.dart';
 
 class VerificationScreen extends StatefulWidget {

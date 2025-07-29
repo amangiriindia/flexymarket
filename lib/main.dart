@@ -1,4 +1,5 @@
 import 'package:flexy_markets/screenutils/splash_screen.dart';
+import 'package:flexy_markets/service/authloginservice/auth_check_vaild_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Flexy Markets',
             theme: themeProvider.isDarkMode ? _darkTheme : _lightTheme,
+            navigatorKey: NavigationService.navigatorKey,
             home: child,
           );
         },

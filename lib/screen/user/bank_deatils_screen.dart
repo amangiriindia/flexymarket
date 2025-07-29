@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 
-import '../../service/user_service.dart';
+import '../../service/apiservice/user_service.dart';
 import '../../widget/common/main_app_bar.dart';
 
 class BankDetailsScreen extends StatefulWidget {

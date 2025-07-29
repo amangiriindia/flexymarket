@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
-import '../../service/support_service.dart';
+import '../../service/apiservice/support_service.dart';
 import '../../widget/common/common_app_bar.dart';
 import 'create_ticket_screen.dart';
 import 'ticket_details_screen.dart';

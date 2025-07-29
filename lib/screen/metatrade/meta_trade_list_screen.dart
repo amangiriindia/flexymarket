@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
-import '../../service/meta_trade_service.dart';
+import '../../service/apiservice/meta_trade_service.dart';
 import '../../widget/common/common_app_bar.dart';
 import 'create_meta_trade_screen.dart';
 

@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import '../constant/user_constant.dart';
+import '../../constant/user_constant.dart';
 import 'package:http_parser/http_parser.dart';
+
+import '../authloginservice/auth_check_vaild_user.dart';
 
 
 class UserService {
@@ -24,7 +25,9 @@ class UserService {
         'Content-Type': 'application/json',
       },
     );
-
+     print(response.body);
+     print(response.statusCode);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
@@ -48,7 +51,9 @@ class UserService {
         },
         body: {'name': name, 'dob': dob, 'gender': gender, 'address': address},
       );
-
+      print(response.body);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
       final responseData = json.decode(response.body);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {
@@ -95,7 +100,9 @@ class UserService {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
       final responseData = json.decode(response.body);
-
+      print(response.body);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {
           'success': true,
@@ -128,6 +135,9 @@ class UserService {
       );
 
       final responseData = json.decode(response.body);
+      print(response.body);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {
           'success': true,
@@ -182,9 +192,9 @@ class UserService {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
       final responseData = json.decode(response.body);
-        print(response.body);
-        print(response.statusCode);
-
+      print(response.body);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {
           'success': true,
@@ -215,6 +225,9 @@ class UserService {
       );
 
       final responseData = json.decode(response.body);
+      print(response.body);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {
           'success': true,
@@ -254,7 +267,9 @@ class UserService {
           'cnfPassword': cnfPassword,
         },
       );
-
+      print(response.body);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
       final responseData = json.decode(response.body);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {

@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'dart:io';
 
-import '../constant/user_constant.dart';
+import '../../constant/user_constant.dart';
+import '../authloginservice/auth_check_vaild_user.dart';
 
 
 class WalletService {
@@ -23,7 +24,9 @@ class WalletService {
         'remark': remark,
       },
     );
-
+    print(response.statusCode);
+    print(response.body);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
@@ -57,7 +60,9 @@ class WalletService {
 
     final response = await request.send();
     final responseBody = await response.stream.bytesToString();
-
+    print(response.statusCode);
+    print(responseBody);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200) {
       return jsonDecode(responseBody) as Map<String, dynamic>;
     } else {
@@ -82,7 +87,9 @@ class WalletService {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     );
-
+    print(response.statusCode);
+    print(response.body);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
@@ -107,7 +114,9 @@ class WalletService {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     );
-
+    print(response.statusCode);
+    print(response.body);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {

@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../../constant/app_color.dart';
 import '../../../providers/theme_provider.dart';
-import '../../../service/wallet_service.dart';
+import '../../service/apiservice/wallet_service.dart';
 import '../../widget/common/main_app_bar.dart';
 import '../transation/bank_deposit_screen.dart';
 import '../transation/deposit_screen.dart';
@@ -18,7 +18,7 @@ class WalletScreen extends StatefulWidget {
 
 class _WalletScreenState extends State<WalletScreen> {
   final WalletService _walletService = WalletService();
-  String _selectedFilter = '7 Days';
+  String _selectedFilter = 'All'; // Changed default to 'All'
   List<Map<String, dynamic>> _transactions = [];
   bool _isLoading = false;
   String? _errorMessage;
@@ -57,16 +57,21 @@ class _WalletScreenState extends State<WalletScreen> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage =
-            e.toString().contains('EACCES')
-                ? 'Server error: Unable to process request. Please try again or contact support.'
-                : e.toString();
+        _errorMessage = e.toString().contains('EACCES')
+            ? 'Server error: Unable to process request. Please try again or contact support.'
+            : e.toString();
       });
       _showSnackBar(_errorMessage!, AppColors.red);
     }
   }
 
   List<Map<String, dynamic>> _getFilteredTransactions() {
+    if (_selectedFilter == 'All') {
+      return _transactions.where((tx) {
+        return tx['transactionType'] == 'DEPOSIT' || tx['transactionType'] == 'WITHDRAW';
+      }).toList();
+    }
+
     final now = DateTime.now();
     DateTime startDate;
 
@@ -89,24 +94,19 @@ class _WalletScreenState extends State<WalletScreen> {
 
     return _transactions.where((tx) {
       final txDate = DateTime.parse(tx['createdAt']);
-      return (tx['transactionType'] == 'DEPOSIT' ||
-              tx['transactionType'] == 'WITHDRAW') &&
+      return (tx['transactionType'] == 'DEPOSIT' || tx['transactionType'] == 'WITHDRAW') &&
           (txDate.isAfter(startDate) || txDate.isAtSameMomentAs(startDate));
     }).toList();
   }
 
   void _showSnackBar(String message, Color backgroundColor) {
-    final isDarkMode =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
           style: TextStyle(
-            color:
-                isDarkMode
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             fontSize: 14.sp,
           ),
         ),
@@ -114,15 +114,13 @@ class _WalletScreenState extends State<WalletScreen> {
         duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-        action:
-            message.contains('Server error')
-                ? SnackBarAction(
-                  label: 'Retry',
-                  textColor:
-                      isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-                  onPressed: _fetchTransactions,
-                )
-                : null,
+        action: message.contains('Server error')
+            ? SnackBarAction(
+          label: 'Retry',
+          textColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+          onPressed: _fetchTransactions,
+        )
+            : null,
       ),
     );
   }
@@ -133,8 +131,7 @@ class _WalletScreenState extends State<WalletScreen> {
     final filteredTransactions = _getFilteredTransactions();
 
     return Scaffold(
-      backgroundColor:
-          isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: const MainAppBar(title: 'Wallet', showBackButton: true),
       body: SafeArea(
         child: Stack(
@@ -151,10 +148,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   Text(
                     'Transaction List',
                     style: TextStyle(
-                      color:
-                          isDarkMode
-                              ? AppColors.darkPrimaryText
-                              : AppColors.lightPrimaryText,
+                      color: isDarkMode
+                          ? AppColors.darkPrimaryText
+                          : AppColors.lightPrimaryText,
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -164,69 +160,55 @@ class _WalletScreenState extends State<WalletScreen> {
                   SizedBox(height: 16.h),
                   _isLoading
                       ? Center(
-                        child: CircularProgressIndicator(
-                          color:
-                              isDarkMode
-                                  ? AppColors.darkAccent
-                                  : AppColors.lightAccent,
-                          strokeWidth: 3,
-                        ),
-                      )
+                    child: CircularProgressIndicator(
+                      color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                      strokeWidth: 3,
+                    ),
+                  )
                       : filteredTransactions.isEmpty
                       ? Center(
-                        child: Text(
-                          'No deposit or withdraw transactions found for this period.',
-                          style: TextStyle(
-                            color:
-                                isDarkMode
-                                    ? AppColors.darkSecondaryText
-                                    : AppColors.lightSecondaryText,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      )
-                      : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: filteredTransactions.length,
-                        itemBuilder: (context, index) {
-                          final tx = filteredTransactions[index];
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 12.h),
-                            child: _buildTransactionCard(
-                              type:
-                                  tx['transactionType'] == 'DEPOSIT'
-                                      ? 'Deposit'
-                                      : 'Withdraw',
-                              amount:
-                                  (tx['transactionType'] == 'DEPOSIT'
-                                      ? '+'
-                                      : '-') +
-                                  '\$${double.parse(tx['amount']).toStringAsFixed(2)}',
-                              date: tx['createdAt'].split('T')[0],
-                              status: tx['status'],
-                              isPositive: tx['transactionType'] == 'DEPOSIT',
-                              isDarkMode: isDarkMode,
-                              remark: tx['remark'],
-                            ),
-                          );
-                        },
+                    child: Text(
+                      'No deposit or withdraw transactions found.',
+                      style: TextStyle(
+                        color: isDarkMode
+                            ? AppColors.darkSecondaryText
+                            : AppColors.lightSecondaryText,
+                        fontSize: 16.sp,
                       ),
+                    ),
+                  )
+                      : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredTransactions.length,
+                    itemBuilder: (context, index) {
+                      final tx = filteredTransactions[index];
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: 12.h),
+                        child: _buildTransactionCard(
+                          type: tx['transactionType'] == 'DEPOSIT' ? 'Deposit' : 'Withdraw',
+                          amount: (tx['transactionType'] == 'DEPOSIT' ? '+' : '-') +
+                              '\$${double.parse(tx['amount']).toStringAsFixed(2)}',
+                          date: tx['createdAt'].split('T')[0],
+                          status: tx['status'],
+                          isPositive: tx['transactionType'] == 'DEPOSIT',
+                          isDarkMode: isDarkMode,
+                          remark: tx['remark'],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
             if (_isLoading)
               Container(
-                color:
-                    isDarkMode
-                        ? AppColors.darkBackground.withOpacity(0.7)
-                        : AppColors.lightBackground.withOpacity(0.7),
+                color: isDarkMode
+                    ? AppColors.darkBackground.withOpacity(0.7)
+                    : AppColors.lightBackground.withOpacity(0.7),
                 child: Center(
                   child: CircularProgressIndicator(
-                    color:
-                        isDarkMode
-                            ? AppColors.darkAccent
-                            : AppColors.lightAccent,
+                    color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
                     strokeWidth: 3,
                   ),
                 ),
@@ -244,21 +226,17 @@ class _WalletScreenState extends State<WalletScreen> {
       decoration: BoxDecoration(
         color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12.r),
-        border:
-            isDarkMode
-                ? Border.all(color: AppColors.darkBorder, width: 0.5)
-                : null,
-        boxShadow:
-            isDarkMode
-                ? null
-                : [
-                  BoxShadow(
-                    color: AppColors.lightShadow,
-                    spreadRadius: 1,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+        border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,10 +244,7 @@ class _WalletScreenState extends State<WalletScreen> {
           Text(
             'Total Balance',
             style: TextStyle(
-              color:
-                  isDarkMode
-                      ? AppColors.darkSecondaryText
-                      : AppColors.lightSecondaryText,
+              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
               fontSize: 14.sp,
             ),
           ),
@@ -277,10 +252,7 @@ class _WalletScreenState extends State<WalletScreen> {
           Text(
             '\$11,557.71 USD',
             style: TextStyle(
-              color:
-                  isDarkMode
-                      ? AppColors.darkPrimaryText
-                      : AppColors.lightPrimaryText,
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
               fontSize: 28.sp,
               fontWeight: FontWeight.bold,
             ),
@@ -295,10 +267,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   Text(
                     'Equity',
                     style: TextStyle(
-                      color:
-                          isDarkMode
-                              ? AppColors.darkSecondaryText
-                              : AppColors.lightSecondaryText,
+                      color: isDarkMode
+                          ? AppColors.darkSecondaryText
+                          : AppColors.lightSecondaryText,
                       fontSize: 14.sp,
                     ),
                   ),
@@ -319,10 +290,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   Text(
                     'Margin',
                     style: TextStyle(
-                      color:
-                          isDarkMode
-                              ? AppColors.darkSecondaryText
-                              : AppColors.lightSecondaryText,
+                      color: isDarkMode
+                          ? AppColors.darkSecondaryText
+                          : AppColors.lightSecondaryText,
                       fontSize: 14.sp,
                     ),
                   ),
@@ -356,7 +326,7 @@ class _WalletScreenState extends State<WalletScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) =>  DepositScreen()),
+              MaterialPageRoute(builder: (_) => DepositScreen()),
             );
           },
         ),
@@ -378,12 +348,12 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Widget _buildActionButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required bool isDarkMode,
-    required VoidCallback onPressed,
-  }) {
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required bool isDarkMode,
+        required VoidCallback onPressed,
+      }) {
     return Expanded(
       child: GestureDetector(
         onTap: onPressed,
@@ -395,10 +365,7 @@ class _WalletScreenState extends State<WalletScreen> {
             borderRadius: BorderRadius.circular(8.r),
             boxShadow: [
               BoxShadow(
-                color: (isDarkMode
-                        ? AppColors.darkAccent
-                        : AppColors.lightAccent)
-                    .withOpacity(0.3),
+                color: (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -425,62 +392,45 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Widget _buildFilterBar(bool isDarkMode) {
-    final filters = ['7 Days', '1 Month', '3 Months', '6 Months'];
+    final filters = ['All', '7 Days', '1 Month', '3 Months', '6 Months'];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children:
-            filters.map((filter) {
-              final isSelected = _selectedFilter == filter;
-              return Padding(
-                padding: EdgeInsets.only(right: 8.w),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedFilter = filter;
-                    });
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 8.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color:
-                          isSelected
-                              ? (isDarkMode
-                                  ? AppColors.darkAccent
-                                  : AppColors.lightAccent)
-                              : (isDarkMode
-                                  ? AppColors.darkCard
-                                  : AppColors.lightCard),
-                      borderRadius: BorderRadius.circular(20.r),
-                      border:
-                          isDarkMode
-                              ? Border.all(
-                                color: AppColors.darkBorder,
-                                width: 0.5,
-                              )
-                              : null,
-                    ),
-                    child: Text(
-                      filter,
-                      style: TextStyle(
-                        color:
-                            isSelected
-                                ? AppColors.white
-                                : (isDarkMode
-                                    ? AppColors.darkPrimaryText
-                                    : AppColors.lightPrimaryText),
-                        fontSize: 14.sp,
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w400,
-                      ),
-                    ),
+        children: filters.map((filter) {
+          final isSelected = _selectedFilter == filter;
+          return Padding(
+            padding: EdgeInsets.only(right: 8.w),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedFilter = filter;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
+                      : (isDarkMode ? AppColors.darkCard : AppColors.lightCard),
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: isDarkMode
+                      ? Border.all(color: AppColors.darkBorder, width: 0.5)
+                      : null,
+                ),
+                child: Text(
+                  filter,
+                  style: TextStyle(
+                    color: isSelected
+                        ? AppColors.white
+                        : (isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
+                    fontSize: 14.sp,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
-              );
-            }).toList(),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -503,21 +453,17 @@ class _WalletScreenState extends State<WalletScreen> {
       decoration: BoxDecoration(
         color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12.r),
-        border:
-            isDarkMode
-                ? Border.all(color: AppColors.darkBorder, width: 0.5)
-                : null,
-        boxShadow:
-            isDarkMode
-                ? null
-                : [
-                  BoxShadow(
-                    color: AppColors.lightShadow,
-                    spreadRadius: 1,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+        border: isDarkMode ? Border.all(color: AppColors.darkBorder, width: 0.5) : null,
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -539,10 +485,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   Text(
                     type,
                     style: TextStyle(
-                      color:
-                          isDarkMode
-                              ? AppColors.darkPrimaryText
-                              : AppColors.lightPrimaryText,
+                      color: isDarkMode
+                          ? AppColors.darkPrimaryText
+                          : AppColors.lightPrimaryText,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -551,10 +496,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   Text(
                     date,
                     style: TextStyle(
-                      color:
-                          isDarkMode
-                              ? AppColors.darkSecondaryText
-                              : AppColors.lightSecondaryText,
+                      color: isDarkMode
+                          ? AppColors.darkSecondaryText
+                          : AppColors.lightSecondaryText,
                       fontSize: 12.sp,
                     ),
                   ),
@@ -562,10 +506,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   Text(
                     remark,
                     style: TextStyle(
-                      color:
-                          isDarkMode
-                              ? AppColors.darkSecondaryText
-                              : AppColors.lightSecondaryText,
+                      color: isDarkMode
+                          ? AppColors.darkSecondaryText
+                          : AppColors.lightSecondaryText,
                       fontSize: 12.sp,
                     ),
                   ),
@@ -588,10 +531,9 @@ class _WalletScreenState extends State<WalletScreen> {
               Text(
                 status,
                 style: TextStyle(
-                  color:
-                      isDarkMode
-                          ? AppColors.darkSecondaryText
-                          : AppColors.lightSecondaryText,
+                  color: isDarkMode
+                      ? AppColors.darkSecondaryText
+                      : AppColors.lightSecondaryText,
                   fontSize: 12.sp,
                 ),
               ),

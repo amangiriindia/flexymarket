@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
-import '../../service/user_service.dart';
+import '../../service/apiservice/user_service.dart';
 import '../../widget/common/main_app_bar.dart';
 
 class EditProfileScreen extends StatefulWidget {

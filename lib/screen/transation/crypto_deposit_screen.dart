@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
-import '../../service/deposit_websocket_service.dart';
-import '../../service/meta_trade_service.dart';
+import '../../service/websocketservice/deposit_websocket_service.dart';
+import '../../service/apiservice/meta_trade_service.dart';
 
 import '../../widget/common/common_app_bar.dart';
 

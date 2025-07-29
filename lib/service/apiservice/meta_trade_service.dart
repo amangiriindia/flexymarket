@@ -2,6 +2,8 @@ import 'package:flexy_markets/constant/user_constant.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../authloginservice/auth_check_vaild_user.dart';
+
 class MetaTradeService {
   static const String _baseUrl = 'https://backend.boostbullion.com';
 
@@ -18,6 +20,7 @@ class MetaTradeService {
 
       print(responseData);
       print(response.statusCode);
+      await checkValidUser(response.statusCode);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {
           'success': true,
@@ -49,6 +52,9 @@ class MetaTradeService {
       );
 
       final responseData = json.decode(response.body);
+      print(responseData);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {
           'success': true,
@@ -92,6 +98,7 @@ class MetaTradeService {
       );
       print(response.body);
       print(response.statusCode);
+      await checkValidUser(response.statusCode);
       final responseData = json.decode(response.body);
       if (response.statusCode == 200 && responseData['status'] == true) {
         return {

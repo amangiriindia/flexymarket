@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../constant/user_constant.dart';
+import '../../constant/user_constant.dart';
+import '../authloginservice/auth_check_vaild_user.dart';
 
 
 class SupportService {
@@ -23,7 +24,9 @@ class SupportService {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     );
-
+      print(response.statusCode);
+      print(response.body);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
@@ -54,7 +57,9 @@ class SupportService {
         'message': message,
       },
     );
-
+     print(response.statusCode);
+     print(response.body);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
@@ -76,7 +81,9 @@ class SupportService {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     );
-
+     print(response.body);
+     print(response.statusCode);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
@@ -101,7 +108,9 @@ class SupportService {
         'ticketId': ticketId.toString(),
       },
     );
-
+    print(response.statusCode);
+    print(response.body);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
@@ -127,7 +136,9 @@ class SupportService {
         'message': message,
       },
     );
-
+    print(response.statusCode);
+    print(response.body);
+    await checkValidUser(response.statusCode);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {

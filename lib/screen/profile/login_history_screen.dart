@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
-import '../../service/user_service.dart';
+import '../../service/apiservice/user_service.dart';
 
 class LoginHistoryScreen extends StatefulWidget {
   const LoginHistoryScreen({super.key});

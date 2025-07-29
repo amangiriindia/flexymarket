@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../constant/app_color.dart';
 import '../../../providers/theme_provider.dart';
-import '../../../service/wallet_service.dart';
+import '../../service/apiservice/wallet_service.dart';
 import '../../../widget/common/common_app_bar.dart';
 
 class BankDepositScreen extends StatefulWidget {

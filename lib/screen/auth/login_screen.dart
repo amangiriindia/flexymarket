@@ -6,10 +6,9 @@ import '../../constant/app_color.dart';
 import '../../constant/common_utills.dart';
 import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
-import '../../service/auth_service.dart';
+import '../../service/apiservice/auth_service.dart';
 import '../base/main_screen.dart';
 import 'registation_screen.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

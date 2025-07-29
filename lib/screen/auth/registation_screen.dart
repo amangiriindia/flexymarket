@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
-import '../../service/auth_service.dart';
+import '../../service/apiservice/auth_service.dart';
 import '../auth/login_screen.dart';
 import 'verification_screen.dart';
 
