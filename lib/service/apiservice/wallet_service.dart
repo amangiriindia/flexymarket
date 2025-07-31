@@ -149,4 +149,45 @@ class WalletService {
       throw Exception('Failed to fetch user transaction list: ${response.statusCode} - ${response.body}');
     }
   }
+
+
+  Future<Map<String, dynamic>> cryptoWithdraw({
+    required double amount,
+    required String walletAddress,
+    required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/user/withdraw'),
+        headers: {
+          'Authorization': 'Bearer ${UserConstants.TOKEN}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'amount': amount.toString(),
+          'walletAddress': walletAddress,
+          'password': password,
+        },
+      );
+
+      final responseBody = jsonDecode(response.body);
+      if (response.statusCode == 200 && responseBody['status'] == true) {
+        return {
+          'status': true,
+          'message': responseBody['message'],
+          'data': responseBody['data'],
+        };
+      } else {
+        return {
+          'status': false,
+          'message': responseBody['message'] ?? 'Failed to process crypto withdrawal: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'status': false,
+        'message': 'Error processing crypto withdrawal: $e',
+      };
+    }
+  }
 }

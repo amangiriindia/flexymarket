@@ -6,9 +6,11 @@ import '../../providers/theme_provider.dart';
 import '../../service/apiservice/meta_trade_service.dart';
 import '../../widget/common/common_app_bar.dart';
 import 'create_meta_trade_screen.dart';
+import 'meta_deposit_screen.dart';
+import 'meta_withdraw_screen.dart';
 
 class MT5Account {
-  final String login; // Changed from id to login
+  final String login;
   final String planName;
   final double balance;
   final String leverage;
@@ -30,15 +32,15 @@ class MT5Account {
 
   factory MT5Account.fromJson(Map<String, dynamic> json) {
     return MT5Account(
-      login: json['Login'] ?? '',
-      planName: json['Group']?.split('\\').last ?? 'Unknown', // Extract plan name from Group (e.g., "Dev\Dev" -> "Dev")
-      balance: double.tryParse(json['Balance'] ?? '0.00') ?? 0.00,
+      login: json['Login']?.toString() ?? '',
+      planName: json['Group']?.split('\\').last ?? 'Unknown',
+      balance: double.tryParse(json['Balance']?.toString() ?? '0.00') ?? 0.00,
       leverage: '1:${json['Leverage'] ?? '0'}',
-      spread: 'From 0.20', // API doesn't provide spread, using default
+      spread: 'From 0.20',
       commission: json['CommissionDaily'] == '0.00' && json['CommissionMonthly'] == '0.00'
           ? 'No commission'
           : '${json['CommissionDaily']}/${json['CommissionMonthly']}',
-      status: json['Status']?.isEmpty ?? true ? 'Active' : json['Status'], // Default to Active if empty
+      status: json['Status']?.isEmpty ?? true ? 'Active' : json['Status'],
       creationDate: (json['createdAt'] ?? '').split('T').first,
     );
   }
@@ -90,7 +92,7 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              result['message'],
+              result['message'] ?? 'Failed to load accounts',
               style: TextStyle(color: AppColors.white),
             ),
             backgroundColor: AppColors.red,
@@ -122,19 +124,6 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
           ),
         ),
         backgroundColor: AppColors.green,
-      ),
-    );
-  }
-
-  void _showFeatureSnackBar(String feature) {
-    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '$feature coming soon!',
-          style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-        ),
-        backgroundColor: AppColors.red,
       ),
     );
   }
@@ -305,7 +294,7 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Login: ${account.login}', // Changed from ID to Login
+                          'Login: ${account.login}',
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
@@ -365,8 +354,32 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                   // _buildActionButton('Deposit', () => _showFeatureSnackBar('Deposit'), isDarkMode),
-                   // _buildActionButton('Withdraw', () => _showFeatureSnackBar('Withdraw'), isDarkMode),
+                    _buildActionButton(
+                      'Deposit',
+                          () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MetaDepositScreen(
+                            mt5Login: account.login,
+                            availableBalance: account.balance,
+                          ),
+                        ),
+                      ),
+                      isDarkMode,
+                    ),
+                    _buildActionButton(
+                      'Withdraw',
+                          () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MetaWithdrawScreen(
+                            mt5Login: account.login,
+                            availableBalance: account.balance,
+                          ),
+                        ),
+                      ),
+                      isDarkMode,
+                    ),
                   ],
                 ),
               ],
@@ -421,7 +434,7 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                color: AppColors.white,
               ),
               semanticsLabel: label,
             ),
@@ -430,6 +443,4 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
       ),
     );
   }
-
-
 }

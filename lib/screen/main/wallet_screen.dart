@@ -6,7 +6,8 @@ import '../../../providers/theme_provider.dart';
 import '../../service/apiservice/wallet_service.dart';
 import '../../widget/common/main_app_bar.dart';
 import '../transation/deposit_screen.dart';
-import '../transation/withdraw_fund_screen.dart';
+import '../transation/withdraw_screen.dart';
+
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({Key? key}) : super(key: key);
@@ -431,7 +432,7 @@ class _WalletScreenState extends State<WalletScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => WithdrawFundsScreen(
+                builder: (_) => WithdrawScreen(
                   mainBalance: _getBalanceValue('mainBalance'),
                 ),
               ),

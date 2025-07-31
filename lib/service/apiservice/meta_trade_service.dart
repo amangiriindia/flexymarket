@@ -120,4 +120,78 @@ class MetaTradeService {
     }
   }
 
+
+  Future<Map<String, dynamic>> depositMT5Account({
+    required String mt5Login,
+    required int type,
+    required double amount,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/user/meta/deposit'),
+        headers: {
+          'Authorization': 'Bearer ${UserConstants.TOKEN}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'mt5Login': mt5Login,
+          'type': type.toString(),
+          'amount': amount.toString(),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to process deposit: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error processing deposit: $e',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> withdrawMT5Account({
+    required String mt5Login,
+    required int type,
+    required double amount,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/user/meta/withdraw'),
+        headers: {
+          'Authorization': 'Bearer ${UserConstants.TOKEN}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'mt5Login': mt5Login,
+          'type': type.toString(),
+          'amount': amount.toString(),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to process withdrawal: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error processing withdrawal: $e',
+      };
+    }
+  }
+
 }
+
+
+
