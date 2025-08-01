@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 import '../../widget/common/common_app_bar.dart';
 import '../support/my_tickets_screen.dart';
-
 
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
@@ -61,6 +60,77 @@ class _SupportScreenState extends State<SupportScreen> with SingleTickerProvider
     super.dispose();
   }
 
+  void _launchWhatsApp() async {
+    // Try WhatsApp deep link first
+    final whatsappUrl = Uri.parse('https://wa.me/?text=Support%20Request');
+    final fallbackUrl = Uri.parse('https://web.whatsapp.com/');
+    try {
+      if (await canLaunchUrl(whatsappUrl)) {
+        await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+        _showSuccessSnackBar('Opening WhatsApp');
+      } else if (await canLaunchUrl(fallbackUrl)) {
+        await launchUrl(fallbackUrl, mode: LaunchMode.platformDefault);
+        _showSuccessSnackBar('Opening WhatsApp Web');
+      } else {
+        _showErrorSnackBar('No WhatsApp or browser found to open the link');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error launching WhatsApp: $e');
+      debugPrint('WhatsApp launch error: $e');
+    }
+  }
+
+  void _launchEmail() async {
+    final emailUrl = Uri.parse('mailto:support@flexymarket.com?subject=Support%20Request');
+    try {
+      if (await canLaunchUrl(emailUrl)) {
+        await launchUrl(emailUrl, mode: LaunchMode.externalApplication);
+        _showSuccessSnackBar('Opening email client');
+      } else {
+        _showErrorSnackBar('No email client found to open the link');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error launching email: $e');
+      debugPrint('Email launch error: $e');
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppColors.white,
+          ),
+        ),
+        backgroundColor: AppColors.red,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppColors.white,
+          ),
+        ),
+        backgroundColor: AppColors.green,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
@@ -72,14 +142,7 @@ class _SupportScreenState extends State<SupportScreen> with SingleTickerProvider
         showBackButton: true,
         onBackPressed: () {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Returning to Profile',
-                style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-              ),
-            ),
-          );
+          _showSuccessSnackBar('Returning to Profile');
         },
       ),
       body: SafeArea(
@@ -118,25 +181,25 @@ class _SupportScreenState extends State<SupportScreen> with SingleTickerProvider
               sliver: SliverToBoxAdapter(
                 child: GestureDetector(
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Search and filter coming soon!',
-                          style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                        ),
-                        backgroundColor: AppColors.green,
-                      ),
-                    );
+                    _showSuccessSnackBar('Search and filter coming soon!');
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    transform: Matrix4.identity()..scale(1.0),
                     height: 48.h,
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     decoration: BoxDecoration(
-                      color: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
-                      borderRadius: BorderRadius.circular(8.r),
+                      color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                      borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+                      boxShadow: isDarkMode
+                          ? null
+                          : [
+                        BoxShadow(
+                          color: AppColors.lightShadow,
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
@@ -177,7 +240,7 @@ class _SupportScreenState extends State<SupportScreen> with SingleTickerProvider
                   'Frequently Asked Questions',
                   style: TextStyle(
                     color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                    fontSize: 16.sp,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -205,125 +268,143 @@ class _SupportScreenState extends State<SupportScreen> with SingleTickerProvider
                 child: Column(
                   children: [
                     // WhatsApp Support Button
-                    ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'WhatsApp chat coming soon!',
-                              style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                            ),
-                            backgroundColor: AppColors.green,
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                    GestureDetector(
+                      onTap: _launchWhatsApp,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        width: double.infinity,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(
+                        decoration: BoxDecoration(
+                          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
                           borderRadius: BorderRadius.circular(12.r),
+                          boxShadow: isDarkMode
+                              ? null
+                              : [
+                            BoxShadow(
+                              color: AppColors.lightShadow,
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.chat,
+                              color: AppColors.white,
+                              size: 24.sp,
+                            ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              'Start Chat via WhatsApp',
+                              style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            FontAwesomeIcons.whatsapp,
-                            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                            size: 24.sp,
-                          ),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'Start Chat via WhatsApp',
-                            style: TextStyle(
-                              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      'End-to-end encrypted',
+                      style: TextStyle(
+                        color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                        fontSize: 12.sp,
                       ),
                     ),
                     SizedBox(height: 16.h),
 
                     // Email Support Button
-                    OutlinedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Email support coming soon!',
-                              style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                            ),
-                            backgroundColor: AppColors.green,
-                          ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                        side: BorderSide(
-                          color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
-                          width: 1.w,
-                        ),
+                    GestureDetector(
+                      onTap: _launchEmail,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        width: double.infinity,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(
+                        decoration: BoxDecoration(
+                          color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
                           borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.email_outlined,
-                            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                            size: 24.sp,
-                          ),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'Email Support',
-                            style: TextStyle(
-                              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
+                          border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+                          boxShadow: isDarkMode
+                              ? null
+                              : [
+                            BoxShadow(
+                              color: AppColors.lightShadow,
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.email_outlined,
+                              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                              size: 24.sp,
+                            ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              'Email Support',
+                              style: TextStyle(
+                                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: 16.h),
 
                     // My Tickets Button
-                    ElevatedButton(
-                      onPressed: () => Navigator.push(
+                    GestureDetector(
+                      onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const MyTicketsScreen()),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        width: double.infinity,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(
+                        decoration: BoxDecoration(
+                          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
                           borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.support_agent,
-                            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                            size: 24.sp,
-                          ),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'View My Tickets',
-                            style: TextStyle(
-                              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
+                          boxShadow: isDarkMode
+                              ? null
+                              : [
+                            BoxShadow(
+                              color: AppColors.lightShadow,
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
                             ),
-                            semanticsLabel: 'View My Tickets',
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.support_agent,
+                              color: AppColors.white,
+                              size: 24.sp,
+                            ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              'View My Tickets',
+                              style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              semanticsLabel: 'View My Tickets',
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: 16.h),
@@ -336,7 +417,31 @@ class _SupportScreenState extends State<SupportScreen> with SingleTickerProvider
                         fontSize: 12.sp,
                       ),
                     ),
-                    SizedBox(height: 100.h), // Space for consistency
+                    SizedBox(height: 16.h),
+
+                    // Secure Transaction Note
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.lock,
+                            size: 16.sp,
+                            color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'All communications are secure and encrypted',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                            ),
+                            semanticsLabel: 'All communications are secure and encrypted',
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 100.h),
                   ],
                 ),
               ),
@@ -359,7 +464,7 @@ class _SupportScreenState extends State<SupportScreen> with SingleTickerProvider
             : [
           BoxShadow(
             color: AppColors.lightShadow,
-            blurRadius: 4,
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -369,13 +474,14 @@ class _SupportScreenState extends State<SupportScreen> with SingleTickerProvider
           _faqs[index]['title']!,
           style: TextStyle(
             color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-            fontSize: 14.sp,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w500,
           ),
         ),
         trailing: Icon(
           _expandedStates[index] ? Icons.remove : Icons.add,
           color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+          size: 20.sp,
         ),
         onExpansionChanged: (expanded) {
           setState(() {
@@ -389,7 +495,7 @@ class _SupportScreenState extends State<SupportScreen> with SingleTickerProvider
               _faqs[index]['content']!,
               style: TextStyle(
                 color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                fontSize: 12.sp,
+                fontSize: 14.sp,
               ),
             ),
           ),

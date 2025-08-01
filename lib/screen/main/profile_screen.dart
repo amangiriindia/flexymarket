@@ -19,6 +19,7 @@ import '../auth/welcome_screen.dart';
 import '../profile/about_us_screen.dart';
 import '../profile/feedback_screen.dart';
 import '../transation/withdraw_fund_screen.dart';
+import '../transation/withdraw_screen.dart';
 import '../twofa/twofa_setup_screen.dart';
 import '../user/bank_deatils_screen.dart';
 import '../user/change_password_screen.dart';
@@ -653,7 +654,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => WithdrawFundsScreen(
+              builder: (context) => WithdrawScreen(
                 mainBalance: _getBalanceValue('mainBalance'),
               ),
             ),

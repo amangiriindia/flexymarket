@@ -6,9 +6,8 @@ import '../../../constant/app_color.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../widget/common/common_app_bar.dart';
 
-
 class FeedbackScreen extends StatefulWidget {
-  const FeedbackScreen({Key? key}) : super(key: key);
+  const FeedbackScreen({super.key});
 
   @override
   State<FeedbackScreen> createState() => _FeedbackScreenState();
@@ -46,6 +45,78 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
     super.dispose();
   }
 
+  void _showThankYouDialog(bool isDarkMode) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        contentPadding: EdgeInsets.all(24.w),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.check_circle,
+              color: AppColors.green,
+              size: 48.sp,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Thank You!',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Your feedback has been submitted successfully!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Close',
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message, bool isDarkMode) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppColors.white,
+          ),
+        ),
+        backgroundColor: AppColors.red,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
@@ -57,14 +128,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
         showBackButton: true,
         onBackPressed: () {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Returning to Profile',
-                style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-              ),
-            ),
-          );
+          _showErrorSnackBar('Returning to Profile', isDarkMode);
         },
       ),
       body: SafeArea(
@@ -82,7 +146,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
                       Text(
                         'How would you rate your experience?',
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w600,
                           color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
                         ),
@@ -99,6 +163,28 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
                       _buildSubmitButton(isDarkMode),
                       SizedBox(height: 16.h),
                       _buildSupportLink(isDarkMode),
+                      SizedBox(height: 16.h),
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.lock,
+                              size: 16.sp,
+                              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                            ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              'All feedback is securely submitted',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                              ),
+                              semanticsLabel: 'All feedback is securely submitted',
+                            ),
+                          ],
+                        ),
+                      ),
                       SizedBox(height: 100.h),
                     ],
                   ),
@@ -130,7 +216,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
               size: 36.sp,
               color: index < rating
                   ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent)
-                  : (isDarkMode ? AppColors.darkSurface : AppColors.lightSurface),
+                  : (isDarkMode ? AppColors.darkCard : AppColors.lightCard),
               semanticLabel: 'Rate ${index + 1} stars',
             ),
           ),
@@ -150,7 +236,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
             : [
           BoxShadow(
             color: AppColors.lightShadow,
-            blurRadius: 4,
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -170,8 +256,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
           SizedBox(height: 12.h),
           Container(
             decoration: BoxDecoration(
-              color: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+              color: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
               borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
             ),
             child: TextField(
               controller: feedbackController,
@@ -183,7 +270,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
               decoration: InputDecoration(
                 hintText: 'Share your thoughts...',
                 hintStyle: TextStyle(
-                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                  color: isDarkMode ? AppColors.darkSecondaryText.withOpacity(0.5) : AppColors.lightSecondaryText.withOpacity(0.5),
                   fontSize: 16.sp,
                 ),
                 border: InputBorder.none,
@@ -279,11 +366,20 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(vertical: 16.h),
         decoration: BoxDecoration(
-          color: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+          color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(12.r),
           border: isSelected
               ? Border.all(color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent, width: 1.w)
-              : null,
+              : Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+          boxShadow: isDarkMode
+              ? null
+              : [
+            BoxShadow(
+              color: AppColors.lightShadow,
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -323,7 +419,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
             : [
           BoxShadow(
             color: AppColors.lightShadow,
-            blurRadius: 4,
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -364,57 +460,51 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
   }
 
   Widget _buildSubmitButton(bool isDarkMode) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          if (feedbackController.text.isEmpty ||
-              !(tradingFeaturesSelected || performanceSelected || uiUxSelected || securitySelected)) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Please fill all required fields',
-                  style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                ),
-                backgroundColor: AppColors.red,
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Feedback submitted successfully!',
-                  style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                ),
-                backgroundColor: AppColors.green,
-              ),
-            );
-            feedbackController.clear();
-            setState(() {
-              rating = 3;
-              tradingFeaturesSelected = false;
-              performanceSelected = false;
-              uiUxSelected = false;
-              securitySelected = false;
-              canContact = false;
-            });
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-          foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-          padding: EdgeInsets.symmetric(vertical: 16.h),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
+    return GestureDetector(
+      onTap: () {
+        if (feedbackController.text.isEmpty ||
+            !(tradingFeaturesSelected || performanceSelected || uiUxSelected || securitySelected)) {
+          _showErrorSnackBar('Please fill all required fields', isDarkMode);
+        } else {
+          _showThankYouDialog(isDarkMode);
+          feedbackController.clear();
+          setState(() {
+            rating = 3;
+            tradingFeaturesSelected = false;
+            performanceSelected = false;
+            uiUxSelected = false;
+            securitySelected = false;
+            canContact = false;
+          });
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 16.h),
+        decoration: BoxDecoration(
+          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: isDarkMode
+              ? null
+              : [
+            BoxShadow(
+              color: AppColors.lightShadow,
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        child: Text(
-          'Submit Feedback',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
+        child: Center(
+          child: Text(
+            'Submit Feedback',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.white,
+            ),
+            semanticsLabel: 'Submit Feedback',
           ),
-          semanticsLabel: 'Submit Feedback',
         ),
       ),
     );
@@ -439,7 +529,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> with SingleTickerProvid
                 text: 'Contact Support',
                 style: TextStyle(
                   color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

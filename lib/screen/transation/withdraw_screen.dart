@@ -1,3 +1,4 @@
+import 'package:flexy_markets/screen/transation/withdraw_fund_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -5,8 +6,6 @@ import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 import '../../widget/common/common_app_bar.dart';
 import 'crypto_withdraw_screen.dart';
-import 'withdraw_fund_screen.dart';
-
 
 class WithdrawScreen extends StatelessWidget {
   final double mainBalance;
@@ -34,52 +33,69 @@ class WithdrawScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Choose Withdrawal Method',
+                'Available Balance',
                 style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16.sp,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                '\$${mainBalance.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 32.sp,
+                  fontWeight: FontWeight.bold,
                   color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
                 ),
-                semanticsLabel: 'Choose Withdrawal Method',
+                semanticsLabel: 'Available Balance \$${mainBalance.toStringAsFixed(2)}',
               ),
               SizedBox(height: 16.h),
-              _buildTextField(
-                label: 'Available Balance',
-                value: '\$${mainBalance.toStringAsFixed(2)}',
-                isDarkMode: isDarkMode,
-                enabled: false,
+              Text(
+                'Choose a withdrawal method',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                ),
               ),
               SizedBox(height: 24.h),
               _buildWithdrawalOption(
                 context: context,
-                label: 'Bank Withdraw',
-                subtitle: '1-3 business days • Free',
-                icon: Icons.account_balance,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WithdrawFundsScreen(
-                      mainBalance: mainBalance,
-                    ),
-                  ),
-                ),
                 isDarkMode: isDarkMode,
+                icon: Icons.account_balance,
+                title: 'Bank Withdraw',
+                subtitle: '1-3 business days • Free',
+                limits: '50 - 2,000 USD',
+                gradientColors: isDarkMode
+                    ? [AppColors.darkAccent.withOpacity(0.8), AppColors.darkAccent]
+                    : [AppColors.lightAccent.withOpacity(0.8), AppColors.lightAccent],
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WithdrawFundsScreen(mainBalance: mainBalance),
+                    ),
+                  );
+                },
               ),
               SizedBox(height: 16.h),
               _buildWithdrawalOption(
                 context: context,
-                label: 'Crypto Withdraw',
-                subtitle: 'Instant • Low fees',
-                icon: Icons.currency_bitcoin,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CryptoWithdrawScreen(
-                      mainBalance: mainBalance,
-                    ),
-                  ),
-                ),
                 isDarkMode: isDarkMode,
+                icon: Icons.currency_bitcoin,
+                title: 'Crypto Withdraw',
+                subtitle: 'Instant • Low fees',
+                limits: '10 - 10M USD',
+                gradientColors: isDarkMode
+                    ? [AppColors.darkAccent.withOpacity(0.8), AppColors.darkAccent]
+                    : [AppColors.lightAccent.withOpacity(0.8), AppColors.lightAccent],
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CryptoWithdrawScreen(mainBalance: mainBalance),
+                    ),
+                  );
+                },
               ),
               SizedBox(height: 24.h),
               Center(
@@ -110,60 +126,15 @@ class WithdrawScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required String value,
-    required bool isDarkMode,
-    bool enabled = true,
-  }) {
-    return TextFormField(
-      initialValue: value,
-      enabled: enabled,
-      style: TextStyle(
-        color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-        fontSize: 16.sp,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(
-          color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-            width: 2,
-          ),
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.r),
-          borderSide: BorderSide(
-            color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildWithdrawalOption({
     required BuildContext context,
-    required String label,
-    required String subtitle,
-    required IconData icon,
-    required VoidCallback onTap,
     required bool isDarkMode,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String limits,
+    required List<Color> gradientColors,
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -171,27 +142,32 @@ class WithdrawScreen extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         decoration: BoxDecoration(
-          color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
           ),
           boxShadow: isDarkMode
-              ? null
-              : [
-            BoxShadow(
-              color: AppColors.lightShadow,
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+              ? [BoxShadow(color: Colors.black.withOpacity(0.3), spreadRadius: 2, blurRadius: 8, offset: const Offset(0, 4))]
+              : [BoxShadow(color: AppColors.lightShadow.withOpacity(0.5), spreadRadius: 2, blurRadius: 8, offset: const Offset(0, 4))],
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-              size: 24.sp,
+            Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 20.sp,
+                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+              ),
             ),
             SizedBox(width: 16.w),
             Expanded(
@@ -199,7 +175,7 @@ class WithdrawScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    label,
+                    title,
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
@@ -212,6 +188,14 @@ class WithdrawScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    'Limits: $limits',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText.withOpacity(0.8) : AppColors.lightSecondaryText.withOpacity(0.8),
                     ),
                   ),
                 ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 import '../../service/apiservice/auth_service.dart';
@@ -16,7 +16,6 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  // final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
@@ -27,46 +26,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   void dispose() {
-    //_phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _handleSignUp() async {
-    if (
-        _emailController.text.isEmpty ||
-        _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please fill all fields',
-            style: TextStyle(
-              color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
-                  ? AppColors.darkPrimaryText
-                  : AppColors.lightPrimaryText,
-            ),
-          ),
-          backgroundColor: AppColors.red,
-        ),
-      );
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      _showErrorSnackBar('Please fill all fields');
       return;
     }
 
     if (!_agreedToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please agree to the Terms of Service and Privacy Policy',
-            style: TextStyle(
-              color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
-                  ? AppColors.darkPrimaryText
-                  : AppColors.lightPrimaryText,
-            ),
-          ),
-          backgroundColor: AppColors.red,
-        ),
-      );
+      _showErrorSnackBar('Please agree to the Terms and Conditions');
       return;
     }
 
@@ -75,17 +47,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
 
     try {
-      // Call signup API (only email, password, country)
+      // Call signup API (email, password, country)
       await _authService.signup(
         _emailController.text,
         _passwordController.text,
-        'india', // Fixed as per your API example
+        'india',
       );
 
       // Send OTP to email
       await _authService.sendOtpToEmail(_emailController.text);
-
-      // Send OTP to phone
 
       // Navigate to VerificationScreen
       Navigator.push(
@@ -97,37 +67,64 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'OTPs sent to email and phone',
-            style: TextStyle(
-              color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
-                  ? AppColors.darkPrimaryText
-                  : AppColors.lightPrimaryText,
-            ),
-          ),
-          backgroundColor: AppColors.green,
-        ),
-      );
+      _showSuccessSnackBar('OTP sent to email');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error: $e',
-            style: TextStyle(
-              color: Provider.of<ThemeProvider>(context, listen: false).isDarkMode
-                  ? AppColors.darkPrimaryText
-                  : AppColors.lightPrimaryText,
-            ),
-          ),
-          backgroundColor: AppColors.red,
-        ),
-      );
+      _showErrorSnackBar('Error: $e');
     } finally {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppColors.white,
+          ),
+        ),
+        backgroundColor: AppColors.red,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppColors.white,
+          ),
+        ),
+        backgroundColor: AppColors.green,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+    );
+  }
+
+  Future<void> _launchTerms() async {
+    final url = Uri.parse('https://flexymarkets.com/legal_documents/TERM%20AND%20CONDITION.pdf');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+        _showSuccessSnackBar('Opening Terms and Conditions');
+      } else {
+        _showErrorSnackBar('Could not open Terms and Conditions');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error opening Terms and Conditions: $e');
+      debugPrint('Terms launch error: $e');
     }
   }
 
@@ -148,7 +145,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 _buildLogo(isDarkMode),
                 SizedBox(height: 20.h),
                 _buildTitle(isDarkMode),
-
                 SizedBox(height: 16.h),
                 _buildTextField(
                   label: 'Email',
@@ -185,6 +181,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 _buildSignUpButton(isDarkMode),
                 SizedBox(height: 16.h),
                 _buildSignInText(isDarkMode),
+                SizedBox(height: 16.h),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.lock,
+                        size: 16.sp,
+                        color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'All communications are secure and encrypted',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                        ),
+                        semanticsLabel: 'All communications are secure and encrypted',
+                      ),
+                    ],
+                  ),
+                ),
                 SizedBox(height: 24.h),
               ],
             ),
@@ -199,7 +217,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(
-          FontAwesomeIcons.chartLine,
+          Icons.trending_up,
           color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
           size: 28.sp,
         ),
@@ -334,7 +352,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               side: BorderSide(
                 color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
               ),
-              semanticLabel: 'Agree to Terms',
+              semanticLabel: 'Agree to Terms and Conditions',
             ),
           ),
         ),
@@ -352,45 +370,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   const TextSpan(text: 'I agree to Flexy Markets\' '),
                   WidgetSpan(
                     child: GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Terms of Service coming soon!',
-                              style: TextStyle(
-                                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+                      onTap: _launchTerms,
                       child: Text(
-                        'Terms of Service',
-                        style: TextStyle(
-                          color: AppColors.green,
-                          fontSize: 12.sp,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const TextSpan(text: ' and '),
-                  WidgetSpan(
-                    child: GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Privacy Policy coming soon!',
-                              style: TextStyle(
-                                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'Privacy Policy',
+                        'Terms and Conditions',
                         style: TextStyle(
                           color: AppColors.green,
                           fontSize: 12.sp,
@@ -409,37 +391,45 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Widget _buildSignUpButton(bool isDarkMode) {
-    return ElevatedButton(
-      onPressed: _isLoading ? null : _handleSignUp,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-        foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-        disabledBackgroundColor:
-        (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
-        disabledForegroundColor:
-        (isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText).withOpacity(0.5),
-        elevation: isDarkMode ? 0 : 2,
-        minimumSize: Size(double.infinity, 50.h),
-        shape: RoundedRectangleBorder(
+    return GestureDetector(
+      onTap: _isLoading ? null : _handleSignUp,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 16.h),
+        decoration: BoxDecoration(
+          color: _isLoading
+              ? (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5)
+              : (isDarkMode ? AppColors.darkAccent : AppColors.lightAccent),
           borderRadius: BorderRadius.circular(8.r),
+          boxShadow: isDarkMode
+              ? null
+              : [
+            BoxShadow(
+              color: AppColors.lightShadow,
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        shadowColor: isDarkMode ? null : AppColors.lightShadow,
-      ),
-      child: _isLoading
-          ? SizedBox(
-        width: 24.w,
-        height: 24.h,
-        child: CircularProgressIndicator(
-          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-          strokeWidth: 2,
-        ),
-      )
-          : Text(
-        'Sign Up',
-        style: TextStyle(
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
-          color: AppColors.white
+        child: Center(
+          child: _isLoading
+              ? SizedBox(
+            width: 24.w,
+            height: 24.h,
+            child: CircularProgressIndicator(
+              color: AppColors.white,
+              strokeWidth: 2,
+            ),
+          )
+              : Text(
+            'Sign Up',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.white,
+            ),
+          ),
         ),
       ),
     );
@@ -456,24 +446,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             fontSize: 14.sp,
           ),
         ),
-        TextButton(
-          onPressed: () {
+        GestureDetector(
+          onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const LoginScreen(),
               ),
             );
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Navigating to Login',
-                  style: TextStyle(
-                    color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                  ),
-                ),
-              ),
-            );
+            _showSuccessSnackBar('Navigating to Login');
           },
           child: Text(
             'Sign In',

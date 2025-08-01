@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../constant/app_color.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../widget/common/common_app_bar.dart';
 import 'support_screen.dart';
-
 
 class AboutUsScreen extends StatelessWidget {
   const AboutUsScreen({super.key});
@@ -24,6 +22,7 @@ class AboutUsScreen extends StatelessWidget {
         showBackButton: true,
         onBackPressed: () {
           Navigator.pop(context);
+          _showSuccessSnackBar(context, 'Returning to Profile', isDarkMode);
         },
       ),
       body: SafeArea(
@@ -35,7 +34,7 @@ class AboutUsScreen extends StatelessWidget {
               _buildSectionCard(
                 title: 'Who We Are',
                 content: Text(
-                  'Flexy Markets is a leading crypto trading platform designed to empower traders with secure, fast, and user-friendly tools to navigate the dynamic world of cryptocurrencies. Established in 2023, we aim to make crypto trading accessible to everyone, from beginners to seasoned investors.',
+                  'Flexy Markets is a premier cryptocurrency trading platform launched in 2024, dedicated to providing a secure, efficient, and intuitive trading experience. We empower users worldwide to engage with digital assets through cutting-edge technology and a commitment to transparency.',
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
@@ -49,7 +48,7 @@ class AboutUsScreen extends StatelessWidget {
               _buildSectionCard(
                 title: 'Our Mission',
                 content: Text(
-                  'Our mission is to democratize crypto trading by providing a reliable, transparent, and secure platform that prioritizes user experience and financial empowerment. We strive to offer low fees, real-time market data, and robust security measures to help our users succeed.',
+                  'At Flexy Markets, our mission is to make cryptocurrency trading accessible and secure for all. We aim to provide a trusted platform with low fees, real-time insights, and robust security to help users achieve their financial goals.',
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
@@ -67,25 +66,25 @@ class AboutUsScreen extends StatelessWidget {
                   children: [
                     _buildFeatureItem(
                       icon: Icons.security,
-                      text: 'Bank-grade security with advanced encryption.',
+                      text: 'Advanced encryption and multi-factor authentication for top-tier security.',
                       isDarkMode: isDarkMode,
                     ),
                     SizedBox(height: 12.h),
                     _buildFeatureItem(
                       icon: Icons.speed,
-                      text: 'Instant deposits and withdrawals.',
+                      text: 'Fast and seamless deposits and withdrawals.',
                       isDarkMode: isDarkMode,
                     ),
                     SizedBox(height: 12.h),
                     _buildFeatureItem(
                       icon: Icons.bar_chart,
-                      text: 'Real-time market data and trading tools.',
+                      text: 'Real-time market data with advanced trading tools.',
                       isDarkMode: isDarkMode,
                     ),
                     SizedBox(height: 12.h),
                     _buildFeatureItem(
                       icon: Icons.monetization_on,
-                      text: 'Competitive fees starting at 0%.',
+                      text: 'Low trading fees starting at 0.1%.',
                       isDarkMode: isDarkMode,
                     ),
                   ],
@@ -95,70 +94,38 @@ class AboutUsScreen extends StatelessWidget {
               ),
               SizedBox(height: 16.h),
               _buildSectionCard(
-                title: 'Meet Our Team',
-                content: SizedBox(
-                  height: 120.h,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _buildTeamMember(
-                        name: 'John Doe',
-                        role: 'CEO',
-                        icon: FontAwesomeIcons.userTie,
-                        isDarkMode: isDarkMode,
-                        context: context,
-                      ),
-                      SizedBox(width: 12.w),
-                      _buildTeamMember(
-                        name: 'Jane Smith',
-                        role: 'CTO',
-                        icon: FontAwesomeIcons.userGear,
-                        isDarkMode: isDarkMode,
-                        context: context,
-                      ),
-                      SizedBox(width: 12.w),
-                      _buildTeamMember(
-                        name: 'Alex Brown',
-                        role: 'Lead Developer',
-                        icon: FontAwesomeIcons.user,
-                        isDarkMode: isDarkMode,
-                        context: context,
-                      ),
-                    ],
-                  ),
-                ),
-                index: 3,
-                isDarkMode: isDarkMode,
-              ),
-              SizedBox(height: 16.h),
-              _buildSectionCard(
                 title: 'Get in Touch',
                 content: Column(
                   children: [
                     _buildContactItem(
                       icon: Icons.email,
-                      text: 'support@flexymarkets.com',
+                      text: 'support@flexymarket.com',
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const SupportScreen()),
                         );
-                        Clipboard.setData(
-                          const ClipboardData(text: 'support@flexymarkets.com'),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Email copied to clipboard',
-                              style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                            ),
-                            backgroundColor: AppColors.green,
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
+                        Clipboard.setData(const ClipboardData(text: 'support@flexymarket.com'));
+                        _showSuccessSnackBar(context, 'Email copied to clipboard', isDarkMode);
                       },
                       isDarkMode: isDarkMode,
                       semanticLabel: 'Email support',
+                    ),
+                    SizedBox(height: 12.h),
+                    _buildContactItem(
+                      icon: Icons.chat,
+                      text: 'Chat via WhatsApp',
+                      onTap: () async {
+                        final Uri url = Uri.parse('https://web.whatsapp.com/');
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url, mode: LaunchMode.externalApplication);
+                          _showSuccessSnackBar(context, 'Opening WhatsApp Web', isDarkMode);
+                        } else {
+                          _showErrorSnackBar(context, 'Could not open WhatsApp Web', isDarkMode);
+                        }
+                      },
+                      isDarkMode: isDarkMode,
+                      semanticLabel: 'Chat via WhatsApp',
                     ),
                     SizedBox(height: 12.h),
                     _buildContactItem(
@@ -168,48 +135,40 @@ class AboutUsScreen extends StatelessWidget {
                         final Uri url = Uri.parse('https://www.flexymarkets.com');
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url, mode: LaunchMode.externalApplication);
+                          _showSuccessSnackBar(context, 'Opening website', isDarkMode);
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Could not open website',
-                                style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                              ),
-                              backgroundColor: AppColors.red,
-                            ),
-                          );
+                          _showErrorSnackBar(context, 'Could not open website', isDarkMode);
                         }
                       },
                       isDarkMode: isDarkMode,
                       semanticLabel: 'Visit website',
                     ),
-                    SizedBox(height: 12.h),
-                    _buildContactItem(
-                      icon: FontAwesomeIcons.twitter,
-                      text: '@FlexyMarkets on Twitter',
-                      onTap: () async {
-                        final Uri url = Uri.parse('https://twitter.com/FlexyMarkets');
-                        if (await canLaunchUrl(url)) {
-                          await launchUrl(url, mode: LaunchMode.externalApplication);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Could not open Twitter',
-                                style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                              ),
-                              backgroundColor: AppColors.red,
-                            ),
-                          );
-                        }
-                      },
-                      isDarkMode: isDarkMode,
-                      semanticLabel: 'Visit Twitter',
+                  ],
+                ),
+                index: 3,
+                isDarkMode: isDarkMode,
+              ),
+              SizedBox(height: 16.h),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.lock,
+                      size: 16.sp,
+                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'All communications are secure and encrypted',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                      ),
+                      semanticsLabel: 'All communications are secure and encrypted',
                     ),
                   ],
                 ),
-                index: 4,
-                isDarkMode: isDarkMode,
               ),
               SizedBox(height: 16.h),
               _buildLearnMoreButton(context, isDarkMode),
@@ -221,44 +180,80 @@ class AboutUsScreen extends StatelessWidget {
     );
   }
 
+  void _showErrorSnackBar(BuildContext context, String message, bool isDarkMode) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppColors.white,
+          ),
+        ),
+        backgroundColor: AppColors.red,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(BuildContext context, String message, bool isDarkMode) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppColors.white,
+          ),
+        ),
+        backgroundColor: AppColors.green,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+    );
+  }
+
   Widget _buildSectionCard({
     required String title,
     required Widget content,
     required int index,
     required bool isDarkMode,
   }) {
-    return  Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
-          boxShadow: isDarkMode
-              ? null
-              : [
-            BoxShadow(
-              color: AppColors.lightShadow,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-              ),
-              semanticsLabel: '$title section',
-            ),
-            SizedBox(height: 12.h),
-            content,
-          ],
+            semanticsLabel: '$title section',
+          ),
+          SizedBox(height: 12.h),
+          content,
+        ],
       ),
     );
   }
@@ -290,71 +285,6 @@ class AboutUsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTeamMember({
-    required String name,
-    required String role,
-    required IconData icon,
-    required bool isDarkMode,
-    required BuildContext context,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Bio for $name coming soon',
-              style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-            ),
-            backgroundColor: AppColors.green,
-          ),
-        );
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 100.w,
-        transform: Matrix4.identity()..scale(1.0),
-        child: Column(
-          children: [
-            Container(
-              width: 60.w,
-              height: 60.h,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
-              ),
-              child: Center(
-                child: FaIcon(
-                  icon,
-                  color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-                  size: 30.sp,
-                ),
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-              ),
-              textAlign: TextAlign.center,
-              semanticsLabel: 'Team member: $name, $role',
-            ),
-            Text(
-              role,
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildContactItem({
     required IconData icon,
     required String text,
@@ -366,8 +296,21 @@ class AboutUsScreen extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(vertical: 8.h),
-        transform: Matrix4.identity()..scale(1.0),
+        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+        decoration: BoxDecoration(
+          color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder),
+          boxShadow: isDarkMode
+              ? null
+              : [
+            BoxShadow(
+              color: AppColors.lightShadow,
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
         child: Row(
           children: [
             Icon(
@@ -398,40 +341,43 @@ class AboutUsScreen extends StatelessWidget {
   }
 
   Widget _buildLearnMoreButton(BuildContext context, bool isDarkMode) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () async {
-          final Uri url = Uri.parse('https://www.flexymarkets.com');
-          if (await canLaunchUrl(url)) {
-            await launchUrl(url, mode: LaunchMode.externalApplication);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Could not open website',
-                  style: TextStyle(color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText),
-                ),
-                backgroundColor: AppColors.red,
-              ),
-            );
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-          foregroundColor: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-          padding: EdgeInsets.symmetric(vertical: 16.h),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
+    return GestureDetector(
+      onTap: () async {
+        final Uri url = Uri.parse('https://www.flexymarkets.com');
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+          _showSuccessSnackBar(context, 'Opening website', isDarkMode);
+        } else {
+          _showErrorSnackBar(context, 'Could not open website', isDarkMode);
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 16.h),
+        decoration: BoxDecoration(
+          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: isDarkMode
+              ? null
+              : [
+            BoxShadow(
+              color: AppColors.lightShadow,
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        child: Text(
-          'Learn More',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
+        child: Center(
+          child: Text(
+            'Learn More',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.white,
+            ),
+            semanticsLabel: 'Learn More about Flexy Markets',
           ),
-          semanticsLabel: 'Learn More about Flexy Markets',
         ),
       ),
     );

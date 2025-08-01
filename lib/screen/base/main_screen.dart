@@ -21,16 +21,16 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const TradeScreen(),
-    const CommunityScreen(),
+    // const TradeScreen(),
+    // const CommunityScreen(),
     const WalletScreen(),
     const ProfileScreen(),
   ];
 
   final List<Map<String, dynamic>> _navItems = [
     {'icon': Icons.home, 'label': 'Home'},
-    {'icon': Icons.bar_chart, 'label': 'Trade'},
-    {'icon': Icons.group, 'label': 'Community'},
+   // {'icon': Icons.bar_chart, 'label': 'Trade'},
+    //{'icon': Icons.group, 'label': 'Community'},
     {'icon': Icons.account_balance_wallet, 'label': 'Wallet'},
     {'icon': Icons.person, 'label': 'Profile'},
   ];
