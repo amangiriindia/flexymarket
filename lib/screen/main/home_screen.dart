@@ -5,6 +5,7 @@ import '../../constant/app_color.dart';
 import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
+import '../metatrade/meta_trade_list_screen.dart';
 import '../transation/deposit_screen.dart';
 import '../trade/trade_deatils_screen.dart';
 import '../twofa/twofa_setup_screen.dart';
@@ -306,8 +307,8 @@ class _HomeScreenState extends State<HomeScreen>
                 _buildAccountSection(isDarkMode),
                 SizedBox(height: 16.h),
                 _buildTradingOptions(isDarkMode),
-                SizedBox(height: 24.h),
-                _buildTopMoversSection(isDarkMode),
+               // SizedBox(height: 24.h),
+               // _buildTopMoversSection(isDarkMode),
                 SizedBox(height: 24.h),
                 _buildLearningCenterSection(isDarkMode),
                 SizedBox(height: 24.h),
@@ -465,10 +466,10 @@ class _HomeScreenState extends State<HomeScreen>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _buildOptionCard(
-          Icons.show_chart,
-          'Trading',
+          Icons.candlestick_chart,
+          'MT5',
           isDarkMode,
-          targetScreen: CryptoTradingScreen(),
+          targetScreen: MetaTradeListScreen(),
         ),
         _buildOptionCard(
           Icons.account_balance_wallet,

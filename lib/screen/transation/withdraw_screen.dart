@@ -28,46 +28,102 @@ class WithdrawScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Available Balance',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+              // Balance Card
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(24.w),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isDarkMode
+                        ? [
+                      Color(0xFF1A1A1A),
+                      Color(0xFF2D2D2D),
+                    ]
+                        : [
+                      Colors.white,
+                      Color(0xFFFAFAFA),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: Border.all(
+                    color: isDarkMode
+                        ? Color(0xFF333333)
+                        : Color(0xFFE8E8E8),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDarkMode
+                          ? Colors.black.withOpacity(0.3)
+                          : Colors.black.withOpacity(0.08),
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Available Balance',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                        color: isDarkMode
+                            ? AppColors.darkSecondaryText
+                            : AppColors.lightSecondaryText,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      '\$${mainBalance.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 36.sp,
+                        fontWeight: FontWeight.bold,
+                        color: isDarkMode
+                            ? AppColors.darkPrimaryText
+                            : AppColors.lightPrimaryText,
+                      ),
+                      semanticsLabel: 'Available Balance \$${mainBalance.toStringAsFixed(2)}',
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 8.h),
+
+              SizedBox(height: 32.h),
+
               Text(
-                '\$${mainBalance.toStringAsFixed(2)}',
+                'Choose withdrawal method',
                 style: TextStyle(
-                  fontSize: 32.sp,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-                ),
-                semanticsLabel: 'Available Balance \$${mainBalance.toStringAsFixed(2)}',
-              ),
-              SizedBox(height: 16.h),
-              Text(
-                'Choose a withdrawal method',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  color: isDarkMode
+                      ? AppColors.darkPrimaryText
+                      : AppColors.lightPrimaryText,
                 ),
               ),
-              SizedBox(height: 24.h),
-              _buildWithdrawalOption(
+
+              SizedBox(height: 20.h),
+
+              // Bank Withdraw Card
+              _buildModernWithdrawalOption(
                 context: context,
                 isDarkMode: isDarkMode,
-                icon: Icons.account_balance,
-                title: 'Bank Withdraw',
-                subtitle: '1-3 business days • Free',
-                limits: '50 - 2,000 USD',
+                icon: Icons.account_balance_outlined,
+                title: 'Bank Transfer',
+                subtitle: '1-3 business days',
+                limits: '\$50 - \$2,000',
+                fee: 'Free',
                 gradientColors: isDarkMode
-                    ? [AppColors.darkAccent.withOpacity(0.8), AppColors.darkAccent]
-                    : [AppColors.lightAccent.withOpacity(0.8), AppColors.lightAccent],
+                    ? [AppColors.darkAccent, AppColors.darkAccent.withOpacity(0.8)]
+                    : [AppColors.lightAccent, AppColors.lightAccent.withOpacity(0.8)],
+                backgroundColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -77,17 +133,22 @@ class WithdrawScreen extends StatelessWidget {
                   );
                 },
               ),
+
               SizedBox(height: 16.h),
-              _buildWithdrawalOption(
+
+              // Crypto Withdraw Card
+              _buildModernWithdrawalOption(
                 context: context,
                 isDarkMode: isDarkMode,
-                icon: Icons.currency_bitcoin,
-                title: 'Crypto Withdraw',
-                subtitle: 'Instant • Low fees',
-                limits: '10 - 10M USD',
+                icon: Icons.currency_bitcoin_outlined,
+                title: 'Crypto Transfer',
+                subtitle: 'Instant transfer',
+                limits: '\$10 - \$10M',
+                fee: 'Low fees',
                 gradientColors: isDarkMode
-                    ? [AppColors.darkAccent.withOpacity(0.8), AppColors.darkAccent]
-                    : [AppColors.lightAccent.withOpacity(0.8), AppColors.lightAccent],
+                    ? [AppColors.orange, AppColors.orange.withOpacity(0.8)]
+                    : [AppColors.orange, AppColors.orange.withOpacity(0.8)],
+                backgroundColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -97,24 +158,67 @@ class WithdrawScreen extends StatelessWidget {
                   );
                 },
               ),
-              SizedBox(height: 24.h),
-              Center(
+
+              SizedBox(height: 40.h),
+
+              // Security Info
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(20.w),
+                decoration: BoxDecoration(
+                  color: isDarkMode
+                      ? Color(0xFF1A1A1A).withOpacity(0.5)
+                      : Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(16.r),
+                  border: Border.all(
+                    color: isDarkMode
+                        ? Color(0xFF333333)
+                        : Color(0xFFE8E8E8),
+                  ),
+                ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.lock,
-                      size: 16.sp,
-                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'All transactions are secure and encrypted',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                    Container(
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: isDarkMode
+                            ? Color(0xFF00D4AA).withOpacity(0.2)
+                            : Color(0xFF00D4AA).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
-                      semanticsLabel: 'All transactions are secure and encrypted',
+                      child: Icon(
+                        Icons.security_outlined,
+                        size: 20.sp,
+                        color: Color(0xFF00D4AA),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Secure & Protected',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                              color: isDarkMode
+                                  ? AppColors.darkPrimaryText
+                                  : AppColors.lightPrimaryText,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            'All transactions are encrypted and secure',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: isDarkMode
+                                  ? AppColors.darkSecondaryText
+                                  : AppColors.lightSecondaryText,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -126,47 +230,56 @@ class WithdrawScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWithdrawalOption({
+  Widget _buildModernWithdrawalOption({
     required BuildContext context,
     required bool isDarkMode,
     required IconData icon,
     required String title,
     required String subtitle,
     required String limits,
+    required String fee,
     required List<Color> gradientColors,
+    required Color backgroundColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradientColors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12.r),
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+            width: 1,
           ),
-          boxShadow: isDarkMode
-              ? [BoxShadow(color: Colors.black.withOpacity(0.3), spreadRadius: 2, blurRadius: 8, offset: const Offset(0, 4))]
-              : [BoxShadow(color: AppColors.lightShadow.withOpacity(0.5), spreadRadius: 2, blurRadius: 8, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: isDarkMode
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.black.withOpacity(0.08),
+              blurRadius: 20,
+              offset: Offset(0, 8),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(8.w),
+              padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
-                color: isDarkMode ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
-                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: gradientColors,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(
                 icon,
-                size: 20.sp,
-                color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                size: 24.sp,
+                color: Colors.white,
               ),
             ),
             SizedBox(width: 16.w),
@@ -177,9 +290,11 @@ class WithdrawScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: isDarkMode
+                          ? AppColors.darkPrimaryText
+                          : AppColors.lightPrimaryText,
                     ),
                   ),
                   SizedBox(height: 4.h),
@@ -187,24 +302,74 @@ class WithdrawScreen extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
+                      color: isDarkMode
+                          ? AppColors.darkSecondaryText
+                          : AppColors.lightSecondaryText,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    'Limits: $limits',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: isDarkMode ? AppColors.darkSecondaryText.withOpacity(0.8) : AppColors.lightSecondaryText.withOpacity(0.8),
-                    ),
+                  SizedBox(height: 8.h),
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: gradientColors[0].withOpacity(0.1),
+                          border: Border.all(
+                            color: gradientColors[0].withOpacity(0.3),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Text(
+                          limits,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: gradientColors[0],
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: AppColors.green.withOpacity(0.1),
+                          border: Border.all(
+                            color: AppColors.green.withOpacity(0.3),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Text(
+                          fee,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: AppColors.green,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: isDarkMode ? AppColors.darkSecondaryText : AppColors.lightSecondaryText,
-              size: 24.sp,
+            Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
+                color: isDarkMode
+                    ? AppColors.darkBorder.withOpacity(0.3)
+                    : AppColors.lightBorder.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Icon(
+                Icons.arrow_forward_ios,
+                color: isDarkMode
+                    ? AppColors.darkSecondaryText
+                    : AppColors.lightSecondaryText,
+                size: 16.sp,
+              ),
             ),
           ],
         ),
