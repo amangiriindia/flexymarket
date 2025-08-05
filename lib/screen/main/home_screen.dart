@@ -5,6 +5,7 @@ import '../../constant/app_color.dart';
 import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
 import '../../widget/common/main_app_bar.dart';
+import '../home/home_news_section.dart';
 import '../metatrade/meta_trade_list_screen.dart';
 import '../transation/deposit_screen.dart';
 import '../trade/trade_deatils_screen.dart';
@@ -14,6 +15,7 @@ import 'market_screen.dart';
 import '../user/bank_deatils_screen.dart';
 import '../profile/edit_profile_screen.dart';
 
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -21,12 +23,10 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    // Check KYC, bank, and 2FA status after the first frame to ensure context is available
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkVerificationStatus();
     });
@@ -43,12 +43,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _showVerificationDialog(
-    bool isKycVerified,
-    bool isBankVerified,
-    bool is2FAEnabled,
-  ) {
-    final isDarkMode =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+      bool isKycVerified,
+      bool isBankVerified,
+      bool is2FAEnabled,
+      ) {
+    final isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
 
     showDialog(
       context: context,
@@ -64,8 +63,7 @@ class _HomeScreenState extends State<HomeScreen>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16.r),
             ),
-            backgroundColor:
-                isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+            backgroundColor: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
             contentPadding: EdgeInsets.zero,
             content: Container(
               padding: EdgeInsets.all(20.w),
@@ -78,10 +76,9 @@ class _HomeScreenState extends State<HomeScreen>
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
-                      color:
-                          isDarkMode
-                              ? AppColors.darkPrimaryText
-                              : AppColors.lightPrimaryText,
+                      color: isDarkMode
+                          ? AppColors.darkPrimaryText
+                          : AppColors.lightPrimaryText,
                     ),
                   ),
                   SizedBox(height: 12.h),
@@ -89,10 +86,9 @@ class _HomeScreenState extends State<HomeScreen>
                     'To fully access all features, please complete the following verifications:',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color:
-                          isDarkMode
-                              ? AppColors.darkSecondaryText
-                              : AppColors.lightSecondaryText,
+                      color: isDarkMode
+                          ? AppColors.darkSecondaryText
+                          : AppColors.lightSecondaryText,
                     ),
                   ),
                   SizedBox(height: 16.h),
@@ -102,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen>
                       'Complete your KYC to verify your identity.',
                       Icons.verified_user,
                       isDarkMode,
-                      () => Navigator.push(
+                          () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const EditProfileScreen(),
@@ -117,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen>
                       'Add and verify your bank details for transactions.',
                       Icons.account_balance,
                       isDarkMode,
-                      () => Navigator.push(
+                          () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const BankDetailsScreen(),
@@ -131,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen>
                       'Enable two-factor authentication for enhanced security.',
                       Icons.security,
                       isDarkMode,
-                      () => Navigator.push(
+                          () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const TwoFASetupScreen(),
@@ -148,10 +144,9 @@ class _HomeScreenState extends State<HomeScreen>
                           'Skip',
                           style: TextStyle(
                             fontSize: 14.sp,
-                            color:
-                                isDarkMode
-                                    ? AppColors.darkAccent
-                                    : AppColors.lightAccent,
+                            color: isDarkMode
+                                ? AppColors.darkAccent
+                                : AppColors.lightAccent,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -183,10 +178,9 @@ class _HomeScreenState extends State<HomeScreen>
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              isDarkMode
-                                  ? AppColors.darkAccent
-                                  : AppColors.lightAccent,
+                          backgroundColor: isDarkMode
+                              ? AppColors.darkAccent
+                              : AppColors.lightAccent,
                           padding: EdgeInsets.symmetric(
                             horizontal: 16.w,
                             vertical: 8.h,
@@ -216,25 +210,23 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildVerificationItem(
-    String title,
-    String description,
-    IconData icon,
-    bool isDarkMode,
-    VoidCallback onTap,
-  ) {
+      String title,
+      String description,
+      IconData icon,
+      bool isDarkMode,
+      VoidCallback onTap,
+      ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color:
-              isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+          color: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
           borderRadius: BorderRadius.circular(8.r),
           border: Border.all(
-            color:
-                isDarkMode
-                    ? AppColors.darkBorder
-                    : AppColors.lightShadow.withOpacity(0.3),
+            color: isDarkMode
+                ? AppColors.darkBorder
+                : AppColors.lightShadow.withOpacity(0.3),
           ),
         ),
         child: Row(
@@ -254,10 +246,9 @@ class _HomeScreenState extends State<HomeScreen>
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
-                      color:
-                          isDarkMode
-                              ? AppColors.darkPrimaryText
-                              : AppColors.lightPrimaryText,
+                      color: isDarkMode
+                          ? AppColors.darkPrimaryText
+                          : AppColors.lightPrimaryText,
                     ),
                   ),
                   SizedBox(height: 4.h),
@@ -265,10 +256,9 @@ class _HomeScreenState extends State<HomeScreen>
                     description,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color:
-                          isDarkMode
-                              ? AppColors.darkSecondaryText
-                              : AppColors.lightSecondaryText,
+                      color: isDarkMode
+                          ? AppColors.darkSecondaryText
+                          : AppColors.lightSecondaryText,
                     ),
                   ),
                 ],
@@ -277,10 +267,9 @@ class _HomeScreenState extends State<HomeScreen>
             Icon(
               Icons.chevron_right,
               size: 20.sp,
-              color:
-                  isDarkMode
-                      ? AppColors.darkPrimaryText
-                      : AppColors.lightPrimaryText,
+              color: isDarkMode
+                  ? AppColors.darkPrimaryText
+                  : AppColors.lightPrimaryText,
             ),
           ],
         ),
@@ -293,8 +282,7 @@ class _HomeScreenState extends State<HomeScreen>
     final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
 
     return Scaffold(
-      backgroundColor:
-          isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: const MainAppBar(title: 'Home', showBackButton: true),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -307,8 +295,8 @@ class _HomeScreenState extends State<HomeScreen>
                 _buildAccountSection(isDarkMode),
                 SizedBox(height: 16.h),
                 _buildTradingOptions(isDarkMode),
-               // SizedBox(height: 24.h),
-               // _buildTopMoversSection(isDarkMode),
+                // SizedBox(height: 24.h),
+                // _buildTopMoversSection(isDarkMode),
                 SizedBox(height: 24.h),
                 _buildLearningCenterSection(isDarkMode),
                 SizedBox(height: 24.h),
@@ -320,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen>
                 SizedBox(height: 24.h),
                 _buildDailyTipSection(isDarkMode),
                 SizedBox(height: 24.h),
-                _buildTopNewsSection(isDarkMode),
+                HomeNewsSection(),
                 SizedBox(height: 80.h),
               ],
             ),
@@ -337,21 +325,19 @@ class _HomeScreenState extends State<HomeScreen>
       decoration: BoxDecoration(
         color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12.r),
-        boxShadow:
-            isDarkMode
-                ? null
-                : [
-                  BoxShadow(
-                    color: AppColors.lightShadow,
-                    spreadRadius: 1,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        border:
-            isDarkMode
-                ? Border.all(color: AppColors.darkBorder, width: 0.5)
-                : null,
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: isDarkMode
+            ? Border.all(color: AppColors.darkBorder, width: 0.5)
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,29 +352,26 @@ class _HomeScreenState extends State<HomeScreen>
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w600,
-                      color:
-                          isDarkMode
-                              ? AppColors.darkPrimaryText
-                              : AppColors.lightPrimaryText,
+                      color: isDarkMode
+                          ? AppColors.darkPrimaryText
+                          : AppColors.lightPrimaryText,
                     ),
                   ),
                   Icon(
                     Icons.keyboard_arrow_down,
                     size: 20.sp,
-                    color:
-                        isDarkMode
-                            ? AppColors.darkPrimaryText
-                            : AppColors.lightPrimaryText,
+                    color: isDarkMode
+                        ? AppColors.darkPrimaryText
+                        : AppColors.lightPrimaryText,
                   ),
                 ],
               ),
               Icon(
                 Icons.menu,
                 size: 24.sp,
-                color:
-                    isDarkMode
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
+                color: isDarkMode
+                    ? AppColors.darkPrimaryText
+                    : AppColors.lightPrimaryText,
               ),
             ],
           ),
@@ -398,20 +381,18 @@ class _HomeScreenState extends State<HomeScreen>
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                 decoration: BoxDecoration(
-                  color:
-                      isDarkMode
-                          ? AppColors.darkBackground
-                          : AppColors.lightBackground,
+                  color: isDarkMode
+                      ? AppColors.darkBackground
+                      : AppColors.lightBackground,
                   borderRadius: BorderRadius.circular(4.r),
                 ),
                 child: Text(
                   'Standard',
                   style: TextStyle(
                     fontSize: 14.sp,
-                    color:
-                        isDarkMode
-                            ? AppColors.darkSecondaryText
-                            : AppColors.lightSecondaryText,
+                    color: isDarkMode
+                        ? AppColors.darkSecondaryText
+                        : AppColors.lightSecondaryText,
                   ),
                 ),
               ),
@@ -436,10 +417,9 @@ class _HomeScreenState extends State<HomeScreen>
                 '#271295089',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color:
-                      isDarkMode
-                          ? AppColors.darkSecondaryText
-                          : AppColors.lightSecondaryText,
+                  color: isDarkMode
+                      ? AppColors.darkSecondaryText
+                      : AppColors.lightSecondaryText,
                 ),
               ),
             ],
@@ -450,10 +430,9 @@ class _HomeScreenState extends State<HomeScreen>
             style: TextStyle(
               fontSize: 24.sp,
               fontWeight: FontWeight.bold,
-              color:
-                  isDarkMode
-                      ? AppColors.darkPrimaryText
-                      : AppColors.lightPrimaryText,
+              color: isDarkMode
+                  ? AppColors.darkPrimaryText
+                  : AppColors.lightPrimaryText,
             ),
           ),
         ],
@@ -488,11 +467,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildOptionCard(
-    IconData icon,
-    String title,
-    bool isDarkMode, {
-    Widget? targetScreen,
-  }) {
+      IconData icon,
+      String title,
+      bool isDarkMode, {
+        Widget? targetScreen,
+      }) {
     return GestureDetector(
       onTap: () {
         if (targetScreen != null) {
@@ -512,10 +491,9 @@ class _HomeScreenState extends State<HomeScreen>
         decoration: BoxDecoration(
           color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(12.r),
-          border:
-              isDarkMode
-                  ? Border.all(color: AppColors.darkBorder, width: 0.5)
-                  : null,
+          border: isDarkMode
+              ? Border.all(color: AppColors.darkBorder, width: 0.5)
+              : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -531,10 +509,9 @@ class _HomeScreenState extends State<HomeScreen>
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
-                color:
-                    isDarkMode
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
+                color: isDarkMode
+                    ? AppColors.darkPrimaryText
+                    : AppColors.lightPrimaryText,
               ),
             ),
           ],
@@ -559,8 +536,7 @@ class _HomeScreenState extends State<HomeScreen>
                 '3.7044',
                 '+6.06%',
                 isPositive: true,
-                chartColor:
-                    isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                chartColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
                 isDarkMode: isDarkMode,
               ),
               SizedBox(width: 12.w),
@@ -589,13 +565,13 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildTopMoverCard(
-    String symbol,
-    String price,
-    String change, {
-    required bool isPositive,
-    required Color chartColor,
-    required bool isDarkMode,
-  }) {
+      String symbol,
+      String price,
+      String change, {
+        required bool isPositive,
+        required Color chartColor,
+        required bool isDarkMode,
+      }) {
     return Container(
       width: 150.w,
       padding: EdgeInsets.all(12.r),
@@ -605,17 +581,16 @@ class _HomeScreenState extends State<HomeScreen>
         border: Border.all(
           color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
         ),
-        boxShadow:
-            isDarkMode
-                ? null
-                : [
-                  BoxShadow(
-                    color: AppColors.lightShadow,
-                    spreadRadius: 1,
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
+        boxShadow: isDarkMode
+            ? null
+            : [
+          BoxShadow(
+            color: AppColors.lightShadow,
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -634,10 +609,9 @@ class _HomeScreenState extends State<HomeScreen>
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
-                    color:
-                        isDarkMode
-                            ? AppColors.darkPrimaryText
-                            : AppColors.lightPrimaryText,
+                    color: isDarkMode
+                        ? AppColors.darkPrimaryText
+                        : AppColors.lightPrimaryText,
                   ),
                 ),
               ),
@@ -657,19 +631,16 @@ class _HomeScreenState extends State<HomeScreen>
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
-              color:
-                  isDarkMode
-                      ? AppColors.darkPrimaryText
-                      : AppColors.lightPrimaryText,
+              color: isDarkMode
+                  ? AppColors.darkPrimaryText
+                  : AppColors.lightPrimaryText,
             ),
           ),
           SizedBox(height: 4.h),
           Row(
             children: [
               Icon(
-                isPositive
-                    ? Icons.keyboard_arrow_up
-                    : Icons.keyboard_arrow_down,
+                isPositive ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                 color: isPositive ? AppColors.green : AppColors.red,
                 size: 16.sp,
               ),
@@ -697,10 +668,9 @@ class _HomeScreenState extends State<HomeScreen>
           style: TextStyle(
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
-            color:
-                isDarkMode
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+            color: isDarkMode
+                ? AppColors.darkPrimaryText
+                : AppColors.lightPrimaryText,
           ),
         ),
         SizedBox(height: 16.h),
@@ -722,11 +692,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildLearningCard(
-    String title,
-    String description,
-    IconData icon,
-    bool isDarkMode,
-  ) {
+      String title,
+      String description,
+      IconData icon,
+      bool isDarkMode,
+      ) {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -739,10 +709,9 @@ class _HomeScreenState extends State<HomeScreen>
         decoration: BoxDecoration(
           color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(12.r),
-          border:
-              isDarkMode
-                  ? Border.all(color: AppColors.darkBorder, width: 0.5)
-                  : null,
+          border: isDarkMode
+              ? Border.all(color: AppColors.darkBorder, width: 0.5)
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,8 +721,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Icon(
                   icon,
                   size: 20.w,
-                  color:
-                      isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                  color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
                 ),
                 SizedBox(width: 8.w),
                 Text(
@@ -761,10 +729,9 @@ class _HomeScreenState extends State<HomeScreen>
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
-                    color:
-                        isDarkMode
-                            ? AppColors.darkPrimaryText
-                            : AppColors.lightPrimaryText,
+                    color: isDarkMode
+                        ? AppColors.darkPrimaryText
+                        : AppColors.lightPrimaryText,
                   ),
                 ),
               ],
@@ -774,10 +741,9 @@ class _HomeScreenState extends State<HomeScreen>
               description,
               style: TextStyle(
                 fontSize: 14.sp,
-                color:
-                    isDarkMode
-                        ? AppColors.darkSecondaryText
-                        : AppColors.lightSecondaryText,
+                color: isDarkMode
+                    ? AppColors.darkSecondaryText
+                    : AppColors.lightSecondaryText,
               ),
             ),
             SizedBox(height: 8.h),
@@ -788,10 +754,9 @@ class _HomeScreenState extends State<HomeScreen>
                   'Read More',
                   style: TextStyle(
                     fontSize: 14.sp,
-                    color:
-                        isDarkMode
-                            ? AppColors.darkAccent
-                            : AppColors.lightAccent,
+                    color: isDarkMode
+                        ? AppColors.darkAccent
+                        : AppColors.lightAccent,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -799,8 +764,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Icon(
                   Icons.arrow_forward,
                   size: 16.w,
-                  color:
-                      isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                  color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
                 ),
               ],
             ),
@@ -848,13 +812,13 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildSignalCard(
-    String title,
-    String timeframe,
-    String signal,
-    Color buttonColor,
-    bool isUptrend,
-    bool isDarkMode,
-  ) {
+      String title,
+      String timeframe,
+      String signal,
+      Color buttonColor,
+      bool isUptrend,
+      bool isDarkMode,
+      ) {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -869,17 +833,16 @@ class _HomeScreenState extends State<HomeScreen>
           border: Border.all(
             color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
           ),
-          boxShadow:
-              isDarkMode
-                  ? null
-                  : [
-                    BoxShadow(
-                      color: AppColors.lightShadow,
-                      spreadRadius: 1,
-                      blurRadius: 2,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
+          boxShadow: isDarkMode
+              ? null
+              : [
+            BoxShadow(
+              color: AppColors.lightShadow,
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -893,10 +856,9 @@ class _HomeScreenState extends State<HomeScreen>
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
-                      color:
-                          isDarkMode
-                              ? AppColors.darkPrimaryText
-                              : AppColors.lightPrimaryText,
+                      color: isDarkMode
+                          ? AppColors.darkPrimaryText
+                          : AppColors.lightPrimaryText,
                     ),
                   ),
                 ),
@@ -904,10 +866,9 @@ class _HomeScreenState extends State<HomeScreen>
                   timeframe,
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color:
-                        isDarkMode
-                            ? AppColors.darkSecondaryText
-                            : AppColors.lightSecondaryText,
+                    color: isDarkMode
+                        ? AppColors.darkSecondaryText
+                        : AppColors.lightSecondaryText,
                   ),
                 ),
               ],
@@ -917,10 +878,9 @@ class _HomeScreenState extends State<HomeScreen>
               'Friday, June 13, 2025 3:39 PM IST',
               style: TextStyle(
                 fontSize: 11.sp,
-                color:
-                    isDarkMode
-                        ? AppColors.darkSecondaryText
-                        : AppColors.lightSecondaryText,
+                color: isDarkMode
+                    ? AppColors.darkSecondaryText
+                    : AppColors.lightSecondaryText,
               ),
             ),
             SizedBox(height: 8.h),
@@ -937,10 +897,9 @@ class _HomeScreenState extends State<HomeScreen>
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w500,
-                color:
-                    isDarkMode
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
+                color: isDarkMode
+                    ? AppColors.darkPrimaryText
+                    : AppColors.lightPrimaryText,
               ),
             ),
             SizedBox(height: 8.h),
@@ -954,9 +913,7 @@ class _HomeScreenState extends State<HomeScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    isUptrend
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
+                    isUptrend ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                     color: AppColors.white,
                     size: 16.sp,
                   ),
@@ -986,10 +943,9 @@ class _HomeScreenState extends State<HomeScreen>
           style: TextStyle(
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
-            color:
-                isDarkMode
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+            color: isDarkMode
+                ? AppColors.darkPrimaryText
+                : AppColors.lightPrimaryText,
           ),
         ),
         SizedBox(height: 16.h),
@@ -1007,10 +963,9 @@ class _HomeScreenState extends State<HomeScreen>
       decoration: BoxDecoration(
         color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12.r),
-        border:
-            isDarkMode
-                ? Border.all(color: AppColors.darkBorder, width: 0.5)
-                : null,
+        border: isDarkMode
+            ? Border.all(color: AppColors.darkBorder, width: 0.5)
+            : null,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1021,8 +976,7 @@ class _HomeScreenState extends State<HomeScreen>
                 width: 32.w,
                 height: 32.w,
                 decoration: BoxDecoration(
-                  color:
-                      isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                  color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, size: 18.w, color: AppColors.white),
@@ -1033,10 +987,9 @@ class _HomeScreenState extends State<HomeScreen>
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w500,
-                  color:
-                      isDarkMode
-                          ? AppColors.darkPrimaryText
-                          : AppColors.lightPrimaryText,
+                  color: isDarkMode
+                      ? AppColors.darkPrimaryText
+                      : AppColors.lightPrimaryText,
                 ),
               ),
             ],
@@ -1051,12 +1004,10 @@ class _HomeScreenState extends State<HomeScreen>
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
-              foregroundColor:
-                  isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+              foregroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
               elevation: 0,
               side: BorderSide(
-                color:
-                    isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
               ),
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               shape: RoundedRectangleBorder(
@@ -1068,8 +1019,7 @@ class _HomeScreenState extends State<HomeScreen>
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
-                color:
-                    isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+                color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
               ),
             ),
           ),
@@ -1091,17 +1041,16 @@ class _HomeScreenState extends State<HomeScreen>
             border: Border.all(
               color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
             ),
-            boxShadow:
-                isDarkMode
-                    ? null
-                    : [
-                      BoxShadow(
-                        color: AppColors.lightShadow,
-                        spreadRadius: 1,
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
+            boxShadow: isDarkMode
+                ? null
+                : [
+              BoxShadow(
+                color: AppColors.lightShadow,
+                spreadRadius: 1,
+                blurRadius: 2,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
           child: Column(
             children: [
@@ -1113,8 +1062,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
               Divider(
                 height: 1,
-                color:
-                    isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
               ),
               _buildEventItem(
                 'Terms of Trade QoQ',
@@ -1124,8 +1072,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
               Divider(
                 height: 1,
-                color:
-                    isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
               ),
               _buildEventItem(
                 'Export Prices QoQ',
@@ -1141,19 +1088,18 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildEventItem(
-    String title,
-    String country,
-    String time,
-    bool isDarkMode,
-  ) {
+      String title,
+      String country,
+      String time,
+      bool isDarkMode,
+      ) {
     return Padding(
       padding: EdgeInsets.all(16.r),
       child: Row(
         children: [
           CircleAvatar(
             radius: 16.r,
-            backgroundColor:
-                isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
+            backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
             child: Text(
               country,
               style: TextStyle(
@@ -1173,10 +1119,9 @@ class _HomeScreenState extends State<HomeScreen>
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
-                    color:
-                        isDarkMode
-                            ? AppColors.darkPrimaryText
-                            : AppColors.lightPrimaryText,
+                    color: isDarkMode
+                        ? AppColors.darkPrimaryText
+                        : AppColors.lightPrimaryText,
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -1186,27 +1131,25 @@ class _HomeScreenState extends State<HomeScreen>
                       country,
                       style: TextStyle(
                         fontSize: 12.sp,
-                        color:
-                            isDarkMode
-                                ? AppColors.darkSecondaryText
-                                : AppColors.lightSecondaryText,
+                        color: isDarkMode
+                            ? AppColors.darkSecondaryText
+                            : AppColors.lightSecondaryText,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(width: 8.w),
                     ...List.generate(
                       3,
-                      (index) => Container(
+                          (index) => Container(
                         margin: EdgeInsets.only(right: 2.w),
                         width: 4.w,
                         height: 4.w,
                         decoration: BoxDecoration(
-                          color:
-                              index < 2
-                                  ? AppColors.orange
-                                  : (isDarkMode
-                                      ? AppColors.darkSecondaryText
-                                      : AppColors.lightSecondaryText),
+                          color: index < 2
+                              ? AppColors.orange
+                              : (isDarkMode
+                              ? AppColors.darkSecondaryText
+                              : AppColors.lightSecondaryText),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -1216,10 +1159,9 @@ class _HomeScreenState extends State<HomeScreen>
                       time,
                       style: TextStyle(
                         fontSize: 12.sp,
-                        color:
-                            isDarkMode
-                                ? AppColors.darkSecondaryText
-                                : AppColors.lightSecondaryText,
+                        color: isDarkMode
+                            ? AppColors.darkSecondaryText
+                            : AppColors.lightSecondaryText,
                       ),
                     ),
                   ],
@@ -1241,10 +1183,9 @@ class _HomeScreenState extends State<HomeScreen>
           style: TextStyle(
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
-            color:
-                isDarkMode
-                    ? AppColors.darkPrimaryText
-                    : AppColors.lightPrimaryText,
+            color: isDarkMode
+                ? AppColors.darkPrimaryText
+                : AppColors.lightPrimaryText,
           ),
         ),
         SizedBox(height: 16.h),
@@ -1260,10 +1201,9 @@ class _HomeScreenState extends State<HomeScreen>
       decoration: BoxDecoration(
         color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12.r),
-        border:
-            isDarkMode
-                ? Border.all(color: AppColors.darkBorder, width: 0.5)
-                : null,
+        border: isDarkMode
+            ? Border.all(color: AppColors.darkBorder, width: 0.5)
+            : null,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1273,10 +1213,9 @@ class _HomeScreenState extends State<HomeScreen>
               'Always set stop-loss orders to protect your trading position from unexpected market movements.',
               style: TextStyle(
                 fontSize: 14.sp,
-                color:
-                    isDarkMode
-                        ? AppColors.darkSecondaryText
-                        : AppColors.lightSecondaryText,
+                color: isDarkMode
+                    ? AppColors.darkSecondaryText
+                    : AppColors.lightSecondaryText,
               ),
             ),
           ),
@@ -1291,121 +1230,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildTopNewsSection(bool isDarkMode) {
-    return Column(
-      children: [
-        _buildSectionHeader('TOP NEWS', isDarkMode),
-        SizedBox(height: 12.h),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 0.w),
-          child: Column(
-            children: [
-              _buildNewsItem(
-                'Dow Jones Industrial Average struggles under the weight of fresh tr...',
-                '28 minutes ago',
-                Icons.show_chart,
-                isDarkMode,
-              ),
-              SizedBox(height: 12.h),
-              _buildNewsItem(
-                'Ripple price forecast: XRP risks nearly 20% drop if losses extend, targets \$1...',
-                'XRPUSD ↓ 0.17% 1 hour ago',
-                Icons.currency_bitcoin,
-                isDarkMode,
-              ),
-              SizedBox(height: 12.h),
-              _buildNewsItem(
-                'WTI Price Forecast: Oil prices climb on weaker USD, geopolitical tension, WTI...',
-                'USOIL ↑ 1.22% 1 hour ago',
-                Icons.local_gas_station,
-                isDarkMode,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNewsItem(
-    String title,
-    String subtitle,
-    IconData icon,
-    bool isDarkMode,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('News details coming soon!')),
-        );
-      },
-      child: Container(
-        padding: EdgeInsets.all(12.r),
-        decoration: BoxDecoration(
-          color: isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(
-            color: isDarkMode ? AppColors.darkBorder : AppColors.lightBorder,
-          ),
-          boxShadow:
-              isDarkMode
-                  ? null
-                  : [
-                    BoxShadow(
-                      color: AppColors.lightShadow,
-                      spreadRadius: 1,
-                      blurRadius: 2,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50.w,
-              height: 50.w,
-              decoration: BoxDecoration(
-                color:
-                    isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(icon, color: AppColors.orange, size: 24.sp),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: isDarkMode ? AppColors.white : Colors.black,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color:
-                          isDarkMode
-                              ? AppColors.darkSecondary
-                              : AppColors.lightSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSectionHeader(String title, bool isDarkMode) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1413,10 +1237,9 @@ class _HomeScreenState extends State<HomeScreen>
         Text(
           title,
           style: TextStyle(
-            color:
-                isDarkMode
-                    ? AppColors.darkSecondaryText
-                    : AppColors.lightSecondaryText,
+            color: isDarkMode
+                ? AppColors.darkSecondaryText
+                : AppColors.lightSecondaryText,
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
