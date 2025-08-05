@@ -8,6 +8,7 @@ import '../../constant/user_constant.dart';
 import '../../providers/theme_provider.dart';
 import '../../service/apiservice/auth_service.dart';
 import '../base/main_screen.dart';
+import 'forgot_password_screen.dart';
 import 'registation_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -123,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 24.h),
                 _buildLoginButton(isDarkMode),
                 SizedBox(height: 16.h),
-                _buildFingerprintAndForgot(isDarkMode),
+                _buildFingerprintAndForgot(isDarkMode,context),
                // SizedBox(height: 16.h),
             //    _buildDivider(isDarkMode),
                // SizedBox(height: 16.h),
@@ -246,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildFingerprintAndForgot(bool isDarkMode) {
+  Widget _buildFingerprintAndForgot(bool isDarkMode, BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -279,17 +280,9 @@ class _LoginScreenState extends State<LoginScreen> {
         SizedBox(width: 8.w),
         TextButton(
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Forgot password functionality coming soon!',
-                  style: TextStyle(
-                    color: isDarkMode
-                        ? AppColors.darkPrimaryText
-                        : AppColors.lightPrimaryText,
-                  ),
-                ),
-              ),
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
             );
           },
           child: Text(
