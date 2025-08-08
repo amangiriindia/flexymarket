@@ -5,6 +5,7 @@ import '../../constant/app_color.dart';
 import '../../providers/theme_provider.dart';
 import '../../service/apiservice/meta_trade_service.dart';
 import '../../widget/common/common_app_bar.dart';
+import '../../widget/common/main_app_bar.dart';
 import 'create_meta_trade_screen.dart';
 import 'meta_deposit_screen.dart';
 import 'meta_withdraw_screen.dart';
@@ -134,7 +135,7 @@ class _MetaTradeListScreenState extends State<MetaTradeListScreen> with SingleTi
 
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: CommonAppBar(
+      appBar: MainAppBar(
         title: 'MT5 Accounts',
         showBackButton: true,
         onBackPressed: () {

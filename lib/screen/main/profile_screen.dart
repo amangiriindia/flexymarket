@@ -234,11 +234,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               CircleAvatar(
                 radius: 30.r,
                 backgroundColor: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-                child: CircleAvatar(
-                  radius: 28.r,
-                  backgroundImage: const NetworkImage("https://i.pravatar.cc/150?img=7"),
+                child: Icon(
+                  Icons.person,
+                  size: 30.sp,
+                  color: AppColors.white,
                 ),
               ),
+
               SizedBox(width: 16.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

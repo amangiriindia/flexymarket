@@ -8,6 +8,7 @@ import '../main/home_screen.dart';
 import '../main/profile_screen.dart';
 import '../main/trade_screen.dart';
 import '../main/wallet_screen.dart';
+import '../metatrade/meta_trade_list_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -23,14 +24,14 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     // const TradeScreen(),
     // const CommunityScreen(),
+    MetaTradeListScreen(),
     const WalletScreen(),
     const ProfileScreen(),
   ];
 
   final List<Map<String, dynamic>> _navItems = [
     {'icon': Icons.home, 'label': 'Home'},
-   // {'icon': Icons.bar_chart, 'label': 'Trade'},
-    //{'icon': Icons.group, 'label': 'Community'},
+    {'icon': Icons.stacked_line_chart, 'label': 'MT5'},
     {'icon': Icons.account_balance_wallet, 'label': 'Wallet'},
     {'icon': Icons.person, 'label': 'Profile'},
   ];
