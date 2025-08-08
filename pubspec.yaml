@@ -23,6 +23,7 @@ dependencies:
   image_picker: ^1.1.2
   web_socket_channel: ^3.0.3
   socket_io_client: ^3.1.2
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
@@ -39,6 +40,23 @@ flutter:
     - assets/images/community1.png
     - assets/images/splash.png
     - assets/images/logo.png
+    - assets/images/logo_dark.png
+
+  fonts:
+    - family: TomatoGrotesk
+      fonts:
+        - asset: assets/font/TomatoGrotesk-LightSlanted.otf
+          weight: 300
+          style: italic
+        - asset: assets/font/TomatoGrotesk-Medium.otf
+          weight: 500
+        - asset: assets/font/TomatoGrotesk-SemiBold.otf
+          weight: 600
+        - asset: assets/font/TomatoGrotesk-SemiBoldSlanted.otf
+          weight: 600
+          style: italic
+        - asset: assets/font/TomatoGrotesk-Slanted.otf
+          style: italic
 
 # Configuration for flutter_launcher_icons to generate app icons
 flutter_icons:

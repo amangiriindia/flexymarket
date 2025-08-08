@@ -16,38 +16,31 @@ class _FAQSectionState extends State<FAQSection> {
 
   final List<FAQItem> faqItems = [
     FAQItem(
-      question: 'What is MT5 and how does it work?',
-      answer: 'MetaTrader 5 (MT5) is a multi-asset trading platform that allows you to trade Forex, stocks, commodities, indices, and cryptocurrencies. It offers advanced charting tools, technical indicators, and automated trading capabilities.',
+      question: 'Why should I trade with Flexy Markets?',
+      answer: 'Because we make trading simple, smooth, and rewarding. No complicated processes, just a great experience you can rely on.',
     ),
     FAQItem(
-      question: 'How do I deposit funds into my trading account?',
-      answer: 'You can deposit funds through various methods including bank transfer, credit/debit cards, and e-wallets. Go to the Deposit section from the home screen and choose your preferred payment method.',
+      question: 'Are there any extra or hidden charges?',
+      answer: 'No. What you see is exactly what you get. Your earnings are yours to keep.',
     ),
     FAQItem(
-      question: 'What are the minimum deposit requirements?',
-      answer: 'The minimum deposit varies by account type. Standard accounts typically require a minimum of \$100, while premium accounts may have higher requirements. Check your account details for specific limits.',
+      question: 'How fast can I get my money after withdrawal?',
+      answer: 'Your money is always your right. We process withdrawals instantly so you’re never left waiting.',
     ),
     FAQItem(
-      question: 'How do I enable two-factor authentication (2FA)?',
-      answer: 'Go to Settings > Security > Two-Factor Authentication. Follow the setup process using an authenticator app like Google Authenticator or Authy to secure your account with an additional layer of protection.',
+      question: 'Is my money safe with Flexy Markets?',
+      answer: 'Absolutely. We use the same advanced security systems trusted by global banks to protect your funds and personal details.',
     ),
     FAQItem(
-      question: 'What trading instruments are available?',
-      answer: 'Our platform offers a wide range of instruments including major and minor currency pairs, stocks, commodities like gold and oil, stock indices, and popular cryptocurrencies like Bitcoin and Ethereum.',
+      question: 'Can I get help anytime I need it?',
+      answer: 'Yes. Our support team is available 24/7 — real people, real solutions, whenever you need them.',
     ),
     FAQItem(
-      question: 'How do I withdraw my profits?',
-      answer: 'Withdrawals can be made through the same method you used for deposits. Go to your account dashboard, select withdrawal, choose the amount and method. Processing times vary from 1-5 business days depending on the method.',
-    ),
-    FAQItem(
-      question: 'What is the difference between Demo and Live accounts?',
-      answer: 'Demo accounts use virtual money for practice trading without any financial risk, while Live accounts use real money for actual trading. Demo accounts are perfect for learning and testing strategies.',
-    ),
-    FAQItem(
-      question: 'How can I contact customer support?',
-      answer: 'Our customer support is available 24/5 through live chat, email, and phone. You can also access our help center and submit support tickets through the app or website.',
+      question: 'Is Flexy Markets a regulated broker?',
+      answer: 'Yes. We are licensed and regulated by trusted authorities, so you can trade with complete peace of mind.',
     ),
   ];
+
 
   @override
   Widget build(BuildContext context) {

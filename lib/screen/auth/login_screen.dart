@@ -143,21 +143,14 @@ class _LoginScreenState extends State<LoginScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          FontAwesomeIcons.chartLine,
-          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-          size: 28.sp,
+        Image.asset(
+          'assets/images/logo.png',
+          width: 150.w,
+          height: 100.h,
+          fit: BoxFit.contain,
+          semanticLabel: 'App Logo',
         ),
-        SizedBox(width: 8.w),
-        Text(
-          'Flexy Markets',
-          style: TextStyle(
-            color:
-            isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+
       ],
     );
   }

@@ -216,19 +216,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.trending_up,
-          color: isDarkMode ? AppColors.darkAccent : AppColors.lightAccent,
-          size: 28.sp,
-        ),
-        SizedBox(width: 8.w),
-        Text(
-          'Flexy Markets',
-          style: TextStyle(
-            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-          ),
+        Image.asset(
+          'assets/images/logo.png',
+          width: 150.w,
+          height: 100.h,
+          fit: BoxFit.contain,
+          semanticLabel: 'App Logo',
         ),
       ],
     );

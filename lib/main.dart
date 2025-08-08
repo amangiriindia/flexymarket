@@ -35,11 +35,11 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  // Light theme using AppColors
+  // Light theme using AppColors and TomatoGrotesk font
   ThemeData get _lightTheme => ThemeData(
     primaryColor: AppColors.lightAccent,
     scaffoldBackgroundColor: AppColors.lightBackground,
-    fontFamily: 'Roboto',
+    fontFamily: 'TomatoGrotesk', // ✅ Global font set here
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.lightSurface,
       foregroundColor: AppColors.lightPrimaryText,
@@ -61,11 +61,11 @@ class MyApp extends StatelessWidget {
     ),
   );
 
-  // Dark theme using AppColors
+  // Dark theme using AppColors and TomatoGrotesk font
   ThemeData get _darkTheme => ThemeData(
     primaryColor: AppColors.darkAccent,
     scaffoldBackgroundColor: AppColors.darkBackground,
-    fontFamily: 'Roboto',
+    fontFamily: 'TomatoGrotesk', // ✅ Global font set here
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.darkSurface,
       foregroundColor: AppColors.darkPrimaryText,

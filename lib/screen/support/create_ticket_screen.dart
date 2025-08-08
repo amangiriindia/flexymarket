@@ -103,7 +103,7 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
         showBackButton: true,
         onBackPressed: () {
           Navigator.pop(context);
-          _showSnackBar('Returning to My Tickets', AppColors.green);
+
         },
       ),
       body: Stack(
@@ -241,7 +241,7 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
                             )
                                 : Text(
                               'Submit',
-                              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+                              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600,color: AppColors.white),
                               semanticsLabel: 'Submit Ticket',
                             ),
                           ),

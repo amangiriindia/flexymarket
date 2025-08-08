@@ -392,7 +392,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'MT5 Platform Features',
+          'Flexy Markets Platform Features',
           style: TextStyle(
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
@@ -402,29 +402,57 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ),
         SizedBox(height: 16.h),
+
         _buildFeatureCard(
-          'Advanced Charting',
-          'Access professional charting tools with 80+ technical indicators and analytical objects.',
-          Icons.bar_chart,
+          'Low Spread',
+          'Trade with competitive spreads for maximum profit potential.',
+          Icons.trending_down,
           isDarkMode,
         ),
         SizedBox(height: 12.h),
+
         _buildFeatureCard(
-          'One-Click Trading',
-          'Execute trades instantly with one-click trading directly from charts.',
-          Icons.touch_app,
+          '0 Hidden Fees',
+          'No extra charges — keep what you earn.',
+          Icons.money_off,
           isDarkMode,
         ),
         SizedBox(height: 12.h),
+
         _buildFeatureCard(
-          'Multi-Asset Trading',
-          'Trade Forex, Stocks, Commodities, Indices, and Cryptocurrencies from one platform.',
-          Icons.trending_up,
+          'Instant Withdrawal',
+          'Get your funds quickly without delays.',
+          Icons.flash_on,
+          isDarkMode,
+        ),
+        SizedBox(height: 12.h),
+
+        _buildFeatureCard(
+          'Bank-Grade Security',
+          'Your money and data are protected with top-level encryption.',
+          Icons.security,
+          isDarkMode,
+        ),
+        SizedBox(height: 12.h),
+
+        _buildFeatureCard(
+          '24/7 Real-Time Support',
+          'Expert assistance anytime, anywhere.',
+          Icons.support_agent,
+          isDarkMode,
+        ),
+        SizedBox(height: 12.h),
+
+        _buildFeatureCard(
+          'FCA/CySEC Regulated',
+          'Trusted and compliant with top financial authorities.',
+          Icons.verified,
           isDarkMode,
         ),
       ],
     );
   }
+
 
   Widget _buildFeatureCard(
       String title,

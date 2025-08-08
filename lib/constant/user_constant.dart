@@ -13,6 +13,7 @@ class UserConstants {
   static const String KYC_STATUS_KEY = 'kycStatus';
   static const String TWO_FA_STATUS_KEY = 'twoFAStatus';
   static const String IS_IB_KEY = 'isIbStatus';
+  static const String PROFILE_IMAGE_KEY = 'profileImage';
 
   // Default values
   static const String DEFAULT_NAME = "";
@@ -23,6 +24,7 @@ class UserConstants {
   static const String DEFAULT_KYC_STATUS = "";
   static const String DEFAULT_TWO_FA_STATUS = "";
   static const String DEFAULT_IS_IB_STATUS = "";
+  static const String DEFAULT_PROFILE_IMAGE_STATUS = "";
 
   // Static variables
   static String? TOKEN;
@@ -36,6 +38,8 @@ class UserConstants {
   static String KYC_STATUS = DEFAULT_KYC_STATUS;
   static String TWO_FA_STATUS = DEFAULT_TWO_FA_STATUS;
   static String IS_IB_STATUS = DEFAULT_IS_IB_STATUS;
+  static String PROFILE_IMAGE_URL = DEFAULT_PROFILE_IMAGE_STATUS;
+
 
   // Method to load user data from SharedPreferences into static variables
   static Future<void> loadUserData() async {
@@ -53,6 +57,7 @@ class UserConstants {
     KYC_STATUS = prefs.getString(KYC_STATUS_KEY) ?? DEFAULT_KYC_STATUS;
     TWO_FA_STATUS = prefs.getString(TWO_FA_STATUS_KEY) ?? DEFAULT_TWO_FA_STATUS;
     IS_IB_STATUS = prefs.getString(IS_IB_KEY) ?? DEFAULT_IS_IB_STATUS;
+    PROFILE_IMAGE_URL = prefs.getString(PROFILE_IMAGE_KEY) ?? DEFAULT_PROFILE_IMAGE_STATUS;
   }
 
   // Method to store user data to SharedPreferences
@@ -77,6 +82,8 @@ class UserConstants {
         TWO_FA_STATUS_KEY, userData['isMfaAdded'].toString() ?? DEFAULT_TWO_FA_STATUS);
     await prefs.setString(
         IS_IB_KEY, userData['isIb'].toString() ?? DEFAULT_IS_IB_STATUS);
+    await prefs.setString(
+        PROFILE_IMAGE_KEY, userData['profileImage'].toString() ?? DEFAULT_PROFILE_IMAGE_STATUS);
 
     // Reload data into static variables
     await loadUserData();

@@ -25,23 +25,29 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     final isDarkMode = themeProvider.isDarkMode;
 
     return AppBar(
-      backgroundColor: isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+      backgroundColor:
+      isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
       elevation: 0,
-       leading: Padding(
-    padding: EdgeInsets.only(left: 16.w, top: 8.h, bottom: 8.h),
-    child: Image.asset(
-    'assets/images/logo.png',
-    width: 150.w,
-    height: 100.h,
-    fit: BoxFit.contain,
-    semanticLabel: 'App Logo',
-    ),
-    ),
-
-    title: Text(
+      toolbarHeight: 50.h,
+      leadingWidth: 80.w,
+      leading: Padding(
+        padding: EdgeInsets.only(left: 16.w),
+        child: Image.asset(
+          isDarkMode
+              ? 'assets/images/logo_dark.png' // ✅ Dark mode logo
+              : 'assets/images/logo.png',      // ✅ Light mode logo
+          width: 80.w,
+          height: 50.h,
+          fit: BoxFit.contain,
+          semanticLabel: 'App Logo',
+        ),
+      ),
+      title: Text(
         title,
         style: TextStyle(
-          color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+          color: isDarkMode
+              ? AppColors.darkPrimaryText
+              : AppColors.lightPrimaryText,
           fontSize: 24.sp,
           fontWeight: FontWeight.bold,
         ),
@@ -51,8 +57,10 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             isDarkMode ? Icons.light_mode : Icons.dark_mode,
-            size: 24.sp,
-            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            size: 28.sp,
+            color: isDarkMode
+                ? AppColors.darkPrimaryText
+                : AppColors.lightPrimaryText,
             semanticLabel: 'Toggle Theme',
           ),
           onPressed: () {
@@ -62,8 +70,10 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             Icons.notifications_outlined,
-            size: 24.sp,
-            color: isDarkMode ? AppColors.darkPrimaryText : AppColors.lightPrimaryText,
+            size: 28.sp,
+            color: isDarkMode
+                ? AppColors.darkPrimaryText
+                : AppColors.lightPrimaryText,
             semanticLabel: 'Notifications',
           ),
           onPressed: () {
@@ -78,5 +88,5 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(50.h);
 }

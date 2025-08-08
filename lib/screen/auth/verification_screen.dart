@@ -416,6 +416,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
+              color:  AppColors.white
             ),
           ),
         ),

@@ -374,4 +374,50 @@ class UserService {
     }
   }
 
+
+  Future<Map<String, dynamic>> updateProfileImage({
+    required File image,
+  }) async {
+    try {
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse('$_baseUrl/user/update/profile-img'),
+      );
+      request.headers['Authorization'] = UserConstants.TOKEN ?? '';
+      request.headers['Content-Type'] = 'multipart/form-data';
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          image.path,
+          contentType: MediaType('image', 'png'),
+        ),
+      );
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      final responseData = json.decode(response.body);
+      print(response.body);
+      print(response.statusCode);
+      await checkValidUser(response.statusCode);
+      if (response.statusCode == 200 && responseData['status'] == true) {
+        return {
+          'success': true,
+          'message': responseData['message'],
+          'data': responseData['data'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': responseData['message'] ?? 'Failed to update profile image',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error: ${e.toString()}',
+      };
+    }
+  }
+
+
 }
